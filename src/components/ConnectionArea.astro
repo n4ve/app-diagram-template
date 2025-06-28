@@ -1,0 +1,39 @@
+<div class="connection-area flex flex-col items-center justify-center relative">
+    <!-- Remove the central connection UI -->
+</div>
+
+<script type="module">
+console.log('ConnectionArea script loading...');
+
+// Load modules dynamically to handle any import issues
+async function loadDiagramModules() {
+    try {
+        console.log('Loading DiagramController...');
+        const { DiagramController } = await import('/scripts/components/connection-area/DiagramController.js');
+        
+        console.log('DiagramController loaded, initializing...');
+        const diagramController = new DiagramController();
+        
+        const success = await diagramController.initialize();
+        if (success) {
+            console.log('✅ Diagram initialized successfully');
+            window.diagramController = diagramController;
+        } else {
+            console.error('❌ Failed to initialize diagram');
+        }
+    } catch (error) {
+        console.error('❌ Error loading diagram modules:', error);
+        console.error('Error details:', error.message);
+        console.error('Stack:', error.stack);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, waiting for elements...');
+    
+    // Wait for all elements to be rendered
+    setTimeout(() => {
+        loadDiagramModules();
+    }, 500);
+});
+</script>

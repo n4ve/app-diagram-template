@@ -1,0 +1,65 @@
+---
+const { pageId, page } = Astro.props;
+---
+
+<div 
+  class="page-card bg-white rounded-xl p-5 shadow-lg border-l-4 border-l-blue-500 cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
+  data-page={pageId}
+  data-apis={JSON.stringify(page.apis || [])}
+>
+  <!-- Screenshot Placeholder -->
+  <div class="w-full h-32 rounded-lg mb-4 border-2 border-gray-200 overflow-hidden bg-gray-50">
+    <div class="w-full h-full flex flex-col items-center justify-center text-gray-400">
+      <div class="text-2xl mb-1">📱</div>
+      <div class="text-xs">No Screenshot</div>
+    </div>
+  </div>
+  
+  <h3 class="text-lg font-semibold text-gray-800 mb-2">{page.name}</h3>
+  <p class="text-gray-600 text-sm mb-3">{page.description}</p>
+  
+  <!-- APIs List -->
+  <div class="space-y-2">
+    {(page.apis || []).map(api => {
+      // API format: "server-name:METHOD /path"
+      const [serverName, apiPath] = api.split(':');
+      const [method, ...pathParts] = apiPath.trim().split(' ');
+      const path = pathParts.join(' ');
+      const fullApiText = `${method} ${path}`;
+      
+      return (
+        <div 
+          class="api-item px-3 py-2 bg-gray-100 rounded-lg text-sm border-l-2 border-l-gray-400 transition-all duration-300" 
+          data-server-id={serverName}
+          data-api-text={fullApiText}
+          data-full-api={api}
+        >
+          <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-2">
+              <span class={`px-2 py-1 text-xs font-semibold rounded ${
+                method === 'GET' ? 'bg-green-100 text-green-800' :
+                method === 'POST' ? 'bg-blue-100 text-blue-800' :
+                method === 'PUT' ? 'bg-yellow-100 text-yellow-800' :
+                method === 'DELETE' ? 'bg-red-100 text-red-800' :
+                method === 'PATCH' ? 'bg-purple-100 text-purple-800' :
+                'bg-gray-100 text-gray-800'
+              }`}>
+                {method}
+              </span>
+              <span class="font-mono text-gray-700">{path}</span>
+            </div>
+            <div class="text-xs text-gray-500">
+              📡 {serverName}
+            </div>
+          </div>
+          <!-- Hidden text for JavaScript matching -->
+          <span class="sr-only">{fullApiText}</span>
+        </div>
+      );
+    })}
+  </div>
+  
+  <div class="mt-3 text-xs text-gray-500">
+    {(page.apis || []).length} APIs
+  </div>
+</div>

@@ -1,0 +1,80 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import ArchitectureDiagram from '../components/ArchitectureDiagram.astro';
+import pagesData from '../data/pages.json';
+import serversData from '../data/servers.json';
+
+const stats = {
+  totalPages: Object.keys(pagesData).length,
+  totalServers: Object.keys(serversData).length,
+  totalAPIs: Object.values(serversData).reduce((sum, server) => sum + server.apis.length, 0)
+};
+---
+
+<Layout title="API Architecture Diagram">
+  <main class="p-5">
+    <div class="max-w-7xl mx-auto bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden">
+      <Header />
+      
+      <div class="p-8">
+        <ArchitectureDiagram pages={pagesData} servers={serversData} />
+        
+        <!-- Statistics -->
+        <div class="grid grid-cols-3 gap-6 mt-8">
+          <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl text-center">
+            <h3 class="text-3xl font-bold">{stats.totalPages}</h3>
+            <p class="opacity-90">หน้าจอทั้งหมด</p>
+          </div>
+          <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-xl text-center">
+            <h3 class="text-3xl font-bold">{stats.totalAPIs}</h3>
+            <p class="opacity-90">API ทั้งหมด</p>
+          </div>
+          <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-xl text-center">
+            <h3 class="text-3xl font-bold">{stats.totalServers}</h3>
+            <p class="opacity-90">Servers</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  // Simple interaction script
+  document.addEventListener('DOMContentLoaded', () => {
+    const pageCards = document.querySelectorAll('.page-card');
+    const apiItems = document.querySelectorAll('.api-item');
+    
+    pageCards.forEach(pageCard => {
+      const apis = JSON.parse(pageCard.dataset.apis || '[]');
+      
+      pageCard.addEventListener('mouseenter', () => {
+        pageCard.classList.add('active');
+        apiItems.forEach(item => {
+          if (apis.includes(item.textContent.trim())) {
+            item.classList.add('highlighted');
+          }
+        });
+      });
+      
+      pageCard.addEventListener('mouseleave', () => {
+        pageCard.classList.remove('active');
+        apiItems.forEach(item => item.classList.remove('highlighted'));
+      });
+    });
+  });
+</script>
+
+<style>
+  .page-card.active {
+    border-left-color: #ef4444;
+    background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
+  }
+  
+  .api-item.highlighted {
+    background-color: #fef3cd !important;
+    border-left-color: #f59e0b !important;
+    transform: scale(1.02);
+  }
+</style>

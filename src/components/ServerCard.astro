@@ -1,0 +1,31 @@
+---
+const { serverId, server } = Astro.props;
+---
+
+<div class="server-card bg-white rounded-xl p-5 shadow-lg border-l-4 border-l-green-500 transition-all duration-300 hover:shadow-xl hover:-translate-y-2" data-server={serverId}>
+  <h3 class="text-lg font-semibold text-gray-800 mb-2">{server.name}</h3>
+  <p class="text-gray-600 text-sm mb-3">{server.description}</p>
+  
+  <div class="inline-block bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium mb-3">
+    {(server.apis || []).length} APIs
+  </div>
+  
+  <div class="space-y-2">
+    {(server.apis || []).slice(0, 4).map(api => (
+      <div 
+        class="api-item px-3 py-2 bg-gray-100 rounded-lg text-sm border-l-2 border-l-gray-400 transition-all duration-300" 
+        data-api={`${serverId}:${api}`}
+        data-full-api={`${serverId}:${api}`}
+        data-server-id={serverId}
+        data-api-text={api}
+      >
+        {api}
+      </div>
+    ))}
+    {(server.apis || []).length > 4 && (
+      <div class="px-3 py-2 bg-gray-50 rounded-lg text-sm text-gray-500">
+        +{(server.apis || []).length - 4} more APIs
+      </div>
+    )}
+  </div>
+</div>

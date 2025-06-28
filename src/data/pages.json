@@ -1,0 +1,41 @@
+{
+    "login": {
+      "name": "Login Page",
+      "description": "หน้าเข้าสู่ระบบสำหรับผู้ใช้งาน",
+      "apis": [
+        "auth-server:POST /auth/login", 
+        "auth-server:GET /auth/validate", 
+        "auth-server:POST /auth/forgot-password",
+        "payment-server:GET /payment/status"
+      ]
+    },
+    "dashboard": {
+      "name": "Dashboard",
+      "description": "หน้าแดชบอร์ดหลักแสดงข้อมูลสรุป",
+      "apis": [
+        "user-server:GET /user/profile", 
+        "analytics-server:GET /analytics/summary", 
+        "notification-server:GET /notifications/recent"
+      ]
+    },
+    "products": {
+      "name": "Products Management",
+      "description": "หน้าจัดการสินค้าและคลังสินค้า",
+      "apis": [
+        "product-server:GET /products/list", 
+        "product-server:POST /products/create", 
+        "product-server:PUT /products/update", 
+        "product-server:DELETE /products/delete"
+      ]
+    },
+    "orders": {
+      "name": "Orders Management",
+      "description": "หน้าจัดการคำสั่งซื้อและการชำระเงิน",
+      "apis": [
+        "order-server:GET /orders/list", 
+        "order-server:GET /orders/details", 
+        "order-server:PUT /orders/status", 
+        "payment-server:GET /payment/status"
+      ]
+    }
+}
