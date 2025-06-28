@@ -1,9 +1,10 @@
 ---
 import PageCard from './PageCard.astro';
 import ServerCard from './ServerCard.astro';
+import BackendCard from './BackendCard.astro';
 import ConnectionArea from './ConnectionArea.astro';
 
-const { pages, servers } = Astro.props;
+const { pages, servers, backends } = Astro.props;
 ---
 
 <section class="bg-gray-50 rounded-2xl p-4 sm:p-8 mb-6 sm:mb-8 relative">
@@ -38,7 +39,7 @@ const { pages, servers } = Astro.props;
         <!-- Lines will be drawn here -->
     </svg>
     
-    <div id="diagram-content" class="flex flex-col lg:flex-row gap-4 lg:gap-8 p-4 lg:p-8 transition-transform duration-150 ease-out" style="transform: translate(0px, 0px) scale(1); width: 100%; min-width: 100%;">
+    <div id="diagram-content" class="flex flex-col lg:flex-row gap-4 lg:gap-6 p-4 lg:p-8 transition-transform duration-150 ease-out" style="transform: translate(0px, 0px) scale(1); width: 100%; min-width: 300%;">
       <!-- Frontend Pages Column -->
       <div class="w-full lg:flex-1 min-w-0">
         <h3 class="text-xl font-semibold text-gray-800 text-center mb-6 sticky top-0 bg-white/90 backdrop-blur-sm py-2 rounded-lg">📱 Frontend Pages</h3>
@@ -50,7 +51,7 @@ const { pages, servers } = Astro.props;
       </div>
 
       <!-- Connection Area -->
-      <div class="hidden lg:flex flex-shrink-0 w-64 items-center justify-center">
+      <div class="hidden lg:flex flex-shrink-0 w-48 items-center justify-center">
         <ConnectionArea />
       </div>
 
@@ -60,6 +61,16 @@ const { pages, servers } = Astro.props;
         <div class="servers-grid">
           {Object.entries(servers).map(([serverId, server]) => (
             <ServerCard serverId={serverId} server={server} />
+          ))}
+        </div>
+      </div>
+
+      <!-- Backend Services Column -->
+      <div class="w-full lg:flex-1 min-w-0">
+        <h3 class="text-xl font-semibold text-gray-800 text-center mb-6 sticky top-0 bg-white/90 backdrop-blur-sm py-2 rounded-lg">💾 Backend Services</h3>
+        <div class="backends-grid space-y-6">
+          {Object.entries(backends).map(([backendId, backend]) => (
+            <BackendCard backendId={backendId} backend={backend} />
           ))}
         </div>
       </div>
@@ -407,8 +418,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /* Content styles */
 #diagram-content {
-    width: 100% !important;
-    min-width: 100% !important;
+    width: 300% !important;
+    min-width: 300% !important;
     min-height: 100%;
     padding: 1rem;
     box-sizing: border-box;
@@ -473,15 +484,18 @@ document.addEventListener('DOMContentLoaded', function() {
         justify-content: space-between;
     }
     
-    #diagram-content > div {
+    #diagram-content > div:first-child,
+    #diagram-content > div:nth-child(3),
+    #diagram-content > div:last-child {
         flex: 1;
         min-width: 0;
-        max-width: calc(50% - 2rem);
+        max-width: calc(30% - 1rem);
     }
     
     #diagram-content > div:nth-child(2) {
         flex: 0 0 auto;
-        max-width: 16rem;
+        max-width: 12rem;
+        width: 12rem;
     }
 }
 </style>

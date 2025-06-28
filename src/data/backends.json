@@ -1,0 +1,22 @@
+{
+    "mysql-db": {
+      "name": "MySQL Database",
+      "description": "Primary relational database for user data and transactions"
+    },
+    "redis-cache": {
+      "name": "Redis Cache",
+      "description": "In-memory cache for session management and quick data access"
+    },
+    "mongodb": {
+      "name": "MongoDB",
+      "description": "Document database for analytics and product catalog"
+    },
+    "elasticsearch": {
+      "name": "Elasticsearch",
+      "description": "Search engine for product discovery and logging"
+    },
+    "rabbitmq": {
+      "name": "RabbitMQ",
+      "description": "Message queue for notification and event processing"
+    }
+}

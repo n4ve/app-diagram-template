@@ -1,0 +1,24 @@
+---
+const { backendId, backend } = Astro.props;
+---
+
+<div 
+  class="backend-card bg-gradient-to-br from-gray-50 to-slate-100 border-2 border-gray-300 rounded-lg p-4 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer mx-auto"
+  data-backend={backendId}
+  style="max-width: 250px;"
+>
+  <div class="flex items-center justify-between mb-2">
+    <div class="flex items-center space-x-1">
+      <div class="w-2 h-2 bg-gray-600 rounded-full animate-pulse"></div>
+      <span class="text-xs font-medium text-gray-700 uppercase tracking-wide">Backend</span>
+    </div>
+    <div class="text-gray-600">
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/>
+      </svg>
+    </div>
+  </div>
+  
+  <h4 class="text-lg font-bold text-gray-800 mb-2">{backend.name}</h4>
+  <p class="text-sm text-gray-600">{backend.description}</p>
+</div>

@@ -2,7 +2,7 @@
 const { serverId, server } = Astro.props;
 ---
 
-<div class="server-card bg-white rounded-xl p-5 shadow-lg border-l-4 border-l-green-500 transition-all duration-300 hover:shadow-xl hover:-translate-y-2" data-server={serverId}>
+<div class="server-card bg-white rounded-xl p-5 shadow-lg border-l-4 border-l-green-500 transition-all duration-300 hover:shadow-xl hover:-translate-y-2" data-server={serverId} data-backend={server.backend}>
   <h3 class="text-lg font-semibold text-gray-800 mb-2">{server.name}</h3>
   <p class="text-gray-600 text-sm mb-3">{server.description}</p>
   

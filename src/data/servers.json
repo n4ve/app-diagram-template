@@ -2,6 +2,7 @@
     "auth-server": {
       "name": "Authentication Server",
       "description": "จัดการการยืนยันตัวตนและความปลอดภัย",
+      "backend": "mysql-db",
       "apis": [
         "POST /auth/login", 
         "GET /auth/validate", 
@@ -14,6 +15,7 @@
     "order-server": {
       "name": "Order Management Server",
       "description": "จัดการคำสั่งซื้อและสถานะ",
+      "backend": "mysql-db",
       "apis": [
         "GET /orders/list", 
         "GET /orders/details", 
@@ -24,6 +26,7 @@
     "user-server": {
       "name": "User Management Server", 
       "description": "จัดการข้อมูลผู้ใช้และการตั้งค่า",
+      "backend": "redis-cache",
       "apis": [
         "GET /user/profile", 
         "PUT /user/profile", 
@@ -34,6 +37,7 @@
     "analytics-server": {
       "name": "Analytics Server",
       "description": "จัดการข้อมูลการวิเคราะห์และรายงาน",
+      "backend": "mongodb",
       "apis": [
         "GET /analytics/summary", 
         "GET /analytics/reports", 
@@ -43,6 +47,7 @@
     "notification-server": {
       "name": "Notification Server",
       "description": "จัดการการแจ้งเตือนและข้อความ",
+      "backend": "rabbitmq",
       "apis": [
         "GET /notifications/recent", 
         "POST /notifications/mark-read", 
@@ -52,6 +57,7 @@
     "product-server": {
       "name": "Product Management Server",
       "description": "จัดการสินค้าและคลังสินค้า",
+      "backend": "elasticsearch",
       "apis": [
         "GET /products/list", 
         "POST /products/create", 
@@ -63,6 +69,7 @@
     "payment-server": {
       "name": "Payment Server",
       "description": "จัดการการชำระเงินและธุรกรรม",
+      "backend": "mysql-db",
       "apis": [
         "GET /payment/status", 
         "POST /payment/process", 

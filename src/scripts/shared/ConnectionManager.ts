@@ -171,5 +171,21 @@ export class ConnectionManager implements IConnectionManager {
                 }
             });
         });
+
+        // Draw server-to-backend connections for all active servers
+        activeServerCards.forEach(serverCard => {
+            const hasBackend = serverCard.dataset.backend;
+            if (hasBackend) {
+                const backendCard = document.querySelector(`[data-backend="${hasBackend}"]`) as HTMLElement;
+                if (backendCard) {
+                    const serverToBackendLine = this.createConnectionLine(serverCard, backendCard, '#6b7280', 'DB');
+                    if (serverToBackendLine && this.connectionSvg) {
+                        serverToBackendLine.setAttribute('stroke-width', '3');
+                        serverToBackendLine.setAttribute('opacity', '0.7');
+                        this.connectionSvg.appendChild(serverToBackendLine);
+                    }
+                }
+            }
+        });
     }
 }
