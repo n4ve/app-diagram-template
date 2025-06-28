@@ -1,0 +1,43 @@
+/* Reusable component styles */
+@layer components {
+  .card {
+    @apply bg-white rounded-xl shadow-lg transition-all duration-300;
+  }
+  
+  .card:hover {
+    @apply shadow-xl -translate-y-2;
+  }
+  
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+  }
+  
+  .btn-primary {
+    @apply bg-blue-500 text-white hover:bg-blue-600;
+  }
+}
+
+/* API items styling */
+.api-item {
+  margin: 0.25rem 0;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+}
+
+.api-item:hover {
+  background-color: #F3F4F6;
+  border-left-color: #3B82F6;
+  transform: translateX(4px);
+}
+
+.api-item.highlighted {
+  background-color: #FEF3CD !important;
+  border-left-color: #F59E0B !important;
+  transform: scale(1.05) translateX(6px) !important;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4) !important;
+  border: 2px solid #f59e0b !important;
+  z-index: 50 !important;
+  position: relative !important;
+}

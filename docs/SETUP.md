@@ -50,6 +50,7 @@ npm run dev
 
 # Type checking
 npm run astro check
+npm run type-check
 
 # Build for production
 npm run build

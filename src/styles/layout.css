@@ -1,0 +1,101 @@
+/* Layout and grid styles */
+
+/* Layout container to prevent overlapping */
+.diagram-container {
+  position: relative;
+  min-height: 100vh;
+  padding: 2rem 0;
+}
+
+.pages-section {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 4rem;
+}
+
+.servers-section {
+  position: relative;
+  z-index: 1;
+  margin-top: 4rem;
+}
+
+/* Responsive grid layout - maximum 5 cards per column */
+.pages-grid {
+  display: grid;
+  grid-template-rows: repeat(5, auto); /* Maximum 5 rows */
+  grid-auto-flow: column; /* Cards flow into columns vertically first */
+  grid-auto-columns: minmax(300px, 1fr); /* Dynamic column width */
+  gap: 1.5rem 2rem;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  width: 100%;
+  justify-items: center;
+  align-items: start;
+}
+
+/* Simple multi-column layout for servers */
+.servers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Auto columns with 350px minimum */
+  gap: 2rem;
+  padding: 1rem;
+  margin-top: 2rem;
+  width: 100%;
+  align-items: start;
+  justify-items: stretch;
+}
+
+/* Large desktop screens - 4 columns max */
+@media (min-width: 1400px) {
+  .pages-grid {
+    grid-template-rows: repeat(5, auto);
+    grid-auto-columns: minmax(320px, 1fr);
+    gap: 2rem 2.5rem;
+    max-width: 1280px;
+  }
+  
+  .servers-grid {
+    grid-template-columns: repeat(2, 1fr); /* Keep 2 equal columns on large screens */
+    gap: 3rem;
+  }
+}
+
+/* Medium screens - 2-3 columns */
+@media (min-width: 768px) and (max-width: 1399px) {
+  .pages-grid {
+    grid-template-rows: repeat(4, auto); /* 4 cards per column on medium screens */
+    grid-auto-columns: minmax(300px, 1fr);
+    gap: 1.25rem 1.75rem;
+  }
+  
+  .servers-grid {
+    grid-template-columns: repeat(2, 1fr); /* Keep 2 columns on medium screens */
+    gap: 1.25rem;
+  }
+}
+
+/* Small screens - 1-2 columns */
+@media (max-width: 767px) {
+  .pages-grid {
+    grid-template-rows: repeat(3, auto); /* 3 cards per column on smaller screens */
+    grid-auto-columns: minmax(260px, 1fr);
+    gap: 1rem 1.25rem;
+    padding: 0.5rem;
+  }
+  
+  .servers-grid {
+    grid-template-columns: 1fr; /* Single column on small screens */
+    gap: 1rem;
+    padding: 0.5rem;
+  }
+}
+
+/* Very small screens - single column */
+@media (max-width: 480px) {
+  .pages-grid,
+  .servers-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding: 0.25rem;
+  }
+}

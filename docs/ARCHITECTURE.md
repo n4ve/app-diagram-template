@@ -9,7 +9,7 @@ The Application Architecture Diagram is a sophisticated interactive visualizatio
 ### Core Technologies
 - **⚡ Astro 4.x** - Static site generator with component islands
 - **🎨 Tailwind CSS** - Utility-first CSS framework
-- **📱 JavaScript ES Modules** - Modern module system
+- **🔄 TypeScript** - Type-safe development with ES Modules
 - **🖼️ SVG** - Vector graphics for connections
 - **📊 JSON** - Configuration-driven data
 
@@ -17,7 +17,7 @@ The Application Architecture Diagram is a sophisticated interactive visualizatio
 - **ES Modules support** (Chrome 61+, Firefox 60+, Safari 10.1+)
 - **CSS Grid & Flexbox** support
 - **SVG 2.0** features
-- **JavaScript ES2020** features
+- **TypeScript** and modern JavaScript features
 
 ## 🏗️ Architectural Patterns
 
@@ -91,8 +91,8 @@ JSON Config → Astro Build → DOM → JavaScript → User Interaction → Visu
 - Coordinate all interactions
 
 **Dependencies:**
-- `DiagramController.js` module
-- All shared JavaScript modules
+- `DiagramController.ts` module
+- All shared TypeScript modules
 - DOM elements from other components
 
 ### 📱 PageCard.astro / 🖥️ ServerCard.astro

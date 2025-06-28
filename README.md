@@ -51,7 +51,7 @@ app-diagram/
 ### 📖 Complete Guides
 - **🚀 [Setup Guide](./docs/SETUP.md)** - Installation, configuration, and development setup
 - **🏛️ [Architecture](./docs/ARCHITECTURE.md)** - Technical architecture and design patterns
-- **🔧 [API Reference](./docs/API_REFERENCE.md)** - JavaScript modules and API documentation
+- **🔧 [API Reference](./docs/API_REFERENCE.md)** - TypeScript modules and API documentation
 - **🛠️ [Development](./docs/DEVELOPMENT.md)** - Development workflow and best practices
 - **🔧 [Troubleshooting](./docs/TROUBLESHOOTING.md)** - Common issues and debugging guide
 
@@ -67,7 +67,7 @@ app-diagram/
 - **⚡ Astro** - Static site generator with component islands
 - **🎨 Tailwind CSS** - Utility-first CSS framework
 - **📱 Responsive Design** - Mobile-first approach
-- **🔄 TypeScript** - Type-safe development with ES Modules
+- **🔄 TypeScript** - Type-safe development with ES Modules and comprehensive type definitions
 
 ## 🤝 Contributing
 

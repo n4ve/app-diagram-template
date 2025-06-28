@@ -4,7 +4,7 @@
 
 ### 🚫 Module Loading Issues
 
-#### Issue: `404 Not Found` for JavaScript modules
+#### Issue: `404 Not Found` for TypeScript modules
 ```
 GET http://localhost:4321/scripts/moduleName.js net::ERR_ABORTED 404
 ```
@@ -15,17 +15,17 @@ GET http://localhost:4321/scripts/moduleName.js net::ERR_ABORTED 404
    // ❌ Wrong path
    import { Module } from './moduleName.js';
    
-   // ✅ Correct absolute path
-   import { Module } from '/scripts/shared/ModuleName.js';
+   // ✅ Correct path for TypeScript modules
+   import { Module } from '../shared/ModuleName.js';
    ```
 
 2. **File doesn't exist**
    ```bash
    # Check file exists
-   ls -la public/scripts/shared/
+   ls -la src/scripts/shared/
    
    # Verify case-sensitive filename
-   # ModuleName.js vs modulename.js
+   # ModuleName.ts vs modulename.ts
    ```
 
 3. **Cached old paths**
@@ -50,10 +50,10 @@ Uncaught SyntaxError: Unexpected token 'export'
    <script>
    ```
 
-2. **Validate JavaScript syntax**
-   ```javascript
+2. **Validate TypeScript syntax**
+   ```typescript
    // Check for missing brackets, semicolons, etc.
-   // Use ESLint or browser dev tools
+   // Use TypeScript compiler or ESLint
    ```
 
 3. **Check export/import syntax**
@@ -62,7 +62,7 @@ Uncaught SyntaxError: Unexpected token 'export'
    export class MyClass { }
    
    // ✅ Correct import
-   import { MyClass } from '/path/to/module.js';
+   import { MyClass } from '../path/to/module.js';
    ```
 
 ---

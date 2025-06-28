@@ -505,8 +505,8 @@ if (!cardData || !cardData.apis) {
 #### File Naming
 ```
 // ✅ Good naming conventions
-ConnectionManager.js          // PascalCase for classes
-card-utils.js                // kebab-case for utilities
+ConnectionManager.ts          // PascalCase for classes
+card-utils.ts                // kebab-case for utilities
 API_REFERENCE.md             // UPPER_CASE for documentation
 ```
 

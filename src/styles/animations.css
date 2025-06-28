@@ -1,0 +1,103 @@
+/* Animation styles */
+
+/* Keyframe animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation classes */
+.slide-in-up {
+  animation: slideInUp 0.6s ease-out forwards;
+}
+
+/* Card entrance animation */
+.page-card,
+.server-card {
+  animation: slideInUp 0.6s ease-out;
+  animation-fill-mode: both;
+  animation-play-state: paused;
+}
+
+/* Smooth transitions for all elements */
+.page-card,
+.server-card,
+.api-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+/* Override transitions for card movement */
+.page-card.moving,
+.server-card.moving {
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  z-index: 70 !important;
+}
+
+/* Smooth positioning transitions for card movement */
+.page-card.repositioning,
+.server-card.repositioning {
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  z-index: 70 !important;
+}
+
+/* JavaScript animation overrides */
+.js-animating {
+  transform: var(--js-transform, none) !important;
+  animation: none !important;
+  transition: var(--js-transition, none) !important;
+}
+
+/* Override even more specific Tailwind selectors */
+.page-card.js-animating,
+.server-card.js-animating,
+.page-card.js-animating:hover,
+.server-card.js-animating:hover {
+  transform: var(--js-transform, none) !important;
+  transition: var(--js-transition, none) !important;
+}
+
+/* Disable Tailwind hover effects when JavaScript is animating */
+.js-animating {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+.js-animating:hover {
+  transform: var(--js-transform) !important;
+}
+
+/* Force override all Tailwind transform classes */
+.js-animating,
+.js-animating:hover,
+.js-animating:focus,
+.js-animating:active {
+  transform: var(--js-transform) !important;
+}
+
+/* Specifically override the hover:-translate-y-2 class */
+.hover\:-translate-y-2.js-animating:hover {
+  transform: var(--js-transform) !important;
+}
+
+/* Prevent overlapping during drag operations */
+.page-card.dragging,
+.server-card.dragging {
+  z-index: 100 !important;
+  transform-origin: center center !important;
+  cursor: grabbing !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Clear any conflicting transforms */
+.page-card.clear-transform,
+.server-card.clear-transform {
+  transform: none !important;
+  transition: none !important;
+}
