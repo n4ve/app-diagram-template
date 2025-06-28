@@ -13,15 +13,15 @@ const stats = {
 ---
 
 <Layout title="API Architecture Diagram">
-  <main class="p-5">
-    <div class="max-w-7xl mx-auto bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden">
+  <main class="p-2 sm:p-5 w-full">
+    <div class="w-full container-responsive bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden">
       <Header />
       
-      <div class="p-8">
+      <div class="p-4 sm:p-8">
         <ArchitectureDiagram pages={pagesData} servers={serversData} />
         
         <!-- Statistics -->
-        <div class="grid grid-cols-3 gap-6 mt-8">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8">
           <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl text-center">
             <h3 class="text-3xl font-bold">{stats.totalPages}</h3>
             <p class="opacity-90">หน้าจอทั้งหมด</p>
@@ -41,16 +41,39 @@ const stats = {
 </Layout>
 
 <script>
-  // Simple interaction script
+  // Simple interaction script with dimming
   document.addEventListener('DOMContentLoaded', () => {
     const pageCards = document.querySelectorAll('.page-card');
+    const serverCards = document.querySelectorAll('.server-card');
     const apiItems = document.querySelectorAll('.api-item');
+    const diagramContainer = document.getElementById('diagram-container');
     
+    console.log('Found elements:', {
+      pageCards: pageCards.length,
+      serverCards: serverCards.length,
+      apiItems: apiItems.length,
+      diagramContainer: !!diagramContainer
+    });
+    
+    // Add hover to page cards
     pageCards.forEach(pageCard => {
       const apis = JSON.parse(pageCard.dataset.apis || '[]');
       
       pageCard.addEventListener('mouseenter', () => {
+        console.log('Page card hover triggered');
+        
+        // Add diagram-dimmed class
+        if (diagramContainer) {
+          diagramContainer.classList.add('diagram-dimmed');
+          console.log('Added diagram-dimmed class');
+          console.log('Container classes:', diagramContainer.className);
+        }
+        
+        // Set active card
         pageCard.classList.add('active');
+        console.log('Page card classes:', pageCard.className);
+        
+        // Highlight matching APIs
         apiItems.forEach(item => {
           if (apis.includes(item.textContent.trim())) {
             item.classList.add('highlighted');
@@ -59,8 +82,46 @@ const stats = {
       });
       
       pageCard.addEventListener('mouseleave', () => {
+        console.log('Page card hover ended');
+        
+        // Remove diagram-dimmed class
+        if (diagramContainer) {
+          diagramContainer.classList.remove('diagram-dimmed');
+          console.log('Removed diagram-dimmed class');
+        }
+        
+        // Clear active states
         pageCard.classList.remove('active');
         apiItems.forEach(item => item.classList.remove('highlighted'));
+      });
+    });
+    
+    // Add hover to server cards
+    serverCards.forEach(serverCard => {
+      serverCard.addEventListener('mouseenter', () => {
+        console.log('Server card hover triggered');
+        
+        // Add diagram-dimmed class
+        if (diagramContainer) {
+          diagramContainer.classList.add('diagram-dimmed');
+          console.log('Added diagram-dimmed class');
+        }
+        
+        // Set active card
+        serverCard.classList.add('active');
+      });
+      
+      serverCard.addEventListener('mouseleave', () => {
+        console.log('Server card hover ended');
+        
+        // Remove diagram-dimmed class
+        if (diagramContainer) {
+          diagramContainer.classList.remove('diagram-dimmed');
+          console.log('Removed diagram-dimmed class');
+        }
+        
+        // Clear active states
+        serverCard.classList.remove('active');
       });
     });
   });

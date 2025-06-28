@@ -6,7 +6,7 @@ import ConnectionArea from './ConnectionArea.astro';
 const { pages, servers } = Astro.props;
 ---
 
-<section class="bg-gray-50 rounded-2xl p-8 mb-8 relative">
+<section class="bg-gray-50 rounded-2xl p-4 sm:p-8 mb-6 sm:mb-8 relative">
   <div class="flex justify-between items-center mb-6">
     <h2 class="text-2xl font-bold text-gray-800">📊 Application Architecture</h2>
     
@@ -32,15 +32,15 @@ const { pages, servers } = Astro.props;
     </div>
   </div>
   
-  <div id="diagram-container" class="overflow-hidden max-h-screen border border-gray-200 rounded-lg bg-white relative cursor-grab">
+  <div id="diagram-container" class="overflow-auto w-full border border-gray-200 rounded-lg bg-white relative cursor-grab">
     <!-- Connection SVG - positioned relative to diagram container -->
     <svg id="connection-svg" class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 10;">
         <!-- Lines will be drawn here -->
     </svg>
     
-    <div id="diagram-content" class="flex gap-8 p-8 transition-transform duration-150 ease-out w-full justify-between" style="transform: translate(0px, 0px) scale(1);">
+    <div id="diagram-content" class="flex flex-col lg:flex-row gap-4 lg:gap-8 p-4 lg:p-8 transition-transform duration-150 ease-out" style="transform: translate(0px, 0px) scale(1); width: 100%; min-width: 100%;">
       <!-- Frontend Pages Column -->
-      <div class="flex-1">
+      <div class="w-full lg:flex-1 min-w-0">
         <h3 class="text-xl font-semibold text-gray-800 text-center mb-6 sticky top-0 bg-white/90 backdrop-blur-sm py-2 rounded-lg">📱 Frontend Pages</h3>
         <div class="pages-grid">
           {Object.entries(pages).map(([pageId, page]) => (
@@ -50,12 +50,12 @@ const { pages, servers } = Astro.props;
       </div>
 
       <!-- Connection Area -->
-      <div class="flex-shrink-0 w-64 flex items-center justify-center">
+      <div class="hidden lg:flex flex-shrink-0 w-64 items-center justify-center">
         <ConnectionArea />
       </div>
 
       <!-- API Servers Column -->
-      <div class="flex-1">
+      <div class="w-full lg:flex-1 min-w-0">
         <h3 class="text-xl font-semibold text-gray-800 text-center mb-6 sticky top-0 bg-white/90 backdrop-blur-sm py-2 rounded-lg">🖥️ API Servers</h3>
         <div class="servers-grid">
           {Object.entries(servers).map(([serverId, server]) => (
@@ -91,6 +91,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (diagramContent) {
             diagramContent.style.transform = `translate(${currentPanX}px, ${currentPanY}px) scale(${currentZoom})`;
             diagramContent.style.transformOrigin = '0 0';
+            diagramContent.style.width = '100%';
+            diagramContent.style.minWidth = '100%';
         }
         
         if (zoomLevel) {
@@ -337,7 +339,10 @@ document.addEventListener('DOMContentLoaded', function() {
 <style>
 /* Container styles */
 #diagram-container {
-    height: 600px;
+    height: 70vh;
+    min-height: 500px;
+    max-height: 800px;
+    width: 100%;
     user-select: none;
     position: relative;
     cursor: grab;
@@ -349,9 +354,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /* Content styles */
 #diagram-content {
-    min-width: 100%;
+    width: 100% !important;
+    min-width: 100% !important;
     min-height: 100%;
-    padding: 20px;
+    padding: 1rem;
+    box-sizing: border-box;
+    display: flex !important;
 }
 
 /* Allow interactions with specific elements */
@@ -375,7 +383,49 @@ document.addEventListener('DOMContentLoaded', function() {
 /* Mobile optimizations */
 @media (max-width: 768px) {
     #diagram-container {
-        height: 500px;
+        height: 60vh;
+        min-height: 400px;
+        max-height: 600px;
+    }
+    
+    #diagram-content {
+        padding: 0.5rem;
+    }
+}
+
+/* Large screen optimizations */
+@media (min-width: 1200px) {
+    #diagram-container {
+        height: 75vh;
+        max-height: 900px;
+    }
+    
+    #diagram-content {
+        padding: 2rem;
+    }
+}
+
+/* Ensure content fills container */
+#diagram-content {
+    position: relative;
+    overflow: visible;
+}
+
+/* Fix flex children width on large screens */
+@media (min-width: 1024px) {
+    #diagram-content {
+        justify-content: space-between;
+    }
+    
+    #diagram-content > div {
+        flex: 1;
+        min-width: 0;
+        max-width: calc(50% - 2rem);
+    }
+    
+    #diagram-content > div:nth-child(2) {
+        flex: 0 0 auto;
+        max-width: 16rem;
     }
 }
 </style>

@@ -175,53 +175,99 @@
   transition: transform 0.3s ease !important;
 }
 
-/* 5-card column layout - maximum 5 cards per column (top to bottom), then new column */
+/* Ensure cards fit within viewport and columns */
+.page-card,
+.server-card {
+  box-sizing: border-box;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+/* Specific sizing for server cards */
+.servers-grid .server-card {
+  width: 100%;
+  min-width: 350px;
+  min-height: 250px;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Specific sizing for page cards */
+.pages-grid .page-card {
+  width: 100%;
+  min-height: 250px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Responsive grid layout - maximum 5 cards per column */
 .pages-grid {
   display: grid;
   grid-template-rows: repeat(5, auto); /* Maximum 5 rows */
   grid-auto-flow: column; /* Cards flow into columns vertically first */
-  grid-auto-columns: 350px; /* Larger column width */
-  gap: 3rem; /* Increased spacing between cards */
-  padding: 1.5rem;
-  margin-bottom: 3rem;
-  justify-items: start; /* Align cards to start of each column */
-  width: fit-content; /* Allow container to expand with columns */
+  grid-auto-columns: minmax(300px, 1fr); /* Dynamic column width */
+  gap: 1.5rem 2rem;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  width: 100%;
+  justify-items: center;
+  align-items: start;
 }
 
+/* Simple multi-column layout for servers */
 .servers-grid {
   display: grid;
-  grid-template-rows: repeat(5, auto); /* Maximum 5 rows */
-  grid-auto-flow: column; /* Cards flow into columns vertically first */
-  grid-auto-columns: 350px; /* Larger column width */
-  gap: 3rem; /* Increased spacing between cards */
-  padding: 1.5rem;
-  margin-top: 3rem;
-  justify-items: start; /* Align cards to start of each column */
-  width: fit-content; /* Allow container to expand with columns */
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Auto columns with 350px minimum */
+  gap: 2rem;
+  padding: 1rem;
+  margin-top: 2rem;
+  width: 100%;
+  align-items: start;
+  justify-items: stretch;
 }
 
-/* Responsive adjustments for smaller screens */
-@media (max-width: 1400px) {
-  .pages-grid,
+/* Large desktop screens - 4 columns max */
+@media (min-width: 1400px) {
+  .pages-grid {
+    grid-template-rows: repeat(5, auto);
+    grid-auto-columns: minmax(320px, 1fr);
+    gap: 2rem 2.5rem;
+    max-width: 1280px;
+  }
+  
   .servers-grid {
+    grid-template-columns: repeat(2, 1fr); /* Keep 2 equal columns on large screens */
+    gap: 3rem;
+  }
+}
+
+/* Medium screens - 2-3 columns */
+@media (min-width: 768px) and (max-width: 1399px) {
+  .pages-grid {
     grid-template-rows: repeat(4, auto); /* 4 cards per column on medium screens */
-    grid-auto-columns: 320px; /* Slightly smaller columns */
+    grid-auto-columns: minmax(300px, 1fr);
+    gap: 1.25rem 1.75rem;
+  }
+  
+  .servers-grid {
+    grid-template-columns: repeat(2, 1fr); /* Keep 2 columns on medium screens */
+    gap: 1.25rem;
   }
 }
 
-@media (max-width: 1000px) {
-  .pages-grid,
-  .servers-grid {
+/* Small screens - 1-2 columns */
+@media (max-width: 767px) {
+  .pages-grid {
     grid-template-rows: repeat(3, auto); /* 3 cards per column on smaller screens */
-    grid-auto-columns: 300px; /* Medium columns */
+    grid-auto-columns: minmax(260px, 1fr);
+    gap: 1rem 1.25rem;
+    padding: 0.5rem;
   }
-}
-
-@media (max-width: 700px) {
-  .pages-grid,
+  
   .servers-grid {
-    grid-template-rows: repeat(2, auto); /* 2 cards per column on small screens */
-    grid-auto-columns: 280px; /* Smaller columns on mobile */
+    grid-template-columns: 1fr; /* Single column on small screens */
+    gap: 1rem;
+    padding: 0.5rem;
   }
 }
 
@@ -229,9 +275,11 @@
 .page-card,
 .server-card {
   position: relative;
-  min-height: 200px; /* กำหนดความสูงขั้นต่ำ */
-  margin-bottom: 1rem;
+  min-height: 200px;
+  margin-bottom: 0; /* Remove margin since grid gap handles spacing */
   transition: all 0.3s ease;
+  width: 100%;
+  max-width: 100%; /* Allow cards to fill their grid cell */
 }
 
 /* API items styling */
@@ -255,19 +303,20 @@
   transform: translateX(6px);
 }
 
-/* Mobile adjustments */
-@media (max-width: 768px) {
+/* Very small screens - single column */
+@media (max-width: 480px) {
   .pages-grid,
   .servers-grid {
-    grid-template-columns: 1fr; /* Single column on mobile */
-    gap: 1rem;
-    padding: 0.5rem;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding: 0.25rem;
   }
   
   .page-card,
   .server-card {
     min-height: auto;
     margin-bottom: 0.5rem;
+    max-width: 100%;
   }
   
   .connection-line {

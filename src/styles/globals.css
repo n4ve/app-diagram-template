@@ -11,6 +11,8 @@
   body {
     margin: 0;
     padding: 0;
+    overflow-x: auto;
+    min-width: 320px;
   }
 }
 
@@ -99,16 +101,12 @@
 /* Dimming effect for non-active cards */
 .diagram-dimmed .page-card:not(.active):not(.highlighted),
 .diagram-dimmed .server-card:not(.active):not(.highlighted) {
-  opacity: 0.4;
-  transition: opacity 0.2s ease;
+  opacity: 0.3 !important;
+  transition: opacity 0.3s ease !important;
+  transform: scale(0.98) !important;
 }
 
-/* Hide non-related cards instead of dimming */
-.diagram-focused .page-card:not(.active):not(.highlighted),
-.diagram-focused .server-card:not(.active):not(.highlighted) {
-  opacity: 0.2;
-  transition: opacity 0.2s ease;
-}
+/* Remove the hiding logic - keep only dimming */
 
 /* Default visible state for all cards */
 .page-card,
@@ -126,10 +124,11 @@
 .page-card.highlighted {
   border-left-color: #3b82f6 !important;
   background: linear-gradient(135deg, #ffffff 0%, #dbeafe 100%) !important;
-  box-shadow: 0 15px 35px rgba(59, 130, 246, 0.25) !important;
+  box-shadow: 0 20px 40px rgba(59, 130, 246, 0.35) !important;
   z-index: 60 !important;
   position: relative !important;
   opacity: 1 !important; /* Force visibility */
+  transform: scale(1.02) !important; /* Subtle scale increase */
   transform-origin: center center !important;
 }
 
@@ -137,10 +136,11 @@
 .server-card.highlighted {
   border-left-color: #10b981 !important;
   background: linear-gradient(135deg, #ffffff 0%, #dcfce7 100%) !important;
-  box-shadow: 0 15px 35px rgba(16, 185, 129, 0.25) !important;
+  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.35) !important;
   z-index: 60 !important;
   position: relative !important;
   opacity: 1 !important; /* Force visibility */
+  transform: scale(1.02) !important; /* Subtle scale increase */
   transform-origin: center center !important;
 }
 
@@ -217,6 +217,28 @@
 
 .slide-in-up {
   animation: slideInUp 0.6s ease-out forwards;
+}
+
+/* Container width utilities */
+.w-fit-screen {
+  width: 100vw;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.container-responsive {
+  width: 100%;
+  max-width: none;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 1200px) {
+  .container-responsive {
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 /* Print styles */

@@ -11,17 +11,37 @@ const { serverId, server } = Astro.props;
   </div>
   
   <div class="space-y-2">
-    {(server.apis || []).slice(0, 4).map(api => (
-      <div 
-        class="api-item px-3 py-2 bg-gray-100 rounded-lg text-sm border-l-2 border-l-gray-400 transition-all duration-300" 
-        data-api={`${serverId}:${api}`}
-        data-full-api={`${serverId}:${api}`}
-        data-server-id={serverId}
-        data-api-text={api}
-      >
-        {api}
-      </div>
-    ))}
+    {(server.apis || []).slice(0, 4).map(api => {
+      // Parse API to extract method and path
+      const [method, ...pathParts] = api.trim().split(' ');
+      const path = pathParts.join(' ');
+      
+      return (
+        <div 
+          class="api-item px-3 py-2 bg-gray-100 rounded-lg text-sm border-l-2 border-l-gray-400 transition-all duration-300" 
+          data-api={`${serverId}:${api}`}
+          data-full-api={`${serverId}:${api}`}
+          data-server-id={serverId}
+          data-api-text={api}
+        >
+          <div class="flex items-center gap-2">
+            <span class={`px-2 py-1 text-xs font-semibold rounded ${
+              method === 'GET' ? 'bg-green-100 text-green-800' :
+              method === 'POST' ? 'bg-blue-100 text-blue-800' :
+              method === 'PUT' ? 'bg-yellow-100 text-yellow-800' :
+              method === 'DELETE' ? 'bg-red-100 text-red-800' :
+              method === 'PATCH' ? 'bg-purple-100 text-purple-800' :
+              'bg-gray-100 text-gray-800'
+            }`}>
+              {method}
+            </span>
+            <span class="font-mono text-gray-700">{path}</span>
+          </div>
+          <!-- Hidden text for JavaScript matching -->
+          <span class="sr-only">{api}</span>
+        </div>
+      );
+    })}
     {(server.apis || []).length > 4 && (
       <div class="px-3 py-2 bg-gray-50 rounded-lg text-sm text-gray-500">
         +{(server.apis || []).length - 4} more APIs

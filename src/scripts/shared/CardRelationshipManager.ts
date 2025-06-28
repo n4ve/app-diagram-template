@@ -154,6 +154,12 @@ export class CardRelationshipManager implements ICardRelationshipManager {
         relatedElements.apiItems.forEach(apiItem => {
             apiItem.classList.add('highlighted');
         });
+
+        // Enable diagram-dimmed mode to dim non-related cards
+        const diagramContainer = document.getElementById('diagram-container');
+        if (diagramContainer) {
+            diagramContainer.classList.add('diagram-dimmed');
+        }
     }
 
     clearActiveClasses(): void {
@@ -166,5 +172,11 @@ export class CardRelationshipManager implements ICardRelationshipManager {
                 apiItem.classList.remove('active', 'highlighted', 'hovered');
             });
         });
+
+        // Remove diagram-dimmed mode to show all cards normally again
+        const diagramContainer = document.getElementById('diagram-container');
+        if (diagramContainer) {
+            diagramContainer.classList.remove('diagram-dimmed');
+        }
     }
 }
