@@ -62,22 +62,15 @@ export class CardAnimationManager implements ICardAnimationManager {
         const replacementPositions = this._calculateReplacementPositions(hoveredCard, relatedElements, [...unrelatedCards]);
         
         const hoveredCardId = hoveredCard.id || hoveredCard.dataset.server || hoveredCard.className;
-        console.log(`🚀 Starting card repositioning for: ${hoveredCardId}`);
-        console.log(`   Hovered card position: (${hoveredCenterX}, ${hoveredCenterY})`);
-        console.log(`   Related cards: ${relatedCards.length}`);
-        console.log(`   Replacement positions calculated: ${Object.keys(replacementPositions).length}`);
-        console.log(`   ================================`);
         
         allCards.forEach(card => {
             if (card === hoveredCard) {
-                console.log(`💫 Animating hovered card: ${hoveredCardId}`);
                 this._animateHoveredCard(card);
             } else if (relatedCards.includes(card)) {
                 // Move related cards to replacement positions
                 this._animateRelatedCardToReplacement(card, hoveredCard, replacementPositions);
             } else {
                 const cardId = card.id || card.dataset.server || card.className;
-                console.log(`👻 Hiding unrelated card: ${cardId}`);
                 this._hideUnrelatedCard(card);
             }
         });
@@ -213,7 +206,6 @@ export class CardAnimationManager implements ICardAnimationManager {
                 }
                 
                 const targetId = targetUnrelated.dataset.server || targetUnrelated.className;
-                console.log(`   🎯 ${relatedCardId} will STRATEGICALLY replace ${targetId} at (${Math.round(targetX)}, ${Math.round(targetY)})`);
             }
         });
         
@@ -236,9 +228,6 @@ export class CardAnimationManager implements ICardAnimationManager {
         const moveX = targetPosition.x - currentX;
         const moveY = targetPosition.y - currentY;
         
-        console.log(`🔄 REPLACEMENT MOVEMENT: ${cardId}`);
-        console.log(`   📍 FROM: (${Math.round(currentX)}, ${Math.round(currentY)}) → TO: (${Math.round(targetPosition.x)}, ${Math.round(targetPosition.y)})`);
-        console.log(`   📦 Item: ${cardId} moving by (${Math.round(moveX)}, ${Math.round(moveY)})`);
         
         // Apply transform directly with maximum force
         card.style.setProperty('transition', 'none', 'important');
@@ -290,31 +279,18 @@ export class CardAnimationManager implements ICardAnimationManager {
             const color = this.connectionManager.getMethodColor(method);
             
             // Find page API element
-            console.log(`🔍 Looking for page API element with selector: [data-full-api="${api}"]`);
             const pageApiElement = pageCard.querySelector(`[data-full-api="${api}"]`) as HTMLElement;
-            console.log(`📍 Found page API element:`, pageApiElement);
-            
-            // Debug: Show all API elements in page card
-            const allPageApis = pageCard.querySelectorAll('.api-item') as NodeListOf<HTMLElement>;
-            console.log(`🔍 All page API elements (${allPageApis.length}):`);
-            allPageApis.forEach((el, i) => {
-                console.log(`   ${i}: data-full-api="${el.dataset.fullApi}" text="${el.textContent?.trim()}"`);
-            });
             
             // Find server API element - only connect to related servers
             const serverCard = relatedServers.find(server => server.dataset.server === serverId);
             let serverApiElement: HTMLElement | null = null;
             
             if (serverCard) {
-                console.log(`🔍 Looking for server API element with text: "${apiPath.trim()}" in server: ${serverId}`);
                 const serverApiElements = serverCard.querySelectorAll('.api-item') as NodeListOf<HTMLElement>;
-                console.log(`🔍 All server API elements (${serverApiElements.length}):`);
                 serverApiElements.forEach((element, i) => {
                     const serverApiText = element.dataset.apiText || element.textContent?.trim();
-                    console.log(`   ${i}: data-api-text="${element.dataset.apiText}" text="${element.textContent?.trim()}"`);
                     if (serverApiText === apiPath.trim()) {
                         serverApiElement = element;
-                        console.log(`✅ Found matching server API element`);
                     }
                 });
             }
@@ -328,11 +304,6 @@ export class CardAnimationManager implements ICardAnimationManager {
                 const pageRect = (pageApiElement as HTMLElement).getBoundingClientRect();
                 const serverRect = (serverApiElement as HTMLElement).getBoundingClientRect();
                 
-                console.log(`🔗 CREATING CONNECTION LINE #${pageApis.indexOf(api) + 1}:`);
-                console.log(`   📍 FROM: Page API "${apiPath.trim()}" at (${Math.round(pageRect.left + pageRect.width/2)}, ${Math.round(pageRect.top + pageRect.height/2)})`);
-                console.log(`   📍 TO: Server API "${apiPath.trim()}" at (${Math.round(serverRect.left + serverRect.width/2)}, ${Math.round(serverRect.top + serverRect.height/2)})`);
-                console.log(`   🎨 Color: ${color} (${method} method)`);
-                console.log(`   🖥️ Server: ${serverId}`);
                 
                 const line = this.connectionManager.createConnectionLine(
                     pageApiElement, serverApiElement, color, method
@@ -344,15 +315,11 @@ export class CardAnimationManager implements ICardAnimationManager {
                     const svg = document.getElementById('connection-svg');
                     if (svg) {
                         svg.appendChild(line);
-                        console.log(`   ✅ Line created and added to SVG`);
                     } else {
-                        console.log(`   ❌ SVG not found - line not added`);
                     }
                 } else {
-                    console.log(`   ❌ Failed to create line`);
                 }
             } else {
-                console.log(`   ❌ Missing elements - pageApiElement: ${!!pageApiElement}, serverApiElement: ${!!serverApiElement}`);
             }
         });
     }

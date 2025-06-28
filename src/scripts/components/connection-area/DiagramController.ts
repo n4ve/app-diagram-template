@@ -34,8 +34,6 @@ export class DiagramController implements IDiagramController {
     }
 
     async initialize(): Promise<boolean> {
-        console.log('Initializing Diagram Controller...');
-        
         try {
             // Wait for DOM to be ready
             await this.waitForElements();
@@ -70,7 +68,6 @@ export class DiagramController implements IDiagramController {
             // Initialize card visibility
             this.initializeCardVisibility();
             
-            console.log('Diagram Controller initialized successfully');
             return true;
         } catch (error) {
             console.error('Error during diagram controller initialization:', error);
@@ -86,11 +83,6 @@ export class DiagramController implements IDiagramController {
                 const connectionSvg = document.getElementById('connection-svg');
                 
                 if (pageCards.length > 0 && serverCards.length > 0 && connectionSvg) {
-                    console.log('Found elements:', {
-                        pageCards: pageCards.length,
-                        serverCards: serverCards.length,
-                        connectionSvg: !!connectionSvg
-                    });
                     resolve();
                 } else {
                     setTimeout(checkElements, 100);

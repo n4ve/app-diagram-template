@@ -84,7 +84,6 @@ export class HoverEventManager {
     handleCardHover(card) {
         if (this.isProcessing)
             return;
-        console.log('Card hover triggered:', card.className);
         this.isProcessing = true;
         // Cancel any pending reset
         this.cancelReset();
@@ -92,11 +91,6 @@ export class HoverEventManager {
         this.connectionManager.clearConnections();
         // Find all related cards using JSON API mappings
         const relatedElements = this.relationshipManager.findRelatedCards(card);
-        console.log('Found related elements:', {
-            pages: relatedElements.pages.length,
-            servers: relatedElements.servers.length,
-            apiItems: relatedElements.apiItems.length
-        });
         // Set active classes
         this.relationshipManager.setActiveClasses(card, relatedElements);
         // Animate card positions
@@ -119,7 +113,6 @@ export class HoverEventManager {
     handleCardLeave(e) {
         const relatedTarget = e.relatedTarget;
         const sourceCard = e.target?.closest('.page-card, .server-card');
-        console.log(`🚪 Card leave event - from: ${sourceCard?.className}, to: ${relatedTarget?.className}`);
         // Only prevent reset if moving to another card, not just any diagram element
         if (relatedTarget && (relatedTarget.closest('.page-card') ||
             relatedTarget.closest('.server-card'))) {
@@ -132,7 +125,6 @@ export class HoverEventManager {
     scheduleReset() {
         if (this.isResettingCards)
             return;
-        console.log('🔄 Reset triggered immediately - no delay');
         this.cancelReset();
         this.resetAllCards(); // Execute immediately, no timeout
     }
@@ -143,7 +135,6 @@ export class HoverEventManager {
         }
     }
     resetAllCards() {
-        console.log('Resetting all cards');
         this.isResettingCards = true;
         this.isProcessing = false;
         // Cancel any pending reset to avoid double execution
@@ -209,11 +200,6 @@ export class HoverEventManager {
                 // Get element positions for logging
                 const pageRect = pageApiElement.getBoundingClientRect();
                 const serverRect = serverApiElement.getBoundingClientRect();
-                console.log(`🔗 HOVER CONNECTION LINE #${pageApis.indexOf(api) + 1}:`);
-                console.log(`   📍 FROM: Page API "${fullApiPath}" at (${Math.round(pageRect.left + pageRect.width / 2)}, ${Math.round(pageRect.top + pageRect.height / 2)})`);
-                console.log(`   📍 TO: Server API "${fullApiPath}" at (${Math.round(serverRect.left + serverRect.width / 2)}, ${Math.round(serverRect.top + serverRect.height / 2)})`);
-                console.log(`   🎨 Color: ${color} (${method} method)`);
-                console.log(`   🖥️ Server: ${serverId}`);
                 const line = this.connectionManager.createConnectionLine(pageApiElement, serverApiElement, color, method);
                 if (line) {
                     line.setAttribute('stroke-width', '4');
@@ -222,10 +208,8 @@ export class HoverEventManager {
                     const svg = document.getElementById('connection-svg');
                     if (svg) {
                         svg.appendChild(line);
-                        console.log(`   ✅ Hover line created and added to SVG`);
                     }
                     else {
-                        console.log(`   ❌ SVG not found - hover line not added`);
                     }
                 }
                 else {

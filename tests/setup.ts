@@ -29,7 +29,31 @@ Element.prototype.getBoundingClientRect = vi.fn(() => ({
 }))
 
 // Mock SVG namespace creation
+const originalCreateElementNS = document.createElementNS.bind(document)
 document.createElementNS = vi.fn((namespace, tagName) => {
-  const element = document.createElement(tagName)
-  return element
+  if (namespace === 'http://www.w3.org/2000/svg') {
+    // For SVG elements, return actual SVG elements
+    return originalCreateElementNS(namespace, tagName)
+  }
+  return document.createElement(tagName)
+})
+
+// Mock the connection SVG element
+beforeEach(() => {
+  // Create connection SVG container
+  const connectionSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  connectionSvg.id = 'connection-svg'
+  connectionSvg.setAttribute('class', 'absolute inset-0 w-full h-full pointer-events-none')
+  document.body.appendChild(connectionSvg)
+
+  // Create diagram container
+  const diagramContainer = document.createElement('div')
+  diagramContainer.id = 'diagram-container'
+  diagramContainer.setAttribute('class', 'overflow-auto w-full border border-gray-200 rounded-lg bg-white relative cursor-grab')
+  document.body.appendChild(diagramContainer)
+})
+
+afterEach(() => {
+  // Clean up DOM after each test
+  document.body.innerHTML = ''
 })

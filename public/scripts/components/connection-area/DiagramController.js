@@ -18,7 +18,6 @@ export class DiagramController {
         this.hoverEventManager = new HoverEventManager(this.relationshipManager, this.animationManager, this.connectionManager);
     }
     async initialize() {
-        console.log('Initializing Diagram Controller...');
         try {
             // Wait for DOM to be ready
             await this.waitForElements();
@@ -46,7 +45,6 @@ export class DiagramController {
             }
             // Initialize card visibility
             this.initializeCardVisibility();
-            console.log('Diagram Controller initialized successfully');
             return true;
         }
         catch (error) {
@@ -61,11 +59,6 @@ export class DiagramController {
                 const serverCards = document.querySelectorAll('.server-card');
                 const connectionSvg = document.getElementById('connection-svg');
                 if (pageCards.length > 0 && serverCards.length > 0 && connectionSvg) {
-                    console.log('Found elements:', {
-                        pageCards: pageCards.length,
-                        serverCards: serverCards.length,
-                        connectionSvg: !!connectionSvg
-                    });
                     resolve();
                 }
                 else {

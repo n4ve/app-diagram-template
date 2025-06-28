@@ -125,6 +125,11 @@ export class CardRelationshipManager {
         relatedElements.apiItems.forEach(apiItem => {
             apiItem.classList.add('highlighted');
         });
+        // Enable diagram-dimmed mode to dim non-related cards
+        const diagramContainer = document.getElementById('diagram-container');
+        if (diagramContainer) {
+            diagramContainer.classList.add('diagram-dimmed');
+        }
     }
     clearActiveClasses() {
         [...this.pageCards, ...this.serverCards].forEach(card => {
@@ -135,5 +140,10 @@ export class CardRelationshipManager {
                 apiItem.classList.remove('active', 'highlighted', 'hovered');
             });
         });
+        // Remove diagram-dimmed mode to show all cards normally again
+        const diagramContainer = document.getElementById('diagram-container');
+        if (diagramContainer) {
+            diagramContainer.classList.remove('diagram-dimmed');
+        }
     }
 }

@@ -29,7 +29,7 @@ export class ConnectionManager {
             'HEAD': '#6b7280',
             'OPTIONS': '#6b7280'
         };
-        return colors[method] || '#6b7280';
+        return colors[method] || '#6B7280';
     }
     getMethodDashPattern(method) {
         const patterns = {
@@ -50,14 +50,10 @@ export class ConnectionManager {
         const fromApi = fromElement.dataset.fullApi || fromElement.dataset.apiText || fromElement.textContent?.trim();
         const toApi = toElement.dataset.fullApi || toElement.dataset.apiText || toElement.textContent?.trim();
         const connectionId = `${fromApi}-to-${toApi}`;
-        console.log(`🔗 Checking connection ID: "${connectionId}"`);
-        console.log(`   Already drawn: ${this.drawnConnections.has(connectionId)}`);
         if (this.drawnConnections.has(connectionId)) {
-            console.log(`   ❌ Connection already exists, skipping`);
             return null;
         }
         this.drawnConnections.add(connectionId);
-        console.log(`   ✅ New connection, proceeding with line creation`);
         // Get element positions relative to viewport
         const fromRect = fromElement.getBoundingClientRect();
         const toRect = toElement.getBoundingClientRect();

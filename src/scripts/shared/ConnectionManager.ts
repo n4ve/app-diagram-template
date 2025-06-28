@@ -40,7 +40,7 @@ export class ConnectionManager implements IConnectionManager {
             'HEAD': '#6b7280',
             'OPTIONS': '#6b7280'
         };
-        return colors[method as HttpMethod] || '#6b7280';
+        return colors[method as HttpMethod] || '#6B7280';
     }
 
     getMethodDashPattern(method: string): string {
@@ -69,16 +69,12 @@ export class ConnectionManager implements IConnectionManager {
         const toApi = toElement.dataset.fullApi || toElement.dataset.apiText || toElement.textContent?.trim();
         const connectionId = `${fromApi}-to-${toApi}`;
         
-        console.log(`🔗 Checking connection ID: "${connectionId}"`);
-        console.log(`   Already drawn: ${this.drawnConnections.has(connectionId)}`);
         
         if (this.drawnConnections.has(connectionId)) {
-            console.log(`   ❌ Connection already exists, skipping`);
             return null;
         }
 
         this.drawnConnections.add(connectionId);
-        console.log(`   ✅ New connection, proceeding with line creation`);
 
         // Get element positions relative to viewport
         const fromRect = fromElement.getBoundingClientRect();
