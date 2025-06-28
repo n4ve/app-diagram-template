@@ -2,7 +2,7 @@
 
 ## 🎯 Project Overview
 
-This Astro-based application visualizes interactive architecture diagrams showing relationships between frontend pages and backend API servers. The diagram features dynamic card interactions, zoom/pan capabilities, and real-time connection visualization based on API mappings.
+This TypeScript-powered Astro application creates interactive architecture diagrams showing relationships between frontend pages and backend API servers. Features include advanced card interactions, zoom/pan capabilities, dynamic SVG connections, and real-time relationship visualization based on configurable API mappings.
 
 ## 🚀 Quick Start
 
@@ -22,28 +22,40 @@ npm run preview
 
 ## 🌟 Key Features
 
-- **📱 Interactive Cards** - Hover to see relationships and connections
-- **🔗 Dynamic Connections** - SVG lines showing API relationships
-- **🎯 Smart Positioning** - Cards move strategically to hide unrelated elements
-- **📏 Zoom-Aware** - All interactions scale correctly with zoom level
-- **📊 Data-Driven** - Relationships based on JSON configuration files
-- **🎨 Smooth Animations** - CSS transitions and transforms for fluid UX
+- **📱 Interactive Cards** - Hover to see relationships and strategic card movement
+- **🔗 Dynamic SVG Connections** - Visual API relationship lines with method-specific colors
+- **🎯 Smart Positioning** - Cards move strategically while dimming unrelated elements
+- **🔍 Zoom & Pan** - Mouse/touch controls with focal point preservation and keyboard shortcuts
+- **📊 Configuration-Driven** - Relationships defined through JSON data files
+- **🎨 Smooth Animations** - Hardware-accelerated CSS transforms and transitions
+- **📱 Mobile Responsive** - Touch gestures and adaptive layouts
+- **🎯 TypeScript** - Type-safe development with comprehensive interfaces
+- **🧪 Tested** - Comprehensive test suite with Vitest
 
 ## 🏗️ Project Structure
 
 ```
 app-diagram/
 ├── 📁 src/
-│   ├── 📁 components/           # Astro components
-│   ├── 📁 data/                # Configuration data (pages.json, servers.json)
-│   ├── 📁 layouts/             # Page layouts
-│   ├── 📁 pages/               # Astro pages
-│   ├── 📁 scripts/             # Client-side TypeScript modules
-│   ├── 📁 styles/              # CSS stylesheets
+│   ├── 📁 components/           # Astro components (ArchitectureDiagram, Cards, etc.)
+│   ├── 📁 data/                # JSON configuration (pages.json, servers.json)
+│   ├── 📁 layouts/             # Page layout templates
+│   ├── 📁 pages/               # Astro route pages
+│   ├── 📁 scripts/             # TypeScript modules (compiled to public/)
+│   │   ├── 📁 components/       # Component-specific logic
+│   │   └── 📁 shared/          # Shared utilities and managers
+│   ├── 📁 styles/              # Modular CSS architecture
+│   │   ├── base.css            # Global styles and Tailwind
+│   │   ├── animations.css      # Animation definitions
+│   │   ├── cards.css          # Card component styles
+│   │   ├── components.css     # Reusable component styles
+│   │   ├── connections.css    # SVG connection styles
+│   │   └── layout.css         # Layout and responsive utilities
 │   └── 📁 types/               # TypeScript type definitions
-├── 📁 public/                   # Static assets
-├── 📁 docs/                    # Documentation
-└── 📄 Configuration files      # package.json, astro.config.mjs, etc.
+├── 📁 public/                   # Static assets and compiled scripts
+├── 📁 tests/                   # Vitest test suite
+├── 📁 docs/                    # Comprehensive documentation
+└── 📄 Configuration files      # TypeScript, Astro, Tailwind configs
 ```
 
 ## 📚 Documentation
@@ -64,10 +76,13 @@ app-diagram/
 
 ## 🔧 Technical Stack
 
-- **⚡ Astro** - Static site generator with component islands
-- **🎨 Tailwind CSS** - Utility-first CSS framework
-- **📱 Responsive Design** - Mobile-first approach
-- **🔄 TypeScript** - Type-safe development with ES Modules and comprehensive type definitions
+- **⚡ Astro 4.x** - Modern static site generator with component islands
+- **🔄 TypeScript** - Full type safety with comprehensive interfaces and ES Modules
+- **🎨 Tailwind CSS** - Utility-first CSS framework with modular architecture
+- **📱 Responsive Design** - Mobile-first with touch gesture support
+- **🎯 SVG Graphics** - Vector-based connection lines and interactive elements
+- **🧪 Vitest** - Modern testing framework with comprehensive coverage
+- **📊 JSON Configuration** - Data-driven relationships and content
 
 ## 🤝 Contributing
 

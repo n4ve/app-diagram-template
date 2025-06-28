@@ -40,7 +40,7 @@ The Application Architecture Diagram is a sophisticated interactive visualizatio
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                JavaScript Module Layer                      │
+│                TypeScript Module Layer                      │
 ├─────────────────────────────────────────────────────────────┤
 │  🎮 DiagramController (Main Orchestrator)                  │
 │  ├── 🔗 ConnectionManager (SVG Lines)                      │
@@ -54,7 +54,7 @@ The Application Architecture Diagram is a sophisticated interactive visualizatio
 ### 📊 Data Flow Architecture
 
 ```
-JSON Config → Astro Build → DOM → JavaScript → User Interaction → Visual Updates
+JSON Config → Astro Build → DOM → TypeScript → User Interaction → Visual Updates
 
 1. pages.json/servers.json → Static data
 2. Astro components → Server-side rendering  
