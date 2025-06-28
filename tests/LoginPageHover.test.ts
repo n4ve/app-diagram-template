@@ -56,6 +56,10 @@ describe('Login Page Hover Behavior', () => {
   let userServerCard: HTMLElement;
   let productServerCard: HTMLElement;
 
+  let mysqlBackendCard: HTMLElement;
+  let redisBackendCard: HTMLElement;
+  let elasticsearchBackendCard: HTMLElement;
+
   beforeEach(() => {
     // Clear document
     document.body.innerHTML = '';
@@ -109,10 +113,15 @@ describe('Login Page Hover Behavior', () => {
     });
 
     // Create server cards
-    authServerCard = createMockCard('auth-server', 'server-card', { server: 'auth-server' });
-    paymentServerCard = createMockCard('payment-server', 'server-card', { server: 'payment-server' });
-    userServerCard = createMockCard('user-server', 'server-card', { server: 'user-server' });
-    productServerCard = createMockCard('product-server', 'server-card', { server: 'product-server' });
+    authServerCard = createMockCard('auth-server', 'server-card', { server: 'auth-server', backend: 'mysql-db' });
+    paymentServerCard = createMockCard('payment-server', 'server-card', { server: 'payment-server', backend: 'mysql-db' });
+    userServerCard = createMockCard('user-server', 'server-card', { server: 'user-server', backend: 'redis-cache' });
+    productServerCard = createMockCard('product-server', 'server-card', { server: 'product-server', backend: 'elasticsearch' });
+
+    // Create backend cards
+    mysqlBackendCard = createMockCard('mysql-db', 'backend-card', { backend: 'mysql-db' });
+    redisBackendCard = createMockCard('redis-cache', 'backend-card', { backend: 'redis-cache' });
+    elasticsearchBackendCard = createMockCard('elasticsearch', 'backend-card', { backend: 'elasticsearch' });
 
     // Add API elements to login page
     const loginApiElements = [
@@ -139,15 +148,17 @@ describe('Login Page Hover Behavior', () => {
 
     // Add all cards to container
     [loginPageCard, dashboardPageCard, productsPageCard, ordersPageCard,
-     authServerCard, paymentServerCard, userServerCard, productServerCard]
+     authServerCard, paymentServerCard, userServerCard, productServerCard,
+     mysqlBackendCard, redisBackendCard, elasticsearchBackendCard]
       .forEach(card => diagramContainer.appendChild(card));
 
     // Mock querySelector and querySelectorAll
     const allCards = [loginPageCard, dashboardPageCard, productsPageCard, ordersPageCard,
-                     authServerCard, paymentServerCard, userServerCard, productServerCard];
+                     authServerCard, paymentServerCard, userServerCard, productServerCard,
+                     mysqlBackendCard, redisBackendCard, elasticsearchBackendCard];
     
     document.querySelectorAll = vi.fn((selector: string) => {
-      if (selector === '.page-card, .server-card') {
+      if (selector === '.page-card, .server-card, .backend-card') {
         return allCards as any;
       }
       if (selector === '.page-card') {
@@ -155,6 +166,9 @@ describe('Login Page Hover Behavior', () => {
       }
       if (selector === '.server-card') {
         return [authServerCard, paymentServerCard, userServerCard, productServerCard] as any;
+      }
+      if (selector === '.backend-card') {
+        return [mysqlBackendCard, redisBackendCard, elasticsearchBackendCard] as any;
       }
       return [] as any;
     });
@@ -164,6 +178,9 @@ describe('Login Page Hover Behavior', () => {
       if (selector === '[data-server="payment-server"]') return paymentServerCard;
       if (selector === '[data-server="user-server"]') return userServerCard;
       if (selector === '[data-server="product-server"]') return productServerCard;
+      if (selector === '[data-backend="mysql-db"]') return mysqlBackendCard;
+      if (selector === '[data-backend="redis-cache"]') return redisBackendCard;
+      if (selector === '[data-backend="elasticsearch"]') return elasticsearchBackendCard;
       return null;
     });
 

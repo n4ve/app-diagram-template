@@ -11,14 +11,14 @@ import type {
     CardAnimationManager,
     ConnectionManager,
     HttpMethod,
-    DiagramController
+    DiagramController,
+    ConnectionPair
 } from '../../../types/index.js';
+import { ConnectionType } from '../../../types/index.js';
 
 // Extend HTMLElement interface to include custom methods
 declare global {
     interface HTMLElement {
-        drawConnections?: () => void;
-        drawServerConnections?: () => void;
         resetAll?: () => void;
     }
     
@@ -53,6 +53,7 @@ export class HoverEventManager implements IHoverEventManager {
         try {
             this.setupPageCardHovers();
             this.setupServerCardHovers();
+            this.setupBackendCardHovers();
             this.setupGlobalMouseLeave();
             return true;
         } catch (error) {
@@ -74,11 +75,6 @@ export class HoverEventManager implements IHoverEventManager {
                 this.handleCardLeave(e as MouseEvent);
             });
 
-            // Add connection drawing method
-            pageCard.drawConnections = () => {
-                this.drawPageConnections(pageCard);
-            };
-
             // Add reset method
             pageCard.resetAll = () => {
                 this.resetAllCards();
@@ -99,10 +95,22 @@ export class HoverEventManager implements IHoverEventManager {
                 this.handleCardLeave(e as MouseEvent);
             });
 
-            // Add connection drawing method
-            serverCard.drawServerConnections = () => {
-                this.drawServerConnections(serverCard);
-            };
+        });
+    }
+
+    private setupBackendCardHovers(): void {
+        const backendCards = document.querySelectorAll('.backend-card') as NodeListOf<HTMLElement>;
+        
+        backendCards.forEach(backendCard => {
+            backendCard.addEventListener('mouseenter', (e) => {
+                const target = e.target as HTMLElement;
+                this.handleCardHover(target);
+            });
+
+            backendCard.addEventListener('mouseleave', (e) => {
+                this.handleCardLeave(e as MouseEvent);
+            });
+
         });
     }
 
@@ -117,7 +125,7 @@ export class HoverEventManager implements IHoverEventManager {
         // Also reset when clicking outside any card
         document.addEventListener('click', (e) => {
             const target = e.target as HTMLElement;
-            if (!target.closest('.page-card') && !target.closest('.server-card')) {
+            if (!target.closest('.page-card') && !target.closest('.server-card') && !target.closest('.backend-card')) {
                 this.scheduleReset();
             }
         });
@@ -144,11 +152,7 @@ export class HoverEventManager implements IHoverEventManager {
         this.animationManager.repositionRelatedCards(card, relatedElements).then(() => {
             // Draw connections after repositioning
             setTimeout(() => {
-                if (card.classList.contains('page-card')) {
-                    card.drawConnections?.();
-                } else if (card.classList.contains('server-card')) {
-                    card.drawServerConnections?.();
-                }
+                this.drawConnections(card, relatedElements);
                 this.isProcessing = false;
             }, 50);
         }).catch(error => {
@@ -159,13 +163,12 @@ export class HoverEventManager implements IHoverEventManager {
 
     private handleCardLeave(e: MouseEvent): void {
         const relatedTarget = e.relatedTarget as HTMLElement | null;
-        const sourceCard = (e.target as HTMLElement)?.closest('.page-card, .server-card');
-        
         
         // Only prevent reset if moving to another card, not just any diagram element
         if (relatedTarget && (
             relatedTarget.closest('.page-card') || 
-            relatedTarget.closest('.server-card')
+            relatedTarget.closest('.server-card') ||
+            relatedTarget.closest('.backend-card')
         )) {
             console.log('🚪 Not resetting - moving to another card');
             return;
@@ -179,7 +182,11 @@ export class HoverEventManager implements IHoverEventManager {
         if (this.isResettingCards) return;
         
         this.cancelReset();
-        this.resetAllCards(); // Execute immediately, no timeout
+        
+        // Add a longer delay before resetting to keep highlighting longer
+        this.resetTimeout = window.setTimeout(() => {
+            this.resetAllCards();
+        }, 500); // 500ms delay before reset
     }
 
     private cancelReset(): void {
@@ -205,7 +212,7 @@ export class HoverEventManager implements IHoverEventManager {
         // Reset positions using animation manager
         this.animationManager.resetAllCards().then(() => {
             // Ensure all cards are fully reset
-            const allCards = document.querySelectorAll('.page-card, .server-card') as NodeListOf<HTMLElement>;
+            const allCards = document.querySelectorAll('.page-card, .server-card, .backend-card') as NodeListOf<HTMLElement>;
             allCards.forEach(card => {
                 // Force remove any lingering styles
                 card.style.removeProperty('transform');
@@ -231,122 +238,86 @@ export class HoverEventManager implements IHoverEventManager {
         }
     }
 
-    private drawPageConnections(pageCard: HTMLElement): void {
-        const pageApisData = pageCard.dataset.apis;
-        if (!pageApisData) return;
-
-        const pageApis: string[] = JSON.parse(pageApisData);
-        console.log('Drawing connections for APIs:', pageApis);
+    private drawConnections(hoveredCard: HTMLElement, relatedElements: RelatedElements): void {
+        // Get unique connection pairs using the new method
+        const connectionPairs = this.relationshipManager.getUniqueRelationPairs(hoveredCard, relatedElements);
         
-        pageApis.forEach(api => {
-            const [serverId, apiPath] = api.split(':');
-            const method = apiPath.trim().split(' ')[0] as HttpMethod;
-            const fullApiPath = apiPath.trim();
-            const color = this.connectionManager.getMethodColor(method);
-            
-            // Find page API element
-            const pageApiElement = pageCard.querySelector(`[data-full-api="${api}"]`) as HTMLElement;
-            
-            // Find server API element
-            const serverCard = document.querySelector(`[data-server="${serverId}"]`) as HTMLElement;
-            let serverApiElement: HTMLElement | null = null;
-            
-            if (serverCard) {
-                const serverApiElements = serverCard.querySelectorAll('.api-item') as NodeListOf<HTMLElement>;
-                serverApiElements.forEach(element => {
-                    const serverApiText = element.dataset.apiText || element.textContent?.trim();
-                    if (serverApiText === fullApiPath) {
-                        serverApiElement = element;
-                    }
-                });
-            }
-            
-            if (pageApiElement && serverApiElement) {
-                // Highlight the API elements
-                (pageApiElement as HTMLElement).classList.add('highlighted');
-                (serverApiElement as HTMLElement).classList.add('highlighted');
-                
-                // Get element positions for logging
-                const pageRect = (pageApiElement as HTMLElement).getBoundingClientRect();
-                const serverRect = (serverApiElement as HTMLElement).getBoundingClientRect();
-                
-                
-                const line = this.connectionManager.createConnectionLine(
-                    pageApiElement, serverApiElement, color, method
-                );
-                if (line) {
-                    line.setAttribute('stroke-width', '4');
-                    line.setAttribute('opacity', '0.9');
-                    line.classList.add('highlighted');
-                    const svg = document.getElementById('connection-svg');
-                    if (svg) {
-                        svg.appendChild(line);
-                    } else {
-                    }
-                } else {
-                    console.log(`   ❌ Failed to create hover line`);
+        console.log(`Drawing ${connectionPairs.length} unique connection pairs`);
+        
+        // Debug: Show summary of connections
+        const pageToServerCount = connectionPairs.filter(p => p.type === ConnectionType.PAGE_TO_SERVER).length;
+        const serverToBackendCount = connectionPairs.filter(p => p.type === ConnectionType.SERVER_TO_BACKEND).length;
+        console.log(`  - ${pageToServerCount} page-to-server connections`);
+        console.log(`  - ${serverToBackendCount} server-to-backend connections`);
+        
+        // Draw each connection individually
+        connectionPairs.forEach((pair, index) => {
+            console.log(`📐 Connection ${index + 1}/${connectionPairs.length}:`, {
+                type: pair.type,
+                method: pair.method || 'N/A',
+                api: pair.api || 'N/A',
+                from: {
+                    element: pair.from.tagName,
+                    class: pair.from.className,
+                    text: pair.from.textContent?.trim() || 'N/A',
+                    dataset: pair.from.dataset
+                },
+                to: {
+                    element: pair.to.tagName,
+                    class: pair.to.className,
+                    text: pair.to.textContent?.trim() || 'N/A',
+                    dataset: pair.to.dataset
                 }
-            } else {
-                console.log(`   ❌ Missing hover elements - pageApiElement: ${!!pageApiElement}, serverApiElement: ${!!serverApiElement}`);
-            }
+            });
+            this.drawConnection(pair);
         });
     }
 
-    private drawServerConnections(serverCard: HTMLElement): void {
-        const hoveredServerId = serverCard.dataset.server;
-        if (!hoveredServerId) return;
-
-        // Find all pages that connect to this server
-        const pageCards = document.querySelectorAll('.page-card') as NodeListOf<HTMLElement>;
+    drawConnection(connectionPair: ConnectionPair): void {
+        let color: string;
+        let method: string;
         
-        pageCards.forEach(pageCard => {
-            const pageApisData = pageCard.dataset.apis;
-            if (!pageApisData) return;
-
-            const pageApis: string[] = JSON.parse(pageApisData);
+        if (connectionPair.type === ConnectionType.PAGE_TO_SERVER) {
+            // For API connections, use the HTTP method for color and styling
+            method = connectionPair.method || 'GET';
+            color = this.connectionManager.getMethodColor(method);
             
-            // Draw connections for APIs that connect to this server
-            pageApis.forEach(api => {
-                const [serverId, apiPath] = api.split(':');
-                if (serverId !== hoveredServerId) return; // Only connect to this server
-                
-                const method = apiPath.trim().split(' ')[0] as HttpMethod;
-                const fullApiPath = apiPath.trim();
-                const color = this.connectionManager.getMethodColor(method);
-                
-                // Find page API element
-                const pageApiElement = pageCard.querySelector(`[data-full-api="${api}"]`) as HTMLElement;
-                
-                // Find server API element
-                let serverApiElement: HTMLElement | null = null;
-                const serverApiElements = serverCard.querySelectorAll('.api-item') as NodeListOf<HTMLElement>;
-                serverApiElements.forEach(element => {
-                    const serverApiText = element.dataset.apiText || element.textContent?.trim();
-                    if (serverApiText === fullApiPath) {
-                        serverApiElement = element;
-                    }
-                });
-                
-                if (pageApiElement && serverApiElement) {
-                    // Highlight the API elements
-                    (pageApiElement as HTMLElement).classList.add('highlighted');
-                    (serverApiElement as HTMLElement).classList.add('highlighted');
-                    
-                    const line = this.connectionManager.createConnectionLine(
-                        pageApiElement, serverApiElement, color, method
-                    );
-                    if (line) {
-                        line.setAttribute('stroke-width', '4');
-                        line.setAttribute('opacity', '0.9');
-                        line.classList.add('highlighted');
-                        const svg = document.getElementById('connection-svg');
-                        if (svg) {
-                            svg.appendChild(line);
-                        }
-                    }
-                }
+            // Highlight the API elements
+            connectionPair.from.classList.add('highlighted');
+            connectionPair.to.classList.add('highlighted');
+        } else if (connectionPair.type === ConnectionType.SERVER_TO_BACKEND) {
+            // For server-to-backend connections, use purple for database connections
+            method = 'DB';
+            color = '#8b5cf6';
+        } else {
+            // Fallback for any unknown connection types
+            method = 'UNKNOWN';
+            color = '#888888';
+        }
+        
+        // Create the connection line
+        const line = this.connectionManager.createConnectionLine(
+            connectionPair.from, connectionPair.to, color, method
+        );
+        
+        if (line) {
+            line.setAttribute('stroke-width', '4');
+            line.setAttribute('opacity', '0.9');
+            line.classList.add('highlighted');
+            const svg = document.getElementById('connection-svg');
+            if (svg) {
+                svg.appendChild(line);
+                console.log(`✅ Successfully created ${connectionPair.type} connection line`);
+            }
+        } else {
+            console.warn(`Failed to create connection line for ${connectionPair.type} connection`, {
+                from: connectionPair.from,
+                to: connectionPair.to,
+                fromRect: connectionPair.from.getBoundingClientRect(),
+                toRect: connectionPair.to.getBoundingClientRect(),
+                svg: !!document.getElementById('connection-svg')
             });
-        });
+        }
     }
 
     // Drag state management methods

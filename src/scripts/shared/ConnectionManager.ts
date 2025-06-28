@@ -88,12 +88,20 @@ export class ConnectionManager implements IConnectionManager {
         let toY = toRect.top + toRect.height / 2 - svgRect.top;
 
         // Adjust connection points based on direction
-        if (fromElement.closest('.page-card')) {
+        if (fromElement.closest('.page-card') && toElement.closest('.server-card')) {
+            // Page to server: page right edge to server left edge
+            fromX = fromRect.right - svgRect.left;
+            toX = toRect.left - svgRect.left;
+        } else if (fromElement.closest('.server-card') && toElement.closest('.backend-card')) {
+            // Server to backend: server right edge to backend left edge
             fromX = fromRect.right - svgRect.left;
             toX = toRect.left - svgRect.left;
         } else {
-            fromX = fromRect.left - svgRect.left;
-            toX = toRect.right - svgRect.left;
+            // Default: center to center
+            fromX = fromRect.left + fromRect.width / 2 - svgRect.left;
+            fromY = fromRect.top + fromRect.height / 2 - svgRect.top;
+            toX = toRect.left + toRect.width / 2 - svgRect.left;
+            toY = toRect.top + toRect.height / 2 - svgRect.top;
         }
 
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -172,20 +180,7 @@ export class ConnectionManager implements IConnectionManager {
             });
         });
 
-        // Draw server-to-backend connections for all active servers
-        activeServerCards.forEach(serverCard => {
-            const hasBackend = serverCard.dataset.backend;
-            if (hasBackend) {
-                const backendCard = document.querySelector(`[data-backend="${hasBackend}"]`) as HTMLElement;
-                if (backendCard) {
-                    const serverToBackendLine = this.createConnectionLine(serverCard, backendCard, '#6b7280', 'DB');
-                    if (serverToBackendLine && this.connectionSvg) {
-                        serverToBackendLine.setAttribute('stroke-width', '3');
-                        serverToBackendLine.setAttribute('opacity', '0.7');
-                        this.connectionSvg.appendChild(serverToBackendLine);
-                    }
-                }
-            }
-        });
+        // Note: Server-to-backend connections for hover are handled in HoverEventManager
+        // This method is for bulk active card connections, not hover-specific connections
     }
 }

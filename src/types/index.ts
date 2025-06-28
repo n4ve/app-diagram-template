@@ -43,6 +43,7 @@ export interface MovementVector {
 export interface RelatedElements {
   pages: HTMLElement[];
   servers: HTMLElement[];
+  backends: HTMLElement[];
   apiItems: HTMLElement[];
 }
 
@@ -76,6 +77,15 @@ export interface ConnectionInfo {
   dashPattern: string;
 }
 
+export interface ConnectionPair {
+  from: HTMLElement;
+  to: HTMLElement;
+  type: ConnectionType;
+  method?: string;
+  api?: string;
+  color?: string;
+}
+
 export interface SVGConnectionData {
   id: string;
   fromX: number;
@@ -89,6 +99,12 @@ export interface SVGConnectionData {
 
 // HTTP Methods
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS';
+
+// Connection Types
+export enum ConnectionType {
+  PAGE_TO_SERVER = 'page-to-server',
+  SERVER_TO_BACKEND = 'server-to-backend'
+}
 
 // Manager interface types
 export interface ManagerInitialization {
@@ -156,6 +172,7 @@ export interface CardRelationshipManager extends ManagerInitialization {
   findRelatedCards(hoveredCard: HTMLElement): RelatedElements;
   setActiveClasses(hoveredCard: HTMLElement, relatedElements: RelatedElements): void;
   clearActiveClasses(): void;
+  getUniqueRelationPairs(hoveredCard: HTMLElement, relatedElements: RelatedElements): ConnectionPair[];
 }
 
 export interface CardPositionManager extends ManagerInitialization {
@@ -176,6 +193,7 @@ export interface CardAnimationManager extends ManagerInitialization {
 export interface HoverEventManager extends ManagerInitialization {
   handleCardHover(card: HTMLElement): void;
   resetAllCards(): void;
+  drawConnection?(connectionPair: ConnectionPair): void;
 }
 
 export interface DiagramController {

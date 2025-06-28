@@ -2,7 +2,8 @@
 
 /* Default visible state for all cards */
 .page-card,
-.server-card {
+.server-card,
+.backend-card {
   opacity: 1;
   transform: scale(1);
   pointer-events: auto;
@@ -14,7 +15,7 @@
   flex: 0 0 auto;
   min-height: 200px;
   margin-bottom: 0;
-  transition: all 0.3s ease;
+  transition: all 0.6s ease;
   width: 100%;
   max-width: 100%;
 }
@@ -43,6 +44,22 @@
   z-index: 20;
 }
 
+/* Interactive states for backend cards */
+.backend-card.active {
+  border: 2px solid #10b981;
+  background: linear-gradient(135deg, #ffffff 0%, #dcfce7 100%);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.15);
+  z-index: 20;
+}
+
+.backend-card.highlighted {
+  border: 2px solid #10b981;
+  background: linear-gradient(135deg, #ffffff 0%, #dcfce7 100%);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.15);
+  transform: scale(1.02);
+  z-index: 15;
+}
+
 /* Enhanced active states with better visibility */
 .page-card.active,
 .page-card.highlighted {
@@ -68,17 +85,44 @@
   transform-origin: center center !important;
 }
 
+/* High specificity override for backend cards */
+div.backend-card.active,
+div.backend-card.highlighted {
+  border: 2px solid #10b981 !important;
+  border-color: #10b981 !important;
+  background: linear-gradient(135deg, #ffffff 0%, #dcfce7 100%) !important;
+  background-color: #dcfce7 !important;
+  background-image: linear-gradient(135deg, #ffffff 0%, #dcfce7 100%) !important;
+  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.35) !important;
+  z-index: 60 !important;
+  position: relative !important;
+  opacity: 1 !important;
+  transform: scale(1.02) !important;
+  transform-origin: center center !important;
+}
+
+/* Additional fallback with class chain */
+.backend-card.bg-gradient-to-br.active,
+.backend-card.bg-gradient-to-br.highlighted {
+  border: 2px solid #10b981 !important;
+  background: linear-gradient(135deg, #ffffff 0%, #dcfce7 100%) !important;
+  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.35) !important;
+  transform: scale(1.02) !important;
+}
+
 /* Dimming effect for non-active cards */
 .diagram-dimmed .page-card:not(.active):not(.highlighted),
-.diagram-dimmed .server-card:not(.active):not(.highlighted) {
+.diagram-dimmed .server-card:not(.active):not(.highlighted),
+.diagram-dimmed .backend-card:not(.active):not(.highlighted) {
   opacity: 0.3 !important;
-  transition: opacity 0.3s ease !important;
+  transition: opacity 0.8s ease !important;
   transform: scale(0.98) !important;
 }
 
 /* Prevent CSS conflicts during movement */
 .diagram-dimmed .page-card.active,
-.diagram-dimmed .server-card.active {
+.diagram-dimmed .server-card.active,
+.diagram-dimmed .backend-card.active {
   opacity: 1 !important;
   filter: none !important;
   transform-origin: center center;
@@ -87,7 +131,8 @@
 
 /* Card hover effects - prevent movement when repositioning */
 .page-card:not(.repositioning):not(.js-animating):hover,
-.server-card:not(.repositioning):not(.js-animating):hover {
+.server-card:not(.repositioning):not(.js-animating):hover,
+.backend-card:not(.repositioning):not(.js-animating):hover {
   transform: translateY(-4px) scale(1.02);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   z-index: 20;
@@ -95,14 +140,16 @@
 
 /* Cards that are being hovered should stay in position */
 .page-card.active.hovered,
-.server-card.active.hovered {
+.server-card.active.hovered,
+.backend-card.active.hovered {
   transform: scale(1.08) !important;
   transition: transform 0.3s ease !important;
 }
 
 /* Clean reset styles - ensure no leftover colors */
 .page-card:not(.js-animating),
-.server-card:not(.js-animating) {
+.server-card:not(.js-animating),
+.backend-card:not(.js-animating) {
   background-color: white !important;
   border: 1px solid #e5e7eb !important;
   outline: none !important;
@@ -112,7 +159,8 @@
 
 /* Completely override any test styling */
 .page-card,
-.server-card {
+.server-card,
+.backend-card {
   background-color: white;
   outline: none;
 }
@@ -137,7 +185,8 @@
 /* Very small screens adjustments */
 @media (max-width: 480px) {
   .page-card,
-  .server-card {
+  .server-card,
+  .backend-card {
     min-height: auto;
     margin-bottom: 0.5rem;
     max-width: 100%;

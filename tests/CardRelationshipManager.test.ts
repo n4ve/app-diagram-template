@@ -90,6 +90,7 @@ describe('CardRelationshipManager', () => {
       const relatedElements = {
         pages: [mockPageCard],
         servers: [mockServerCard],
+        backends: [],
         apiItems: []
       }
 

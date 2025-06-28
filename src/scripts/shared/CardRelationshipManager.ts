@@ -6,52 +6,96 @@
 
 import type { 
     CardRelationshipManager as ICardRelationshipManager, 
-    RelatedElements 
+    RelatedElements,
+    ConnectionPair,
+    HttpMethod
 } from '../../types/index.js';
+import { ConnectionType } from '../../types/index.js';
 
 export class CardRelationshipManager implements ICardRelationshipManager {
     private pageCards: NodeListOf<HTMLElement> = document.querySelectorAll('.page-card');
     private serverCards: NodeListOf<HTMLElement> = document.querySelectorAll('.server-card');
+    private backendCards: NodeListOf<HTMLElement> = document.querySelectorAll('.backend-card');
 
     constructor() {
         this.pageCards = document.querySelectorAll('.page-card');
         this.serverCards = document.querySelectorAll('.server-card');
+        this.backendCards = document.querySelectorAll('.backend-card');
     }
 
     initialize(): boolean {
         this.pageCards = document.querySelectorAll('.page-card');
         this.serverCards = document.querySelectorAll('.server-card');
+        this.backendCards = document.querySelectorAll('.backend-card');
         
-        if (this.pageCards.length === 0 || this.serverCards.length === 0) {
-            console.error('Cards not found');
+        // Only require that at least one type of card exists
+        const totalCards = this.pageCards.length + this.serverCards.length + this.backendCards.length;
+        if (totalCards === 0) {
+            console.error('No cards found');
             return false;
         }
         return true;
     }
 
     findRelatedCards(hoveredCard: HTMLElement): RelatedElements {
-        if (hoveredCard.classList.contains('page-card')) {
-            return this._findRelatedCardsForPage(hoveredCard);
-        } else if (hoveredCard.classList.contains('server-card')) {
-            return this._findRelatedCardsForServer(hoveredCard);
-        }
-        
-        return {
-            pages: [],
-            servers: [],
-            apiItems: []
-        };
-    }
-
-    private _findRelatedCardsForPage(pageCard: HTMLElement): RelatedElements {
         const relatedPages: HTMLElement[] = [];
         const relatedServers: HTMLElement[] = [];
+        const relatedBackends: HTMLElement[] = [];
         const relatedApiItems: HTMLElement[] = [];
-        
-        const pageApisData = pageCard.dataset.apis;
-        if (!pageApisData) {
-            return { pages: relatedPages, servers: relatedServers, apiItems: relatedApiItems };
+
+        // Log the hovered card
+        console.log('🎯 Finding related cards for:', {
+            type: hoveredCard.classList.toString(),
+            id: hoveredCard.dataset.server || hoveredCard.dataset.backend || hoveredCard.dataset.apis?.substring(0, 50) + '...',
+            dataset: hoveredCard.dataset
+        });
+
+        if (hoveredCard.classList.contains('page-card')) {
+            // Page relations: page -> servers -> backends
+            this._findServersRelatedToPage(hoveredCard, relatedServers, relatedApiItems);
+            this._findBackendsRelatedToServers(relatedServers, relatedBackends);
+        } else if (hoveredCard.classList.contains('server-card')) {
+            // Server relations: server -> pages & server -> backends
+            this._findPagesRelatedToServer(hoveredCard, relatedPages, relatedApiItems);
+            this._findBackendsRelatedToServers([hoveredCard], relatedBackends);
+        } else if (hoveredCard.classList.contains('backend-card')) {
+            // Backend relations: backend -> servers -> pages
+            this._findServersRelatedToBackend(hoveredCard, relatedServers);
+            this._findPagesRelatedToServers(relatedServers, relatedPages, relatedApiItems);
         }
+
+        const result = {
+            pages: relatedPages,
+            servers: relatedServers,
+            backends: relatedBackends,
+            apiItems: relatedApiItems
+        };
+
+        // Log the found related cards
+        console.log('📋 Related cards found:', {
+            pages: relatedPages.map(p => ({
+                apis: p.dataset.apis?.substring(0, 50) + '...',
+                classes: p.classList.toString()
+            })),
+            servers: relatedServers.map(s => ({
+                id: s.dataset.server,
+                backend: s.dataset.backend,
+                classes: s.classList.toString()
+            })),
+            backends: relatedBackends.map(b => ({
+                id: b.dataset.backend,
+                classes: b.classList.toString()
+            })),
+            apiItems: `${relatedApiItems.length} items`
+        });
+
+        return result;
+    }
+
+    // Unified relationship finding methods - bidirectional logic
+    private _findServersRelatedToPage(pageCard: HTMLElement, relatedServers: HTMLElement[], relatedApiItems: HTMLElement[]): void {
+        const pageApisData = pageCard.dataset.apis;
+        if (!pageApisData) return;
 
         const pageApis: string[] = JSON.parse(pageApisData);
         const relatedServerIds = new Set<string>();
@@ -82,26 +126,11 @@ export class CardRelationshipManager implements ICardRelationshipManager {
                 });
             }
         });
-        
-        // DO NOT include other pages - only direct server connections matter
-        // Related pages are determined by UI/business logic, not API sharing
-        
-        return {
-            pages: relatedPages, // Empty - no automatic page relationships
-            servers: relatedServers,
-            apiItems: relatedApiItems
-        };
     }
 
-    private _findRelatedCardsForServer(serverCard: HTMLElement): RelatedElements {
-        const relatedPages: HTMLElement[] = [];
-        const relatedServers: HTMLElement[] = [];
-        const relatedApiItems: HTMLElement[] = [];
-        
+    private _findPagesRelatedToServer(serverCard: HTMLElement, relatedPages: HTMLElement[], relatedApiItems: HTMLElement[]): void {
         const hoveredServerId = serverCard.dataset.server;
-        if (!hoveredServerId) {
-            return { pages: relatedPages, servers: relatedServers, apiItems: relatedApiItems };
-        }
+        if (!hoveredServerId) return;
         
         // Find pages that have direct API connections to this server
         this.pageCards.forEach(pageCard => {
@@ -127,15 +156,62 @@ export class CardRelationshipManager implements ICardRelationshipManager {
                 });
             }
         });
+    }
+
+    private _findPagesRelatedToServers(servers: HTMLElement[], relatedPages: HTMLElement[], relatedApiItems: HTMLElement[]): void {
+        const connectedServerIds = servers.map(s => s.dataset.server).filter(Boolean) as string[];
         
-        // DO NOT include other servers - only direct page connections matter
-        // Server-to-server relationships should be explicit, not inferred
+        this.pageCards.forEach(pageCard => {
+            const pageApisData = pageCard.dataset.apis;
+            if (!pageApisData) return;
+
+            const pageApis: string[] = JSON.parse(pageApisData);
+            const hasConnection = pageApis.some(api => {
+                const [serverId] = api.split(':');
+                return connectedServerIds.includes(serverId);
+            });
+            
+            if (hasConnection) {
+                relatedPages.push(pageCard);
+                
+                // Find specific API items within the page card that connect to related servers
+                const pageApiItems = pageCard.querySelectorAll('.api-item') as NodeListOf<HTMLElement>;
+                pageApiItems.forEach(apiItem => {
+                    const apiData = apiItem.dataset.fullApi;
+                    if (apiData) {
+                        const [serverId] = apiData.split(':');
+                        if (connectedServerIds.includes(serverId)) {
+                            relatedApiItems.push(apiItem);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    private _findBackendsRelatedToServers(servers: HTMLElement[], relatedBackends: HTMLElement[]): void {
+        servers.forEach(serverCard => {
+            const serverBackend = serverCard.dataset.backend;
+            if (serverBackend) {
+                const backendCard = document.querySelector(`.backend-card[data-backend="${serverBackend}"]`) as HTMLElement;
+                if (backendCard && !relatedBackends.includes(backendCard)) {
+                    relatedBackends.push(backendCard);
+                }
+            }
+        });
+    }
+
+    private _findServersRelatedToBackend(backendCard: HTMLElement, relatedServers: HTMLElement[]): void {
+        const hoveredBackendId = backendCard.dataset.backend;
+        if (!hoveredBackendId) return;
         
-        return {
-            pages: relatedPages,
-            servers: relatedServers, // Empty - no automatic server relationships
-            apiItems: relatedApiItems
-        };
+        // Find servers that use this backend
+        this.serverCards.forEach(serverCard => {
+            const serverBackend = serverCard.dataset.backend;
+            if (serverBackend === hoveredBackendId) {
+                relatedServers.push(serverCard);
+            }
+        });
     }
 
     setActiveClasses(hoveredCard: HTMLElement, relatedElements: RelatedElements): void {
@@ -146,7 +222,7 @@ export class CardRelationshipManager implements ICardRelationshipManager {
         hoveredCard.classList.add('active');
         
         // Set active classes for related cards
-        [...relatedElements.pages, ...relatedElements.servers].forEach(relatedCard => {
+        [...relatedElements.pages, ...relatedElements.servers, ...relatedElements.backends].forEach(relatedCard => {
             relatedCard.classList.add('active');
         });
 
@@ -163,7 +239,7 @@ export class CardRelationshipManager implements ICardRelationshipManager {
     }
 
     clearActiveClasses(): void {
-        [...this.pageCards, ...this.serverCards].forEach(card => {
+        [...this.pageCards, ...this.serverCards, ...this.backendCards].forEach(card => {
             card.classList.remove('active', 'highlighted', 'hovered');
             
             // Clear API item classes too
@@ -178,5 +254,259 @@ export class CardRelationshipManager implements ICardRelationshipManager {
         if (diagramContainer) {
             diagramContainer.classList.remove('diagram-dimmed');
         }
+    }
+
+    getUniqueRelationPairs(hoveredCard: HTMLElement, relatedElements: RelatedElements): ConnectionPair[] {
+        const connectionPairs: ConnectionPair[] = [];
+        const uniquePairs = new Set<string>();
+
+        console.log('🔍 Getting unique connection pairs for:', hoveredCard.classList.toString());
+
+        if (hoveredCard.classList.contains('page-card')) {
+            return this._getPageConnectionPairs(hoveredCard, relatedElements, connectionPairs, uniquePairs);
+        } else if (hoveredCard.classList.contains('server-card')) {
+            return this._getServerConnectionPairs(hoveredCard, relatedElements, connectionPairs, uniquePairs);
+        } else if (hoveredCard.classList.contains('backend-card')) {
+            return this._getBackendConnectionPairs(hoveredCard, relatedElements, connectionPairs, uniquePairs);
+        }
+
+        return connectionPairs;
+    }
+
+    private _getPageConnectionPairs(
+        pageCard: HTMLElement, 
+        relatedElements: RelatedElements, 
+        connectionPairs: ConnectionPair[], 
+        uniquePairs: Set<string>
+    ): ConnectionPair[] {
+        const pageApisData = pageCard.dataset.apis;
+        if (!pageApisData) return connectionPairs;
+
+        const pageApis: string[] = JSON.parse(pageApisData);
+        const uniqueServerIds = new Set<string>();
+
+        // 1. Page-to-Server API connections
+        pageApis.forEach(api => {
+            const [serverId, apiPath] = api.split(':');
+            const method = apiPath.trim().split(' ')[0] as HttpMethod;
+            uniqueServerIds.add(serverId);
+
+            // Find page API element
+            const pageApiElement = pageCard.querySelector(`[data-full-api="${api}"]`) as HTMLElement;
+            
+            // Find server API element - only from related servers
+            const serverCard = relatedElements.servers.find(s => s.dataset.server === serverId);
+            if (serverCard && pageApiElement) {
+                const serverApiElements = serverCard.querySelectorAll('.api-item') as NodeListOf<HTMLElement>;
+                let serverApiElement: HTMLElement | null = null;
+                
+                serverApiElements.forEach(element => {
+                    const serverApiText = element.dataset.apiText || element.textContent?.trim();
+                    if (serverApiText === apiPath.trim()) {
+                        serverApiElement = element;
+                    }
+                });
+
+                if (serverApiElement) {
+                    const pageApiId = (pageApiElement as HTMLElement).dataset.fullApi || (pageApiElement as HTMLElement).getAttribute('data-full-api') || '';
+                    const serverApiId = (serverApiElement as HTMLElement).dataset.apiText || (serverApiElement as HTMLElement).getAttribute('data-api-text') || '';
+                    const pairKey = `${pageApiId}-${serverApiId}`;
+                    if (!uniquePairs.has(pairKey)) {
+                        uniquePairs.add(pairKey);
+                        connectionPairs.push({
+                            from: pageApiElement,
+                            to: serverApiElement,
+                            type: ConnectionType.PAGE_TO_SERVER,
+                            method: method,
+                            api: api
+                        });
+                    }
+                }
+            }
+        });
+
+        // 2. Server-to-Backend connections (once per unique server)
+        console.log('  Creating server-to-backend connections for servers:', Array.from(uniqueServerIds));
+        uniqueServerIds.forEach(serverId => {
+            const serverCard = relatedElements.servers.find(s => s.dataset.server === serverId);
+            if (serverCard) {
+                const serverBackend = serverCard.dataset.backend;
+                if (serverBackend) {
+                    const backendCard = relatedElements.backends.find(b => b.dataset.backend === serverBackend);
+                    if (backendCard) {
+                        const pairKey = `${serverId}-${serverBackend}`;
+                        console.log(`    Checking pair: ${pairKey}, already exists: ${uniquePairs.has(pairKey)}`);
+                        if (!uniquePairs.has(pairKey)) {
+                            uniquePairs.add(pairKey);
+                            connectionPairs.push({
+                                from: serverCard,
+                                to: backendCard,
+                                type: ConnectionType.SERVER_TO_BACKEND
+                            });
+                        }
+                    }
+                }
+            }
+        });
+
+        return connectionPairs;
+    }
+
+    private _getServerConnectionPairs(
+        serverCard: HTMLElement, 
+        relatedElements: RelatedElements, 
+        connectionPairs: ConnectionPair[], 
+        uniquePairs: Set<string>
+    ): ConnectionPair[] {
+        const hoveredServerId = serverCard.dataset.server;
+        if (!hoveredServerId) return connectionPairs;
+
+        // 1. Page-to-Server API connections
+        relatedElements.pages.forEach(pageCard => {
+            const pageApisData = pageCard.dataset.apis;
+            if (!pageApisData) return;
+
+            const pageApis: string[] = JSON.parse(pageApisData);
+            
+            pageApis.forEach(api => {
+                const [serverId, apiPath] = api.split(':');
+                if (serverId !== hoveredServerId) return;
+                
+                const method = apiPath.trim().split(' ')[0] as HttpMethod;
+                
+                // Find page API element
+                const pageApiElement = pageCard.querySelector(`[data-full-api="${api}"]`) as HTMLElement;
+                
+                // Find server API element
+                let serverApiElement: HTMLElement | null = null;
+                const serverApiElements = serverCard.querySelectorAll('.api-item') as NodeListOf<HTMLElement>;
+                serverApiElements.forEach(element => {
+                    const serverApiText = element.dataset.apiText || element.textContent?.trim();
+                    if (serverApiText === apiPath.trim()) {
+                        serverApiElement = element;
+                    }
+                });
+                
+                if (pageApiElement && serverApiElement) {
+                    const pageApiId = (pageApiElement as HTMLElement).dataset.fullApi || (pageApiElement as HTMLElement).getAttribute('data-full-api') || '';
+                    const serverApiId = (serverApiElement as HTMLElement).dataset.apiText || (serverApiElement as HTMLElement).getAttribute('data-api-text') || '';
+                    const pairKey = `${pageApiId}-${serverApiId}`;
+                    if (!uniquePairs.has(pairKey)) {
+                        uniquePairs.add(pairKey);
+                        connectionPairs.push({
+                            from: pageApiElement,
+                            to: serverApiElement,
+                            type: ConnectionType.PAGE_TO_SERVER,
+                            method: method,
+                            api: api
+                        });
+                    }
+                }
+            });
+        });
+
+        // 2. Server-to-Backend connection
+        const serverBackend = serverCard.dataset.backend;
+        if (serverBackend) {
+            const backendCard = relatedElements.backends.find(b => b.dataset.backend === serverBackend);
+            if (backendCard) {
+                const pairKey = `${hoveredServerId}-${serverBackend}`;
+                if (!uniquePairs.has(pairKey)) {
+                    uniquePairs.add(pairKey);
+                    connectionPairs.push({
+                        from: serverCard,
+                        to: backendCard,
+                        type: ConnectionType.SERVER_TO_BACKEND
+                    });
+                }
+            }
+        }
+
+        return connectionPairs;
+    }
+
+    private _getBackendConnectionPairs(
+        backendCard: HTMLElement, 
+        relatedElements: RelatedElements, 
+        connectionPairs: ConnectionPair[], 
+        uniquePairs: Set<string>
+    ): ConnectionPair[] {
+        const hoveredBackendId = backendCard.dataset.backend;
+        if (!hoveredBackendId) return connectionPairs;
+
+        // Find connected server IDs
+        const connectedServerIds: string[] = [];
+        relatedElements.servers.forEach(serverCard => {
+            const serverId = serverCard.dataset.server;
+            if (serverId) {
+                connectedServerIds.push(serverId);
+            }
+        });
+
+        // 1. Page-to-Server API connections for related pages/servers
+        relatedElements.pages.forEach(pageCard => {
+            const pageApisData = pageCard.dataset.apis;
+            if (!pageApisData) return;
+
+            const pageApis: string[] = JSON.parse(pageApisData);
+            
+            pageApis.forEach(api => {
+                const [serverId, apiPath] = api.split(':');
+                if (!connectedServerIds.includes(serverId)) return;
+                
+                const method = apiPath.trim().split(' ')[0] as HttpMethod;
+                
+                // Find page API element
+                const pageApiElement = pageCard.querySelector(`[data-full-api="${api}"]`) as HTMLElement;
+                
+                // Find server card and API element
+                const serverCard = relatedElements.servers.find(s => s.dataset.server === serverId);
+                let serverApiElement: HTMLElement | null = null;
+                
+                if (serverCard) {
+                    const serverApiElements = serverCard.querySelectorAll('.api-item') as NodeListOf<HTMLElement>;
+                    serverApiElements.forEach(element => {
+                        const serverApiText = element.dataset.apiText || element.textContent?.trim();
+                        if (serverApiText === apiPath.trim()) {
+                            serverApiElement = element;
+                        }
+                    });
+                }
+                
+                if (pageApiElement && serverApiElement) {
+                    const pageApiId = (pageApiElement as HTMLElement).dataset.fullApi || (pageApiElement as HTMLElement).getAttribute('data-full-api') || '';
+                    const serverApiId = (serverApiElement as HTMLElement).dataset.apiText || (serverApiElement as HTMLElement).getAttribute('data-api-text') || '';
+                    const pairKey = `${pageApiId}-${serverApiId}`;
+                    if (!uniquePairs.has(pairKey)) {
+                        uniquePairs.add(pairKey);
+                        connectionPairs.push({
+                            from: pageApiElement,
+                            to: serverApiElement,
+                            type: ConnectionType.PAGE_TO_SERVER,
+                            method: method,
+                            api: api
+                        });
+                    }
+                }
+            });
+        });
+
+        // 2. Server-to-Backend connections
+        relatedElements.servers.forEach(serverCard => {
+            const serverId = serverCard.dataset.server;
+            if (serverId) {
+                const pairKey = `${serverId}-${hoveredBackendId}`;
+                if (!uniquePairs.has(pairKey)) {
+                    uniquePairs.add(pairKey);
+                    connectionPairs.push({
+                        from: serverCard,
+                        to: backendCard,
+                        type: ConnectionType.SERVER_TO_BACKEND
+                    });
+                }
+            }
+        });
+
+        return connectionPairs;
     }
 }

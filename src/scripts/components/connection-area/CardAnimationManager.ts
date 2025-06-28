@@ -14,18 +14,18 @@ import type {
 export class CardAnimationManager implements ICardAnimationManager {
     private positionManager: CardPositionManager;
     private connectionManager: ConnectionManager;
-    private allCards: NodeListOf<HTMLElement> = document.querySelectorAll('.page-card, .server-card');
+    private allCards: NodeListOf<HTMLElement> = document.querySelectorAll('.page-card, .server-card, .backend-card');
     private originalPositions: Map<HTMLElement, DOMRect> = new Map();
 
     constructor(positionManager: CardPositionManager, connectionManager: ConnectionManager) {
         this.positionManager = positionManager;
         this.connectionManager = connectionManager;
-        this.allCards = document.querySelectorAll('.page-card, .server-card');
+        this.allCards = document.querySelectorAll('.page-card, .server-card, .backend-card');
         this.originalPositions = new Map();
     }
 
     initialize(): boolean {
-        this.allCards = document.querySelectorAll('.page-card, .server-card');
+        this.allCards = document.querySelectorAll('.page-card, .server-card, .backend-card');
         
         // Store original positions
         this.allCards.forEach(card => {
@@ -40,7 +40,7 @@ export class CardAnimationManager implements ICardAnimationManager {
     }
 
     async repositionRelatedCards(hoveredCard: HTMLElement, relatedElements: RelatedElements): Promise<void> {
-        const allCards = document.querySelectorAll('.page-card, .server-card') as NodeListOf<HTMLElement>;
+        const allCards = document.querySelectorAll('.page-card, .server-card, .backend-card') as NodeListOf<HTMLElement>;
         const hoveredRect = hoveredCard.getBoundingClientRect();
         const diagramContainer = document.getElementById('diagram-container');
         const containerRect = diagramContainer?.getBoundingClientRect();
@@ -51,7 +51,7 @@ export class CardAnimationManager implements ICardAnimationManager {
         const hoveredCenterY = hoveredRect.top + hoveredRect.height / 2 - containerRect.top;
         
         // Flatten related elements for easier checking
-        const relatedCards = [...relatedElements.pages, ...relatedElements.servers];
+        const relatedCards = [...relatedElements.pages, ...relatedElements.servers, ...relatedElements.backends];
         
         // Identify unrelated cards first
         const unrelatedCards = Array.from(allCards).filter(card => 
@@ -75,17 +75,13 @@ export class CardAnimationManager implements ICardAnimationManager {
             }
         });
         
-        // Redraw connections after cards have moved
-        setTimeout(() => {
-            this.connectionManager.clearConnections();
-            this._drawConnectionsForRelatedCards(hoveredCard, relatedElements);
-        }, 50);
+        // Note: Connections are drawn by HoverEventManager after repositioning
         
         return Promise.resolve();
     }
 
     async resetAllCards(): Promise<void> {
-        const allCards = document.querySelectorAll('.page-card, .server-card') as NodeListOf<HTMLElement>;
+        const allCards = document.querySelectorAll('.page-card, .server-card, .backend-card') as NodeListOf<HTMLElement>;
         
         return new Promise((resolve) => {
             allCards.forEach(card => {
@@ -139,7 +135,7 @@ export class CardAnimationManager implements ICardAnimationManager {
         card.style.setProperty('transform', 'scale(1.1)');
         card.style.setProperty('opacity', '1');
         card.style.setProperty('z-index', '100');
-        card.style.setProperty('transition', 'all 0.3s ease');
+        card.style.setProperty('transition', 'all 0.6s ease');
         card.classList.add('active');
     }
 
@@ -237,7 +233,7 @@ export class CardAnimationManager implements ICardAnimationManager {
         
         // Force reflow then add transition
         card.offsetHeight;
-        card.style.setProperty('transition', 'all 0.4s ease', 'important');
+        card.style.setProperty('transition', 'all 0.6s ease', 'important');
         
         card.classList.add('highlighted');
     }
@@ -248,21 +244,25 @@ export class CardAnimationManager implements ICardAnimationManager {
         card.style.setProperty('transform', 'scale(0.7)');
         card.style.setProperty('pointer-events', 'none');
         card.style.setProperty('z-index', '1');
-        card.style.setProperty('transition', 'all 0.3s ease');
+        card.style.setProperty('transition', 'all 0.6s ease');
         card.classList.add('dimmed');
     }
 
     private _drawConnectionsForRelatedCards(hoveredCard: HTMLElement, relatedElements: RelatedElements): void {
-        const relatedCards = [...relatedElements.pages, ...relatedElements.servers];
+        console.log('🎨 CardAnimationManager: Drawing connections (BYPASS logging!)');
+        const relatedCards = [...relatedElements.pages, ...relatedElements.servers, ...relatedElements.backends];
         const allActiveCards = [hoveredCard, ...relatedCards];
         
         // Draw connections between all active (related) cards
         allActiveCards.forEach(card => {
             if (card.classList.contains('page-card')) {
+                console.log('  📄 Drawing page connections from CardAnimationManager');
                 this._drawPageConnections(card, relatedElements);
             } else if (card.classList.contains('server-card')) {
+                console.log('  🖥️  Drawing server connections from CardAnimationManager');
                 this._drawServerConnections(card);
             }
+            // Note: backend cards don't draw connections, they just get highlighted
         });
     }
 
@@ -322,6 +322,38 @@ export class CardAnimationManager implements ICardAnimationManager {
             } else {
             }
         });
+
+        // Draw server-to-backend connections for all related servers
+        const uniqueServerIds = new Set<string>();
+        pageApis.forEach(api => {
+            const [serverId] = api.split(':');
+            uniqueServerIds.add(serverId);
+        });
+
+        uniqueServerIds.forEach(serverId => {
+            const serverCard = relatedServers.find(server => server.dataset.server === serverId);
+            if (serverCard) {
+                const serverBackend = serverCard.dataset.backend;
+                if (serverBackend) {
+                    const backendCard = document.querySelector(`[data-backend="${serverBackend}"]`) as HTMLElement;
+                    if (backendCard) {
+                        console.log('    🔗 BYPASS: Creating server-to-backend connection:', `${serverId} -> ${serverBackend}`);
+                        const backendLine = this.connectionManager.createConnectionLine(
+                            serverCard, backendCard, '#8b5cf6', 'DB'
+                        );
+                        if (backendLine) {
+                            backendLine.setAttribute('stroke-width', '4');
+                            backendLine.setAttribute('opacity', '0.9');
+                            backendLine.classList.add('highlighted');
+                            const svg = document.getElementById('connection-svg');
+                            if (svg) {
+                                svg.appendChild(backendLine);
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 
     private _drawServerConnections(serverCard: HTMLElement): void {
@@ -363,6 +395,7 @@ export class CardAnimationManager implements ICardAnimationManager {
                     (pageApiElement as HTMLElement).classList.add('highlighted');
                     (serverApiElement as HTMLElement).classList.add('highlighted');
                     
+                    console.log('    🔗 BYPASS: Creating server page-to-server connection:', api);
                     const line = this.connectionManager.createConnectionLine(
                         pageApiElement, serverApiElement, color, method
                     );
@@ -378,5 +411,25 @@ export class CardAnimationManager implements ICardAnimationManager {
                 }
             });
         });
+
+        // Draw server-to-backend connection
+        const serverBackend = serverCard.dataset.backend;
+        if (serverBackend) {
+            const backendCard = document.querySelector(`[data-backend="${serverBackend}"]`) as HTMLElement;
+            if (backendCard) {
+                const backendLine = this.connectionManager.createConnectionLine(
+                    serverCard, backendCard, '#8b5cf6', 'DB'
+                );
+                if (backendLine) {
+                    backendLine.setAttribute('stroke-width', '4');
+                    backendLine.setAttribute('opacity', '0.9');
+                    backendLine.classList.add('highlighted');
+                    const svg = document.getElementById('connection-svg');
+                    if (svg) {
+                        svg.appendChild(backendLine);
+                    }
+                }
+            }
+        }
     }
 }

@@ -48,9 +48,9 @@
 
 .connection-line.highlighted {
   opacity: 1 !important;
-  stroke: #EF4444 !important;
+  stroke: #8b5cf6 !important;
   stroke-width: 4 !important;
-  filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.3));
+  filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.3));
 }
 
 /* Method-specific line colors - override all other styles */
@@ -96,9 +96,9 @@
 
 .connection-dot.highlighted {
   opacity: 1;
-  fill: #EF4444;
+  fill: #8b5cf6;
   r: 6;
-  filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.4));
+  filter: drop-shadow(0 0 6px rgba(139, 92, 246, 0.4));
 }
 
 /* Mobile responsiveness for connections */
