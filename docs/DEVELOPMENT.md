@@ -58,26 +58,34 @@ npm run format
 
 ## 📝 Coding Standards
 
-### JavaScript/ES6+ Guidelines
+### TypeScript Guidelines
 
 #### Module Structure
-```javascript
-// File: /public/scripts/shared/ExampleManager.js
+```typescript
+// File: /public/scripts/shared/ExampleManager.ts
+
+import type { 
+    ManagerInitialization, 
+    ExampleOptions 
+} from '../../../src/types/index.js';
 
 /**
  * Brief description of the module's purpose
  */
-export class ExampleManager {
-    constructor(dependencies) {
+export class ExampleManager implements ManagerInitialization {
+    private dependency: any;
+    private initialized: boolean = false;
+
+    constructor(dependencies: any) {
         this.dependency = dependencies;
         this.initialized = false;
     }
 
     /**
      * Initialize the manager
-     * @returns {boolean} Success status
+     * @returns Success status
      */
-    initialize() {
+    initialize(): boolean {
         // Implementation
         this.initialized = true;
         return true;
@@ -85,11 +93,10 @@ export class ExampleManager {
 
     /**
      * Public method with clear documentation
-     * @param {HTMLElement} element - Target element
-     * @param {Object} options - Configuration options
-     * @returns {Promise<void>}
+     * @param element - Target element
+     * @param options - Configuration options
      */
-    async processElement(element, options = {}) {
+    async processElement(element: HTMLElement, options: ExampleOptions = {}): Promise<void> {
         if (!this.initialized) {
             throw new Error('Manager not initialized');
         }
@@ -97,10 +104,9 @@ export class ExampleManager {
     }
 
     /**
-     * Private method (prefix with underscore)
-     * @private
+     * Private method
      */
-    _internalHelper() {
+    private internalHelper(): void {
         // Implementation
     }
 }

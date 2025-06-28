@@ -40,7 +40,7 @@ app-diagram/
 │   ├── 📁 pages/               # Astro pages
 │   └── 📁 styles/              # CSS stylesheets
 ├── 📁 public/
-│   └── 📁 scripts/             # Client-side JavaScript modules
+│   └── 📁 scripts/             # Client-side TypeScript modules
 ├── 📁 docs/                    # Documentation
 └── 📄 Configuration files      # package.json, astro.config.mjs, etc.
 ```
@@ -66,7 +66,7 @@ app-diagram/
 - **⚡ Astro** - Static site generator with component islands
 - **🎨 Tailwind CSS** - Utility-first CSS framework
 - **📱 Responsive Design** - Mobile-first approach
-- **🔄 ES Modules** - Modern JavaScript module system
+- **🔄 TypeScript** - Type-safe development with ES Modules
 
 ## 🤝 Contributing
 

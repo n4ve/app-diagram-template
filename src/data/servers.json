@@ -11,6 +11,16 @@
         "POST /auth/reset-password"
       ]
     },
+    "order-server": {
+      "name": "Order Management Server",
+      "description": "จัดการคำสั่งซื้อและสถานะ",
+      "apis": [
+        "GET /orders/list", 
+        "GET /orders/details", 
+        "PUT /orders/status", 
+        "POST /orders/create"
+      ]
+    },
     "user-server": {
       "name": "User Management Server", 
       "description": "จัดการข้อมูลผู้ใช้และการตั้งค่า",
@@ -48,16 +58,6 @@
         "PUT /products/update", 
         "DELETE /products/delete",
         "GET /products/categories"
-      ]
-    },
-    "order-server": {
-      "name": "Order Management Server",
-      "description": "จัดการคำสั่งซื้อและสถานะ",
-      "apis": [
-        "GET /orders/list", 
-        "GET /orders/details", 
-        "PUT /orders/status", 
-        "POST /orders/create"
       ]
     },
     "payment-server": {

@@ -9,7 +9,7 @@ console.log('ConnectionArea script loading...');
 async function loadDiagramModules() {
     try {
         console.log('Loading DiagramController...');
-        const { DiagramController } = await import('/scripts/components/connection-area/DiagramController.js');
+        const { DiagramController } = await import('/src/scripts/components/connection-area/DiagramController.ts');
         
         console.log('DiagramController loaded, initializing...');
         const diagramController = new DiagramController();

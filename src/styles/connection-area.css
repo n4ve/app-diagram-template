@@ -100,11 +100,72 @@
 }
 
 /* การ์ด hover effects - ป้องกันการเลื่อนของการ์ดที่ชี้ */
-.page-card:not(.repositioning):hover,
-.server-card:not(.repositioning):hover {
+.page-card:not(.repositioning):not(.js-animating):hover,
+.server-card:not(.repositioning):not(.js-animating):hover {
   transform: translateY(-4px) scale(1.02);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   z-index: 20;
+}
+
+/* Disable Tailwind hover effects when JavaScript is animating */
+.js-animating {
+  /* Override any Tailwind hover transforms */
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+.js-animating:hover {
+  /* Disable Tailwind's hover:-translate-y-2 class */
+  transform: var(--js-transform) !important;
+}
+
+/* Force override all Tailwind transform classes */
+.js-animating,
+.js-animating:hover,
+.js-animating:focus,
+.js-animating:active {
+  transform: var(--js-transform) !important;
+}
+
+/* Specifically override the hover:-translate-y-2 class */
+.hover\:-translate-y-2.js-animating:hover {
+  transform: var(--js-transform) !important;
+}
+
+/* Nuclear option: Override everything for js-animating cards */
+.js-animating {
+  /* Use custom transform property */
+  transform: var(--js-transform, none) !important;
+  /* Disable all Tailwind animations */
+  animation: none !important;
+  transition: var(--js-transition, none) !important;
+}
+
+/* Override even more specific Tailwind selectors */
+.page-card.js-animating,
+.server-card.js-animating,
+.page-card.js-animating:hover,
+.server-card.js-animating:hover {
+  transform: var(--js-transform, none) !important;
+  transition: var(--js-transition, none) !important;
+}
+
+/* Clean reset styles - ensure no leftover colors */
+.page-card:not(.js-animating),
+.server-card:not(.js-animating) {
+  /* Force clean state when not animating */
+  background-color: white !important;
+  border: 1px solid #e5e7eb !important; /* Default border */
+  outline: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
+
+/* Completely override any test styling */
+.page-card,
+.server-card {
+  /* Base reset */
+  background-color: white;
+  outline: none;
 }
 
 /* การ์ดที่กำลัง hover อยู่ต้องคงตำแหน่ง */
@@ -114,21 +175,54 @@
   transition: transform 0.3s ease !important;
 }
 
-/* ป้องกันการทับซ้อนของการ์ด */
+/* 5-card column layout - maximum 5 cards per column (top to bottom), then new column */
 .pages-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem; /* เพิ่มระยะห่าง */
-  padding: 1rem;
-  margin-bottom: 3rem; /* เพิ่มระยะห่างจาก servers */
+  grid-template-rows: repeat(5, auto); /* Maximum 5 rows */
+  grid-auto-flow: column; /* Cards flow into columns vertically first */
+  grid-auto-columns: 350px; /* Larger column width */
+  gap: 3rem; /* Increased spacing between cards */
+  padding: 1.5rem;
+  margin-bottom: 3rem;
+  justify-items: start; /* Align cards to start of each column */
+  width: fit-content; /* Allow container to expand with columns */
 }
 
 .servers-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2rem; /* เพิ่มระยะห่าง */
-  padding: 1rem;
-  margin-top: 3rem; /* เพิ่มระยะห่างจาก pages */
+  grid-template-rows: repeat(5, auto); /* Maximum 5 rows */
+  grid-auto-flow: column; /* Cards flow into columns vertically first */
+  grid-auto-columns: 350px; /* Larger column width */
+  gap: 3rem; /* Increased spacing between cards */
+  padding: 1.5rem;
+  margin-top: 3rem;
+  justify-items: start; /* Align cards to start of each column */
+  width: fit-content; /* Allow container to expand with columns */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 1400px) {
+  .pages-grid,
+  .servers-grid {
+    grid-template-rows: repeat(4, auto); /* 4 cards per column on medium screens */
+    grid-auto-columns: 320px; /* Slightly smaller columns */
+  }
+}
+
+@media (max-width: 1000px) {
+  .pages-grid,
+  .servers-grid {
+    grid-template-rows: repeat(3, auto); /* 3 cards per column on smaller screens */
+    grid-auto-columns: 300px; /* Medium columns */
+  }
+}
+
+@media (max-width: 700px) {
+  .pages-grid,
+  .servers-grid {
+    grid-template-rows: repeat(2, auto); /* 2 cards per column on small screens */
+    grid-auto-columns: 280px; /* Smaller columns on mobile */
+  }
 }
 
 /* ปรับปรุงการ์ดเพื่อป้องกันการทับซ้อน */
@@ -161,12 +255,12 @@
   transform: translateX(6px);
 }
 
-/* Responsive adjustments */
+/* Mobile adjustments */
 @media (max-width: 768px) {
   .pages-grid,
   .servers-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+    grid-template-columns: 1fr; /* Single column on mobile */
+    gap: 1rem;
     padding: 0.5rem;
   }
   
