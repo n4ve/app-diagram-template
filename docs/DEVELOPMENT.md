@@ -30,9 +30,11 @@ app-diagram/
 │   ├── data/              # JSON configuration files
 │   ├── layouts/           # Page layout templates
 │   ├── pages/             # Route pages
-│   └── styles/            # Global CSS files
+│   ├── scripts/           # Client-side TypeScript modules
+│   ├── styles/            # Global CSS files
+│   └── types/             # TypeScript type definitions
 ├── public/                # Static assets
-│   └── scripts/           # Client-side JavaScript modules
+├── tests/                 # Test files
 └── docs/                  # Documentation
 ```
 
@@ -42,8 +44,9 @@ app-diagram/
 # Development server with hot reload
 npm run dev
 
-# Type checking (if TypeScript)
+# Type checking
 npm run astro check
+npm run type-check
 
 # Build for production
 npm run build
@@ -62,12 +65,12 @@ npm run format
 
 #### Module Structure
 ```typescript
-// File: /public/scripts/shared/ExampleManager.ts
+// File: /src/scripts/shared/ExampleManager.ts
 
 import type { 
     ManagerInitialization, 
     ExampleOptions 
-} from '../../../src/types/index.js';
+} from '../../types/index.js';
 
 /**
  * Brief description of the module's purpose
@@ -323,9 +326,9 @@ fpsMeter.tick();
 ### 2. Implementation Phase
 
 #### Module Creation
-```javascript
+```typescript
 // 1. Create new module in appropriate directory
-// /public/scripts/shared/NewFeatureManager.js
+// /src/scripts/shared/NewFeatureManager.ts
 
 export class NewFeatureManager {
     constructor(dependencies) {
@@ -343,11 +346,11 @@ export class NewFeatureManager {
 ```
 
 #### Integration
-```javascript
+```typescript
 // 2. Integrate with DiagramController
-// /public/scripts/components/connection-area/DiagramController.js
+// /src/scripts/components/connection-area/DiagramController.ts
 
-import { NewFeatureManager } from '/scripts/shared/NewFeatureManager.js';
+import { NewFeatureManager } from '../../shared/NewFeatureManager.js';
 
 class DiagramController {
     constructor() {
@@ -508,13 +511,16 @@ API_REFERENCE.md             // UPPER_CASE for documentation
 ```
 
 #### Import Organization
-```javascript
+```typescript
 // 1. External imports first (if any)
 // import { external } from 'external-lib';
 
-// 2. Internal imports
-import { ConnectionManager } from '/scripts/shared/ConnectionManager.js';
-import { CardUtils } from '/scripts/utils/card-utils.js';
+// 2. Type imports
+import type { ManagerConfig } from '../types/index.js';
+
+// 3. Internal imports
+import { ConnectionManager } from '../shared/ConnectionManager.js';
+import { CardUtils } from '../utils/card-utils.js';
 
 // 3. Blank line before main code
 export class ExampleManager {

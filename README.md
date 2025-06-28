@@ -38,9 +38,10 @@ app-diagram/
 │   ├── 📁 data/                # Configuration data (pages.json, servers.json)
 │   ├── 📁 layouts/             # Page layouts
 │   ├── 📁 pages/               # Astro pages
-│   └── 📁 styles/              # CSS stylesheets
-├── 📁 public/
-│   └── 📁 scripts/             # Client-side TypeScript modules
+│   ├── 📁 scripts/             # Client-side TypeScript modules
+│   ├── 📁 styles/              # CSS stylesheets
+│   └── 📁 types/               # TypeScript type definitions
+├── 📁 public/                   # Static assets
 ├── 📁 docs/                    # Documentation
 └── 📄 Configuration files      # package.json, astro.config.mjs, etc.
 ```
