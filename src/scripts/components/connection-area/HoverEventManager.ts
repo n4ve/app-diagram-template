@@ -10,7 +10,8 @@ import type {
     CardRelationshipManager,
     CardAnimationManager,
     ConnectionManager,
-    HttpMethod
+    HttpMethod,
+    DiagramController
 } from '../../../types/index.js';
 
 // Extend HTMLElement interface to include custom methods
@@ -19,6 +20,10 @@ declare global {
         drawConnections?: () => void;
         drawServerConnections?: () => void;
         resetAll?: () => void;
+    }
+    
+    interface Window {
+        diagramController?: DiagramController;
     }
 }
 
@@ -29,6 +34,7 @@ export class HoverEventManager implements IHoverEventManager {
     private isResettingCards: boolean = false;
     private resetTimeout: number | null = null;
     private isProcessing: boolean = false;
+    private isDragging: boolean = false;
 
     constructor(
         relationshipManager: CardRelationshipManager, 
@@ -118,8 +124,7 @@ export class HoverEventManager implements IHoverEventManager {
     }
 
     handleCardHover(card: HTMLElement): void {
-        if (this.isProcessing) return;
-        
+        if (this.isProcessing || this.isDragging) return;
         
         this.isProcessing = true;
         
@@ -342,5 +347,19 @@ export class HoverEventManager implements IHoverEventManager {
                 }
             });
         });
+    }
+
+    // Drag state management methods
+    setDragState(isDragging: boolean): void {
+        this.isDragging = isDragging;
+        
+        // If starting to drag, reset any hover state immediately
+        if (isDragging && !this.isResettingCards) {
+            this.resetAllCards();
+        }
+    }
+
+    getDragState(): boolean {
+        return this.isDragging;
     }
 }

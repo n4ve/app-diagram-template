@@ -10,6 +10,7 @@ export class HoverEventManager {
     isResettingCards = false;
     resetTimeout = null;
     isProcessing = false;
+    isDragging = false;
     constructor(relationshipManager, animationManager, connectionManager) {
         this.relationshipManager = relationshipManager;
         this.animationManager = animationManager;
@@ -82,7 +83,7 @@ export class HoverEventManager {
         });
     }
     handleCardHover(card) {
-        if (this.isProcessing)
+        if (this.isProcessing || this.isDragging)
             return;
         this.isProcessing = true;
         // Cancel any pending reset
@@ -268,5 +269,16 @@ export class HoverEventManager {
                 }
             });
         });
+    }
+    // Drag state management methods
+    setDragState(isDragging) {
+        this.isDragging = isDragging;
+        // If starting to drag, reset any hover state immediately
+        if (isDragging && !this.isResettingCards) {
+            this.resetAllCards();
+        }
+    }
+    getDragState() {
+        return this.isDragging;
     }
 }
