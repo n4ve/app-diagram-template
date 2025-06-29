@@ -125,7 +125,7 @@ describe('Connection Logic Tests', () => {
             // Create properly initialized managers
             const connectionManager = new ConnectionManager();
             const relationshipManager = new CardRelationshipManager();
-            const positionManager = new CardAnimationManager().positionManager;
+            const positionManager = new CardPositionManager();
             const animationManager = new CardAnimationManager(positionManager, connectionManager);
             
             // Initialize the managers
@@ -171,7 +171,7 @@ describe('Connection Logic Tests', () => {
             
             const connectionManager = new ConnectionManager();
             const relationshipManager = new CardRelationshipManager();
-            const positionManager = new CardAnimationManager().positionManager;
+            const positionManager = new CardPositionManager();
             const animationManager = new CardAnimationManager(positionManager, connectionManager);
             
             connectionManager.initialize();
@@ -206,7 +206,7 @@ describe('Connection Logic Tests', () => {
             
             const connectionManager = new ConnectionManager();
             const relationshipManager = new CardRelationshipManager();
-            const positionManager = new CardAnimationManager().positionManager;
+            const positionManager = new CardPositionManager();
             const animationManager = new CardAnimationManager(positionManager, connectionManager);
             
             connectionManager.initialize();
@@ -245,7 +245,7 @@ describe('Connection Logic Tests', () => {
             
             const connectionManager = new ConnectionManager();
             const relationshipManager = new CardRelationshipManager();
-            const positionManager = new CardAnimationManager().positionManager;
+            const positionManager = new CardPositionManager();
             const animationManager = new CardAnimationManager(positionManager, connectionManager);
             
             connectionManager.initialize();
@@ -287,7 +287,7 @@ describe('Connection Logic Tests', () => {
             
             const connectionManager = new ConnectionManager();
             const relationshipManager = new CardRelationshipManager();
-            const positionManager = new CardAnimationManager().positionManager;
+            const positionManager = new CardPositionManager();
             const animationManager = new CardAnimationManager(positionManager, connectionManager);
             
             connectionManager.initialize();
@@ -317,7 +317,7 @@ describe('Connection Logic Tests', () => {
             const testFlow = async (hoveredCard: HTMLElement, expectedConnectionCount: number) => {
                 const connectionManager = new ConnectionManager();
                 const relationshipManager = new CardRelationshipManager();
-                const positionManager = new CardAnimationManager().positionManager;
+                const positionManager = new CardPositionManager();
                 const animationManager = new CardAnimationManager(positionManager, connectionManager);
                 
                 connectionManager.initialize();

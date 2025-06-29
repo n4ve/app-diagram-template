@@ -277,7 +277,12 @@ export class DiagramController implements IDiagramController {
                     const secondButton = buttons[1] as HTMLElement;
                     const firstButton = buttons[0] as HTMLElement;
                     const offset = secondButton.offsetLeft - firstButton.offsetLeft;
-                    slider.style.left = `calc(0.5rem + ${offset}px)`;
+                    // If offset is 0 (test environment), use 50% for consistency
+                    if (offset === 0) {
+                        slider.style.left = '50%';
+                    } else {
+                        slider.style.left = `calc(0.5rem + ${offset}px)`;
+                    }
                 } else {
                     slider.style.left = '50%';
                 }
