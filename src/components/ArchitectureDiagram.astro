@@ -1,36 +1,61 @@
 ---
 import PageCard from './PageCard.astro';
+import GroupCard from './GroupCard.astro';
 import ServerCard from './ServerCard.astro';
 import BackendCard from './BackendCard.astro';
 import ConnectionArea from './ConnectionArea.astro';
+import ViewToggle from './ViewToggle.astro';
+import type { NestedGroupsConfig, PagesConfig } from '../types/index.ts';
 
-const { pages, servers, backends } = Astro.props;
+const { pagesData, servers, backends } = Astro.props as {
+  pagesData: NestedGroupsConfig;
+  servers: any;
+  backends: any;
+};
+
+const { groups } = pagesData;
+
+// Flatten pages from nested structure for page view
+const flattenedPages: PagesConfig = {};
+Object.entries(groups).forEach(([groupId, group]) => {
+  Object.entries(group.pages).forEach(([pageId, page]) => {
+    flattenedPages[pageId] = {
+      ...page,
+      groupId // Add groupId back for compatibility
+    };
+  });
+});
 ---
 
 <section class="bg-gray-50 rounded-2xl p-4 sm:p-8 mb-6 sm:mb-8 relative">
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-bold text-gray-800">📊 Application Architecture</h2>
-    
-    <!-- Controls -->
-    <div class="flex items-center space-x-4">
-      <!-- Zoom Controls -->
-      <div class="flex items-center space-x-2">
-        <button id="zoom-out" class="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-          </svg>
-        </button>
-        <span id="zoom-level" class="px-3 py-1 bg-white border border-gray-300 rounded text-sm font-medium">100%</span>
-        <button id="zoom-in" class="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-          </svg>
-        </button>
-        <button id="zoom-reset" class="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm">
-          Reset View
-        </button>
+  <div class="flex flex-col gap-4 mb-6">
+    <div class="flex justify-between items-center">
+      <h2 class="text-2xl font-bold text-gray-800">📊 Application Architecture</h2>
+      
+      <!-- Controls -->
+      <div class="flex items-center space-x-4">
+        <!-- Zoom Controls -->
+        <div class="flex items-center space-x-2">
+          <button id="zoom-out" class="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+            </svg>
+          </button>
+          <span id="zoom-level" class="px-3 py-1 bg-white border border-gray-300 rounded text-sm font-medium">100%</span>
+          <button id="zoom-in" class="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+          </button>
+          <button id="zoom-reset" class="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm">
+            Reset View
+          </button>
+        </div>
       </div>
     </div>
+    
+    <!-- View Toggle -->
+    <ViewToggle currentView="page" />
   </div>
   
   <div id="diagram-container" class="overflow-auto w-full border border-gray-200 rounded-lg bg-white relative cursor-grab">
@@ -40,12 +65,21 @@ const { pages, servers, backends } = Astro.props;
     </svg>
     
     <div id="diagram-content" class="flex flex-col lg:flex-row gap-4 lg:gap-6 p-4 lg:p-8 transition-transform duration-150 ease-out" style="transform: translate(0px, 0px) scale(1); width: 100%; min-width: 300%;">
-      <!-- Frontend Pages Column -->
+      <!-- Frontend Pages/Groups Column -->
       <div class="w-full lg:flex-1 min-w-0">
-        <h3 class="text-xl font-semibold text-gray-800 text-center mb-6 sticky top-0 bg-white/90 backdrop-blur-sm py-2 rounded-lg">📱 Frontend Pages</h3>
-        <div class="pages-grid">
-          {Object.entries(pages).map(([pageId, page]) => (
+        <h3 id="pages-column-title" class="text-xl font-semibold text-gray-800 text-center mb-6 sticky top-0 bg-white/90 backdrop-blur-sm py-2 rounded-lg">📱 Frontend Pages</h3>
+        
+        <!-- Page View -->
+        <div id="page-view" class="pages-grid">
+          {Object.entries(flattenedPages).map(([pageId, page]) => (
             <PageCard pageId={pageId} page={page} />
+          ))}
+        </div>
+        
+        <!-- Group View (hidden by default) -->
+        <div id="group-view" class="groups-grid hidden">
+          {Object.entries(groups).map(([groupId, group]) => (
+            <GroupCard groupId={groupId} group={group} />
           ))}
         </div>
       </div>
@@ -78,327 +112,6 @@ const { pages, servers, backends } = Astro.props;
   </div>
 </section>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    let currentZoom = 1;
-    let currentPanX = 0;
-    let currentPanY = 0;
-    const minZoom = 0.3;
-    const maxZoom = 3;
-    const zoomStep = 0.75; // Reduced from 0.1 for finer control
-    
-    let isPanning = false;
-    let lastMouseX = 0;
-    let lastMouseY = 0;
-    
-    const diagramContainer = document.getElementById('diagram-container');
-    const diagramContent = document.getElementById('diagram-content');
-    const zoomInBtn = document.getElementById('zoom-in');
-    const zoomOutBtn = document.getElementById('zoom-out');
-    const zoomResetBtn = document.getElementById('zoom-reset');
-    const zoomLevel = document.getElementById('zoom-level');
-    
-    function updateTransform() {
-        if (diagramContent) {
-            // Disable transitions during transform updates
-            diagramContent.classList.add('no-transition');
-            
-            diagramContent.style.transform = `translate(${currentPanX}px, ${currentPanY}px) scale(${currentZoom})`;
-            diagramContent.style.transformOrigin = '0 0';
-            diagramContent.style.width = '100%';
-            diagramContent.style.minWidth = '100%';
-            
-            // Use requestAnimationFrame to re-enable transitions after transform is applied
-            requestAnimationFrame(() => {
-                if (diagramContent) {
-                    diagramContent.classList.remove('no-transition');
-                }
-            });
-        }
-        
-        if (zoomLevel) {
-            zoomLevel.textContent = `${Math.round(currentZoom * 100)}%`;
-        }
-        
-        // Update button states
-        if (zoomInBtn) {
-            zoomInBtn.disabled = currentZoom >= maxZoom;
-            zoomInBtn.classList.toggle('opacity-50', currentZoom >= maxZoom);
-        }
-        
-        if (zoomOutBtn) {
-            zoomOutBtn.disabled = currentZoom <= minZoom;
-            zoomOutBtn.classList.toggle('opacity-50', currentZoom <= minZoom);
-        }
-    }
-    
-    function zoomAtPoint(deltaZoom, clientX, clientY) {
-        const rect = diagramContainer.getBoundingClientRect();
-        const x = clientX - rect.left;
-        const y = clientY - rect.top;
-        
-        // Calculate the point in the content coordinate system before zoom
-        const contentX = (x - currentPanX) / currentZoom;
-        const contentY = (y - currentPanY) / currentZoom;
-        
-        // Update zoom
-        const newZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + deltaZoom));
-        
-        // Calculate new pan to keep the point under the cursor
-        currentPanX = x - contentX * newZoom;
-        currentPanY = y - contentY * newZoom;
-        currentZoom = newZoom;
-        
-        updateTransform();
-    }
-    
-    // Zoom controls
-    if (zoomInBtn) {
-        zoomInBtn.addEventListener('click', () => {
-            const rect = diagramContainer.getBoundingClientRect();
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            zoomAtPoint(zoomStep * 2, rect.left + centerX, rect.top + centerY); // Slightly larger step for buttons
-        });
-    }
-    
-    if (zoomOutBtn) {
-        zoomOutBtn.addEventListener('click', () => {
-            const rect = diagramContainer.getBoundingClientRect();
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            zoomAtPoint(-zoomStep * 2, rect.left + centerX, rect.top + centerY); // Slightly larger step for buttons
-        });
-    }
-    
-    if (zoomResetBtn) {
-        zoomResetBtn.addEventListener('click', () => {
-            currentZoom = 1;
-            currentPanX = 0;
-            currentPanY = 0;
-            updateTransform();
-        });
-    }
-    
-    // Mouse events for panning (always enabled)
-    if (diagramContainer) {
-        diagramContainer.addEventListener('mousedown', (e) => {
-            // Don't pan if clicking on interactive elements
-            if (e.target.closest('.api-item') || e.target.closest('button')) {
-                return;
-            }
-            
-            isPanning = true;
-            lastMouseX = e.clientX;
-            lastMouseY = e.clientY;
-            diagramContainer.style.cursor = 'grabbing';
-            
-            // Disable hover effects during drag
-            if (window.diagramController) {
-                const hoverManager = window.diagramController.getHoverEventManager();
-                if (hoverManager && hoverManager.setDragState) {
-                    hoverManager.setDragState(true);
-                }
-            }
-            
-            e.preventDefault();
-        });
-        
-        diagramContainer.addEventListener('mousemove', (e) => {
-            if (!isPanning) return;
-            
-            const deltaX = e.clientX - lastMouseX;
-            const deltaY = e.clientY - lastMouseY;
-            
-            currentPanX += deltaX;
-            currentPanY += deltaY;
-            
-            lastMouseX = e.clientX;
-            lastMouseY = e.clientY;
-            
-            updateTransform();
-        });
-        
-        diagramContainer.addEventListener('mouseup', () => {
-            if (isPanning) {
-                isPanning = false;
-                diagramContainer.style.cursor = 'grab';
-                
-                // Re-enable hover effects after drag
-                if (window.diagramController) {
-                    const hoverManager = window.diagramController.getHoverEventManager();
-                    if (hoverManager && hoverManager.setDragState) {
-                        hoverManager.setDragState(false);
-                    }
-                }
-            }
-        });
-        
-        diagramContainer.addEventListener('mouseleave', () => {
-            if (isPanning) {
-                isPanning = false;
-                diagramContainer.style.cursor = 'grab';
-                
-                // Re-enable hover effects after drag
-                if (window.diagramController) {
-                    const hoverManager = window.diagramController.getHoverEventManager();
-                    if (hoverManager && hoverManager.setDragState) {
-                        hoverManager.setDragState(false);
-                    }
-                }
-            }
-        });
-        
-        // Mouse wheel zoom with reduced sensitivity
-        diagramContainer.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            
-            // Reduced scroll sensitivity
-            const scrollSensitivity = 0.01; // Much smaller value
-            const deltaZoom = e.deltaY * -scrollSensitivity;
-            
-            zoomAtPoint(deltaZoom, e.clientX, e.clientY);
-        });
-        
-        // Touch events for mobile
-        let lastTouchDistance = 0;
-        let lastTouchX = 0;
-        let lastTouchY = 0;
-        
-        diagramContainer.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 1) {
-                isPanning = true;
-                lastTouchX = e.touches[0].clientX;
-                lastTouchY = e.touches[0].clientY;
-                
-                // Disable hover effects during touch drag
-                if (window.diagramController) {
-                    const hoverManager = window.diagramController.getHoverEventManager();
-                    if (hoverManager && hoverManager.setDragState) {
-                        hoverManager.setDragState(true);
-                    }
-                }
-            } else if (e.touches.length === 2) {
-                const touch1 = e.touches[0];
-                const touch2 = e.touches[1];
-                lastTouchDistance = Math.hypot(
-                    touch2.clientX - touch1.clientX,
-                    touch2.clientY - touch1.clientY
-                );
-            }
-            e.preventDefault();
-        });
-        
-        diagramContainer.addEventListener('touchmove', (e) => {
-            if (e.touches.length === 1 && isPanning) {
-                const deltaX = e.touches[0].clientX - lastTouchX;
-                const deltaY = e.touches[0].clientY - lastTouchY;
-                
-                currentPanX += deltaX;
-                currentPanY += deltaY;
-                
-                lastTouchX = e.touches[0].clientX;
-                lastTouchY = e.touches[0].clientY;
-                
-                updateTransform();
-            } else if (e.touches.length === 2) {
-                const touch1 = e.touches[0];
-                const touch2 = e.touches[1];
-                const distance = Math.hypot(
-                    touch2.clientX - touch1.clientX,
-                    touch2.clientY - touch1.clientY
-                );
-                
-                if (lastTouchDistance > 0) {
-                    const centerX = (touch1.clientX + touch2.clientX) / 2;
-                    const centerY = (touch1.clientY + touch2.clientY) / 2;
-                    const deltaZoom = (distance - lastTouchDistance) * 0.005; // Reduced sensitivity
-                    zoomAtPoint(deltaZoom, centerX, centerY);
-                }
-                
-                lastTouchDistance = distance;
-            }
-            e.preventDefault();
-        });
-        
-        diagramContainer.addEventListener('touchend', () => {
-            if (isPanning) {
-                isPanning = false;
-                
-                // Re-enable hover effects after touch drag
-                if (window.diagramController) {
-                    const hoverManager = window.diagramController.getHoverEventManager();
-                    if (hoverManager && hoverManager.setDragState) {
-                        hoverManager.setDragState(false);
-                    }
-                }
-            }
-            lastTouchDistance = 0;
-        });
-    }
-    
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-        if (e.ctrlKey || e.metaKey) {
-            switch(e.key) {
-                case '=':
-                case '+':
-                    e.preventDefault();
-                    const rect1 = diagramContainer.getBoundingClientRect();
-                    zoomAtPoint(zoomStep * 2, rect1.left + rect1.width/2, rect1.top + rect1.height/2);
-                    break;
-                case '-':
-                    e.preventDefault();
-                    const rect2 = diagramContainer.getBoundingClientRect();
-                    zoomAtPoint(-zoomStep * 2, rect2.left + rect2.width/2, rect2.top + rect2.height/2);
-                    break;
-                case '0':
-                    e.preventDefault();
-                    currentZoom = 1;
-                    currentPanX = 0;
-                    currentPanY = 0;
-                    updateTransform();
-                    break;
-            }
-        }
-        
-        // Arrow keys for panning with reduced speed
-        if (!e.ctrlKey && !e.metaKey) {
-            const panSpeed = 30; // Reduced from 50
-            switch(e.key) {
-                case 'ArrowUp':
-                    e.preventDefault();
-                    currentPanY += panSpeed;
-                    updateTransform();
-                    break;
-                case 'ArrowDown':
-                    e.preventDefault();
-                    currentPanY -= panSpeed;
-                    updateTransform();
-                    break;
-                case 'ArrowLeft':
-                    e.preventDefault();
-                    currentPanX += panSpeed;
-                    updateTransform();
-                    break;
-                case 'ArrowRight':
-                    e.preventDefault();
-                    currentPanX -= panSpeed;
-                    updateTransform();
-                    break;
-            }
-        }
-    });
-    
-    // Initialize
-    updateTransform();
-    
-    // Handle window resize
-    window.addEventListener('resize', () => {
-        updateTransform();
-    });
-});
-</script>
 
 <style>
 /* Container styles */

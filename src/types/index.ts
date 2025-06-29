@@ -5,6 +5,15 @@ export interface PageData {
   apis: string[];
 }
 
+export interface GroupData {
+  name: string;
+  description: string;
+  color: string;
+  pages: {
+    [pageId: string]: PageData;
+  };
+}
+
 export type ServerType = 'Kubernetes' | 'On-Premise' | 'Cloud';
 
 export interface ServerData {
@@ -14,13 +23,23 @@ export interface ServerData {
   types?: ServerType[];
 }
 
+export interface GroupsConfig {
+  [groupId: string]: GroupData;
+}
+
 export interface PagesConfig {
-  [pageId: string]: PageData;
+  [pageId: string]: PageData & { groupId?: string };
+}
+
+export interface NestedGroupsConfig {
+  groups: GroupsConfig;
 }
 
 export interface ServersConfig {
   [serverId: string]: ServerData;
 }
+
+export type ViewMode = 'page' | 'group';
 
 // Position and movement types
 export interface Position {
@@ -197,6 +216,7 @@ export interface HoverEventManager extends ManagerInitialization {
   handleCardHover(card: HTMLElement): void;
   resetAllCards(): void;
   drawConnection?(connectionPair: ConnectionPair): void;
+  setDragState?(isDragging: boolean): void;
 }
 
 export interface DiagramController {

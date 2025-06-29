@@ -7,6 +7,8 @@ yarn-error.log*
 # Build outputs
 dist/
 .astro/
+public/scripts/
+public/types/
 
 # Environment variables
 .env

@@ -33,6 +33,30 @@
   align-items: start;
 }
 
+/* Force hidden state - override grid display */
+.pages-grid.hidden {
+  display: none !important;
+}
+
+/* Groups grid - similar to pages grid but for group cards */
+.groups-grid {
+  display: grid;
+  grid-template-rows: repeat(3, auto); /* Maximum 3 rows for groups */
+  grid-auto-flow: column; /* Groups flow into columns vertically first */
+  grid-auto-columns: minmax(350px, 1fr); /* Dynamic column width */
+  gap: 1.5rem 2rem;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  width: 100%;
+  justify-items: center;
+  align-items: start;
+}
+
+/* Force hidden state - override grid display */
+.groups-grid.hidden {
+  display: none !important;
+}
+
 /* Simple multi-column layout for servers */
 .servers-grid {
   display: grid;

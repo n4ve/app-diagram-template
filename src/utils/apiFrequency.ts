@@ -1,4 +1,4 @@
-import type { PagesConfig } from '../types/index.js';
+import type { NestedGroupsConfig } from '../types/index.js';
 import pagesData from '../data/pages.json';
 
 export interface ApiFrequencyData {
@@ -15,19 +15,21 @@ export interface ServerApiFrequency {
  */
 export function calculateApiFrequency(): ServerApiFrequency {
   const serverApiFrequency: ServerApiFrequency = {};
-  const pages = pagesData as PagesConfig;
+  const { groups } = pagesData as NestedGroupsConfig;
   
-  // Count how many pages use each API
-  Object.values(pages).forEach(page => {
-    page.apis.forEach(api => {
-      const [serverName, apiEndpoint] = api.split(':');
-      
-      if (!serverApiFrequency[serverName]) {
-        serverApiFrequency[serverName] = {};
-      }
-      
-      serverApiFrequency[serverName][apiEndpoint] = 
-        (serverApiFrequency[serverName][apiEndpoint] || 0) + 1;
+  // Count how many pages use each API (iterate through nested structure)
+  Object.values(groups).forEach(group => {
+    Object.values(group.pages).forEach(page => {
+      page.apis.forEach(api => {
+        const [serverName, apiEndpoint] = api.split(':');
+        
+        if (!serverApiFrequency[serverName]) {
+          serverApiFrequency[serverName] = {};
+        }
+        
+        serverApiFrequency[serverName][apiEndpoint] = 
+          (serverApiFrequency[serverName][apiEndpoint] || 0) + 1;
+      });
     });
   });
   

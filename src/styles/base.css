@@ -82,6 +82,14 @@
   }
 }
 
+/* Hidden utility class - ensure it overrides everything */
+.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,

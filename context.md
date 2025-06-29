@@ -103,6 +103,20 @@ Frontend Pages → API Servers → Backend Services
 - **Factory** - Relationship logic per card type
 - **Mediator** - HoverEventManager coordination
 
+## Architecture Guidelines
+- **No CSS in Astro Components** - All styling should be in separate CSS files in `src/styles/`
+- **No JavaScript Logic in Astro** - All interactive logic must be in TypeScript modules in `src/scripts/`
+- **Astro Components for Markup Only** - Components should only contain HTML structure and data binding
+- **TypeScript Module Pattern** - All functionality implemented through manager classes and utility modules
+- **Separation of Concerns** - Clear boundaries between presentation (Astro), styling (CSS), and behavior (TypeScript)
+- **TypeScript Only - NO JavaScript Files** - Never create .js files. All code must be TypeScript (.ts) files
+- **No Manual JS Files in Public Folder** - The public folder should only contain compiled output from TypeScript build process
+- **Import TypeScript Modules Directly** - Astro components should import TypeScript modules from `src/scripts/` directly, not from public folder
+- **Build Process Creates JS Files** - The `npm run build-scripts` command compiles TypeScript to JavaScript in public folder - this is automatic and expected
+- **Never Edit Public Folder JS Files** - Only edit TypeScript source files in `src/scripts/`, never modify the compiled .js files
+- **Import Pattern in Astro** - Use `import('/src/scripts/path/to/module.ts')` in script tags - Astro/Vite handles TypeScript compilation
+- **Module Type Scripts** - Always use `<script type="module">` in Astro components when importing TypeScript modules
+
 ## Project Structure
 ```
 src/
@@ -190,6 +204,20 @@ public/                 # Static assets/compiled scripts
   - Added comprehensive interfaces for debugging tools and connection validation
   - Ensured 95.8% test success rate (113/118 tests passing)
   - Maintained ES module exports and proper DOM element typing
+- **Group-Based Page Organization** - Implemented nested JSON structure and view toggle functionality
+  - Restructured `pages.json` to nest pages under application groups (User Portal, Order Application, Product Management)
+  - Created `GroupCard.astro` component for group-level visualization showing constituent pages
+  - Implemented `ViewToggle.astro` component with enhanced UI for switching between page and group views
+  - Added keyboard shortcut (Alt+V) and visual feedback for view mode changes
+  - Updated API frequency calculations to work with nested data structure
+- **Architecture Refactoring** - Enforced separation of concerns following project guidelines
+  - **No CSS in Astro Components** - Moved all styles to dedicated CSS files in `src/styles/`
+  - **No JavaScript in Astro** - Extracted all logic to TypeScript modules in `src/scripts/`
+  - Created `ViewToggleManager.ts` for view mode switching logic
+  - Created `DiagramViewManager.ts` for handling view transitions in the main diagram
+  - Created `DiagramZoomManager.ts` for zoom/pan functionality
+  - Added `view-toggle.css` and `architecture-diagram.css` for component-specific styling
+  - Maintained clean Astro components with only HTML structure and data binding
 
 ## Project Structure
 ```

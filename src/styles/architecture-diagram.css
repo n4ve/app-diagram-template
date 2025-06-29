@@ -1,0 +1,137 @@
+/* Architecture Diagram Component Styles */
+
+/* Container styles */
+#diagram-container {
+    height: 70vh;
+    min-height: 500px;
+    max-height: 800px;
+    width: 100%;
+    user-select: none;
+    position: relative;
+    cursor: grab;
+}
+
+#diagram-container.grabbing {
+    cursor: grabbing !important;
+}
+
+/* Content styles */
+#diagram-content {
+    width: 300% !important;
+    min-width: 300% !important;
+    min-height: 100%;
+    padding: 1rem;
+    box-sizing: border-box;
+    display: flex !important;
+}
+
+/* Allow interactions with specific elements */
+.api-item,
+.page-card,
+.server-card,
+.group-card {
+    pointer-events: auto;
+}
+
+/* Smooth transitions for hover effects only */
+#diagram-content .page-card,
+#diagram-content .server-card,
+#diagram-content .group-card {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Disable all transitions during pan/zoom */
+#diagram-content.no-transition,
+#diagram-content.no-transition *,
+#diagram-content.no-transition .page-card,
+#diagram-content.no-transition .server-card,
+#diagram-content.no-transition .group-card {
+    transition: none !important;
+}
+
+/* Grid styles */
+.pages-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: 1fr;
+}
+
+.groups-grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr;
+}
+
+/* Ensure content fills container */
+#diagram-content {
+    position: relative;
+    overflow: visible;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    #diagram-container {
+        height: 60vh;
+        min-height: 400px;
+        max-height: 600px;
+    }
+    
+    #diagram-content {
+        padding: 0.5rem;
+    }
+    
+    .pages-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .groups-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 768px) {
+    .pages-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    
+    .groups-grid {
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    }
+}
+
+/* Large screen optimizations */
+@media (min-width: 1200px) {
+    #diagram-container {
+        height: 75vh;
+        max-height: 900px;
+    }
+    
+    #diagram-content {
+        padding: 2rem;
+    }
+    
+    .groups-grid {
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    }
+}
+
+/* Fix flex children width on large screens */
+@media (min-width: 1024px) {
+    #diagram-content {
+        justify-content: space-between;
+    }
+    
+    #diagram-content > div:first-child,
+    #diagram-content > div:nth-child(3),
+    #diagram-content > div:last-child {
+        flex: 1;
+        min-width: 0;
+        max-width: calc(30% - 1rem);
+    }
+    
+    #diagram-content > div:nth-child(2) {
+        flex: 0 0 auto;
+        max-width: 12rem;
+        width: 12rem;
+    }
+}

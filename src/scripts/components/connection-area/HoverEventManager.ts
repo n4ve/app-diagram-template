@@ -35,6 +35,7 @@ export class HoverEventManager implements IHoverEventManager {
     private resetTimeout: number | null = null;
     private isProcessing: boolean = false;
     private isDragging: boolean = false;
+    private currentViewMode: 'page' | 'group' = 'page';
 
     constructor(
         relationshipManager: CardRelationshipManager, 
@@ -52,9 +53,11 @@ export class HoverEventManager implements IHoverEventManager {
     initialize(): boolean {
         try {
             this.setupPageCardHovers();
+            this.setupGroupCardHovers();
             this.setupServerCardHovers();
             this.setupBackendCardHovers();
             this.setupGlobalMouseLeave();
+            this.setupViewModeListener();
             return true;
         } catch (error) {
             console.error('Failed to initialize hover event manager:', error);
@@ -79,6 +82,35 @@ export class HoverEventManager implements IHoverEventManager {
             pageCard.resetAll = () => {
                 this.resetAllCards();
             };
+        });
+    }
+
+    private setupGroupCardHovers(): void {
+        const groupCards = document.querySelectorAll('.group-card') as NodeListOf<HTMLElement>;
+        
+        groupCards.forEach(groupCard => {
+            groupCard.addEventListener('mouseenter', (e) => {
+                const target = e.target as HTMLElement;
+                this.handleCardHover(target);
+            });
+
+            groupCard.addEventListener('mouseleave', (e) => {
+                this.handleCardLeave(e as MouseEvent);
+            });
+
+            // Add reset method
+            groupCard.resetAll = () => {
+                this.resetAllCards();
+            };
+        });
+    }
+
+    private setupViewModeListener(): void {
+        document.addEventListener('viewModeChanged', (e: Event) => {
+            const customEvent = e as CustomEvent;
+            this.currentViewMode = customEvent.detail.viewMode;
+            // Reset all connections when view mode changes
+            this.resetAllCards();
         });
     }
 
@@ -125,7 +157,7 @@ export class HoverEventManager implements IHoverEventManager {
         // Also reset when clicking outside any card
         document.addEventListener('click', (e) => {
             const target = e.target as HTMLElement;
-            if (!target.closest('.page-card') && !target.closest('.server-card') && !target.closest('.backend-card')) {
+            if (!target.closest('.page-card') && !target.closest('.group-card') && !target.closest('.server-card') && !target.closest('.backend-card')) {
                 this.scheduleReset();
             }
         });

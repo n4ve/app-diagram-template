@@ -1,41 +1,64 @@
 {
-    "login": {
-      "name": "Login Page",
-      "description": "หน้าเข้าสู่ระบบสำหรับผู้ใช้งาน",
-      "apis": [
-        "auth-server:POST /auth/login", 
-        "auth-server:GET /auth/validate", 
-        "auth-server:POST /auth/forgot-password",
-        "payment-server:GET /payment/status"
-      ]
+  "groups": {
+    "order-application": {
+      "name": "Order Application",
+      "description": "แอปพลิเคชันสำหรับจัดการคำสั่งซื้อและการชำระเงิน",
+      "color": "#3B82F6",
+      "pages": {
+        "orders": {
+          "name": "Orders Management",
+          "description": "หน้าจัดการคำสั่งซื้อและการชำระเงิน",
+          "apis": [
+            "order-server:GET /orders/list", 
+            "order-server:GET /orders/details", 
+            "order-server:PUT /orders/status", 
+            "payment-server:GET /payment/status"
+          ]
+        }
+      }
     },
-    "dashboard": {
-      "name": "Dashboard",
-      "description": "หน้าแดชบอร์ดหลักแสดงข้อมูลสรุป",
-      "apis": [
-        "user-server:GET /user/profile", 
-        "analytics-server:GET /analytics/summary", 
-        "notification-server:GET /notifications/recent"
-      ]
+    "product-management": {
+      "name": "Product Management",
+      "description": "แอปพลิเคชันสำหรับจัดการสินค้าและคลังสินค้า",
+      "color": "#10B981",
+      "pages": {
+        "products": {
+          "name": "Products Management",
+          "description": "หน้าจัดการสินค้าและคลังสินค้า",
+          "apis": [
+            "product-server:GET /products/list", 
+            "product-server:POST /products/create", 
+            "product-server:PUT /products/update", 
+            "product-server:DELETE /products/delete"
+          ]
+        }
+      }
     },
-    "products": {
-      "name": "Products Management",
-      "description": "หน้าจัดการสินค้าและคลังสินค้า",
-      "apis": [
-        "product-server:GET /products/list", 
-        "product-server:POST /products/create", 
-        "product-server:PUT /products/update", 
-        "product-server:DELETE /products/delete"
-      ]
-    },
-    "orders": {
-      "name": "Orders Management",
-      "description": "หน้าจัดการคำสั่งซื้อและการชำระเงิน",
-      "apis": [
-        "order-server:GET /orders/list", 
-        "order-server:GET /orders/details", 
-        "order-server:PUT /orders/status", 
-        "payment-server:GET /payment/status"
-      ]
+    "user-portal": {
+      "name": "User Portal",
+      "description": "พอร์ทัลผู้ใช้สำหรับการเข้าสู่ระบบและแดชบอร์ด",
+      "color": "#8B5CF6",
+      "pages": {
+        "login": {
+          "name": "Login Page",
+          "description": "หน้าเข้าสู่ระบบสำหรับผู้ใช้งาน",
+          "apis": [
+            "auth-server:POST /auth/login", 
+            "auth-server:GET /auth/validate", 
+            "auth-server:POST /auth/forgot-password",
+            "payment-server:GET /payment/status"
+          ]
+        },
+        "dashboard": {
+          "name": "Dashboard",
+          "description": "หน้าแดชบอร์ดหลักแสดงข้อมูลสรุป",
+          "apis": [
+            "user-server:GET /user/profile", 
+            "analytics-server:GET /analytics/summary", 
+            "notification-server:GET /notifications/recent"
+          ]
+        }
+      }
     }
+  }
 }

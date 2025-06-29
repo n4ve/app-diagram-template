@@ -1,0 +1,111 @@
+/* View Toggle Component Styles */
+
+.view-toggle-container {
+  transition: all 0.2s ease-in-out;
+}
+
+.view-toggle-btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  width: 9rem; /* w-36 equivalent */
+}
+
+.view-toggle-btn:hover:not(.text-white) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.view-toggle-btn:active {
+  transform: translateY(0);
+}
+
+.view-toggle-btn.text-white {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.view-toggle-btn:focus {
+  outline: none;
+  ring: 2px;
+  ring-color: rgba(59, 130, 246, 0.5);
+  ring-offset: 2px;
+}
+
+/* Loading state for future use */
+.view-toggle-btn.loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.view-toggle-btn.loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shimmer 1s infinite;
+}
+
+/* Description and title transitions */
+#view-description,
+#view-title {
+  transition: opacity 0.15s ease-in-out;
+}
+
+/* Toggle slider animation */
+#toggle-slider {
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+/* Pulse effect animation */
+.pulse-effect {
+  animation: pulse-glow 0.3s ease-in-out;
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.1);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .view-toggle-container {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .view-toggle-btn {
+    width: 7.5rem; /* w-30 equivalent */
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Ensure proper tooltip z-index */
+.view-toggle-container .group .absolute {
+  z-index: 60;
+}

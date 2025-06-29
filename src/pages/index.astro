@@ -5,9 +5,18 @@ import ArchitectureDiagram from '../components/ArchitectureDiagram.astro';
 import pagesData from '../data/pages.json';
 import serversData from '../data/servers.json';
 import backendsData from '../data/backends.json';
+import type { NestedGroupsConfig } from '../types/index.ts';
+
+const nestedGroupsData = pagesData as NestedGroupsConfig;
+
+// Calculate stats from nested structure
+const totalPages = Object.values(nestedGroupsData.groups).reduce((sum, group) => 
+  sum + Object.keys(group.pages).length, 0
+);
 
 const stats = {
-  totalPages: Object.keys(pagesData).length,
+  totalPages,
+  totalGroups: Object.keys(nestedGroupsData.groups).length,
   totalServers: Object.keys(serversData).length,
   totalAPIs: Object.values(serversData).reduce((sum, server) => sum + server.apis.length, 0)
 };
@@ -19,13 +28,17 @@ const stats = {
       <Header />
       
       <div class="p-4 sm:p-8">
-        <ArchitectureDiagram pages={pagesData} servers={serversData} backends={backendsData} />
+        <ArchitectureDiagram pagesData={nestedGroupsData} servers={serversData} backends={backendsData} />
         
         <!-- Statistics -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mt-6 sm:mt-8">
           <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl text-center">
             <h3 class="text-3xl font-bold">{stats.totalPages}</h3>
             <p class="opacity-90">หน้าจอทั้งหมด</p>
+          </div>
+          <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white p-6 rounded-xl text-center">
+            <h3 class="text-3xl font-bold">{stats.totalGroups}</h3>
+            <p class="opacity-90">กลุ่มแอป</p>
           </div>
           <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-xl text-center">
             <h3 class="text-3xl font-bold">{stats.totalAPIs}</h3>
