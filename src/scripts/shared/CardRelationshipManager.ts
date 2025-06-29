@@ -398,7 +398,13 @@ export class CardRelationshipManager implements ICardRelationshipManager {
 
         if (isGroupView) {
             // 1. Group-to-Server connections (when in group view mode)
+            // Only consider visible group cards (not filtered/hidden ones)
             relatedElements.pages.forEach(groupCard => { // Note: in group view, relatedElements.pages contains group cards
+                // Skip hidden/filtered group cards
+                if (groupCard.style.display === 'none' || groupCard.classList.contains('filtered-hidden')) {
+                    return;
+                }
+                
                 const groupApisData = groupCard.dataset.apis;
                 if (!groupApisData) return;
 
@@ -508,7 +514,13 @@ export class CardRelationshipManager implements ICardRelationshipManager {
 
         if (isGroupView) {
             // 1. Group-to-Server connections for related groups/servers (when in group view mode)
+            // Only consider visible group cards (not filtered/hidden ones)
             relatedElements.pages.forEach(groupCard => { // Note: in group view, relatedElements.pages contains group cards
+                // Skip hidden/filtered group cards
+                if (groupCard.style.display === 'none' || groupCard.classList.contains('filtered-hidden')) {
+                    return;
+                }
+                
                 const groupApisData = groupCard.dataset.apis;
                 if (!groupApisData) return;
 
@@ -628,26 +640,8 @@ export class CardRelationshipManager implements ICardRelationshipManager {
             }
         });
 
-        // 2. Server-to-Backend connections
-        relatedElements.servers.forEach(serverCard => {
-            const serverId = serverCard.dataset.server;
-            const serverBackend = serverCard.dataset.backend;
-            
-            if (serverId && serverBackend) {
-                const backendCard = relatedElements.backends.find(b => b.dataset.backend === serverBackend);
-                if (backendCard) {
-                    const pairKey = `${serverId}-${serverBackend}`;
-                    if (!uniquePairs.has(pairKey)) {
-                        uniquePairs.add(pairKey);
-                        connectionPairs.push({
-                            from: serverCard,
-                            to: backendCard,
-                            type: ConnectionType.SERVER_TO_BACKEND
-                        });
-                    }
-                }
-            }
-        });
+        // Note: For group view, we only show group-to-server connections
+        // Server-to-backend connections are not shown to keep focus on group relationships
 
         return connectionPairs;
     }

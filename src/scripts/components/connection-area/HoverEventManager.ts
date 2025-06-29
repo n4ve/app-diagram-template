@@ -289,13 +289,20 @@ export class HoverEventManager implements IHoverEventManager {
         
         console.log(`Drawing ${connectionPairs.length} unique connection pairs`);
         
-        // Debug: Show summary of connections
+        // Debug: Show summary of connections - only show non-zero counts
         const pageToServerCount = connectionPairs.filter(p => p.type === ConnectionType.PAGE_TO_SERVER).length;
         const serverToBackendCount = connectionPairs.filter(p => p.type === ConnectionType.SERVER_TO_BACKEND).length;
         const grouptoToServerCount = connectionPairs.filter(p => p.type === ConnectionType.GROUP_TO_SERVER).length;
-        console.log(`  - ${pageToServerCount} page-to-server connections`);
-        console.log(`  - ${serverToBackendCount} server-to-backend connections`);
-        console.log(`  - ${grouptoToServerCount} group-to-server connections`);
+        
+        if (pageToServerCount > 0) {
+            console.log(`  - ${pageToServerCount} page-to-server connections`);
+        }
+        if (serverToBackendCount > 0) {
+            console.log(`  - ${serverToBackendCount} server-to-backend connections`);
+        }
+        if (grouptoToServerCount > 0) {
+            console.log(`  - ${grouptoToServerCount} group-to-server connections`);
+        }
         
         // Draw each connection individually
         connectionPairs.forEach((pair, index) => {

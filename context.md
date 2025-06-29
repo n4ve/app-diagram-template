@@ -377,3 +377,29 @@ The logging system provides complete visibility into:
 - **Comprehensive Testing**: Created `dashboard-websocket.test.ts` with 7 tests validating WEBSOCKET integration and multi-server connections
 - **Backend Integration**: WEBSOCKET connection properly routes through RabbitMQ backend for real-time message handling
 - **Test Coverage**: All 169 tests passing (7 new dashboard WEBSOCKET tests) with complete integration verification
+
+**Double Reset Issue Fix** - Resolved duplicate hover event handling causing double reset triggers:
+- **Root Cause**: index.astro contained duplicate hover event listeners that conflicted with HoverEventManager
+- **Architecture Violation**: index.astro had JavaScript logic violating "No JavaScript Logic in Astro" guideline
+- **Conflicting Behavior**: Both index.astro and HoverEventManager were handling mouseleave events simultaneously
+- **Double Reset Logs**: `🚪 Triggering reset due to card leave` appeared twice for each hover end
+- **Solution**: Removed all hover logic from index.astro, maintaining single source of truth in HoverEventManager
+- **Compliance**: Now follows separation of concerns - Astro for HTML structure, TypeScript modules for behavior
+- **Result**: Clean single reset per hover interaction, no more conflicting event handlers or flickering
+
+**Group View Console Logging Fix** - Cleaned up connection summary logging for group view mode:
+- **Issue**: In group view, page-to-server connections don't exist (pages are aggregated into groups)
+- **Problem**: Console showed `- 0 page-to-server connections` line unnecessarily in group mode
+- **Expected**: Only 2 summary lines for group view (server-to-backend + group-to-server)
+- **Actual**: 3 summary lines including irrelevant 0 page-to-server line
+- **Solution**: Modified HoverEventManager.ts:292-305 to only log non-zero connection counts
+- **Result**: Group view now shows clean 2-line summary without irrelevant zero counts
+
+**Group View Connection Simplification** - Simplified group hover to show only direct group relationships:
+- **Issue**: Group hover was showing both group-to-server AND server-to-backend connections
+- **Problem**: Too much visual complexity when hovering groups - should focus on group's direct relationships
+- **Expected**: Only 1 summary line for group view (group-to-server connections only)
+- **Previous**: 2 summary lines (group-to-server + server-to-backend)
+- **Solution**: Removed server-to-backend connection creation from `_getGroupConnectionPairs()` method
+- **Rationale**: Group view should emphasize group-to-server relationships, not internal infrastructure
+- **Result**: Group hover now shows only `- X group-to-server connections` line, cleaner visual focus
