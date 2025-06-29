@@ -29,11 +29,31 @@ Element.prototype.getBoundingClientRect = vi.fn(() => ({
 }))
 
 // Mock SVG namespace creation
-const originalCreateElementNS = document.createElementNS.bind(document)
-document.createElementNS = vi.fn((namespace, tagName) => {
+const originalCreateElementNS = document.createElementNS?.bind(document) || function(namespace: string, tagName: string) {
+  // Fallback if createElementNS doesn't exist
+  const element = document.createElement(tagName)
   if (namespace === 'http://www.w3.org/2000/svg') {
-    // For SVG elements, return actual SVG elements
-    return originalCreateElementNS(namespace, tagName)
+    // Add SVG-specific properties
+    Object.defineProperty(element, 'setAttribute', {
+      value: function(name: string, value: string) {
+        this.attributes = this.attributes || {}
+        this.attributes[name] = value
+        return this
+      }
+    })
+  }
+  return element
+}
+
+document.createElementNS = vi.fn((namespace: string, tagName: string) => {
+  if (namespace === 'http://www.w3.org/2000/svg') {
+    // For SVG elements, use original or fallback
+    const element = originalCreateElementNS(namespace, tagName)
+    // Ensure setAttribute method exists and is mockable
+    if (!element.setAttribute) {
+      element.setAttribute = vi.fn()
+    }
+    return element
   }
   return document.createElement(tagName)
 })
