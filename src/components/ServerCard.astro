@@ -1,9 +1,18 @@
 ---
 const { serverId, server } = Astro.props;
+
+// Import server colors for consistent theming
+import { getServerColor } from '../utils/serverColors.ts';
+const serverColor = getServerColor(serverId);
 ---
 
-<div class="server-card bg-white rounded-xl p-5 shadow-lg border-l-4 border-l-green-500 transition-all duration-300 hover:shadow-xl hover:-translate-y-2" data-server={serverId} data-backend={server.backend}>
-  <h3 class="text-lg font-semibold text-gray-800 mb-2">{server.name}</h3>
+<div class={`server-card bg-white rounded-xl p-5 shadow-lg border-l-4 ${serverColor.leftBorder} transition-all duration-300 hover:shadow-xl hover:-translate-y-2`} data-server={serverId} data-backend={server.backend}>
+  <div class="flex items-center justify-between mb-2">
+    <h3 class="text-lg font-semibold text-gray-800">{server.name}</h3>
+    <span class={`px-2 py-1 text-xs font-medium rounded-full border ${serverColor.bg} ${serverColor.text} ${serverColor.border}`}>
+      {serverId}
+    </span>
+  </div>
   <p class="text-gray-600 text-sm mb-3">{server.description}</p>
   
   <div class="flex flex-wrap gap-2 mb-3">
