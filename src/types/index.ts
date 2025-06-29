@@ -5,10 +5,13 @@ export interface PageData {
   apis: string[];
 }
 
+export type ServerType = 'Kubernetes' | 'On-Premise' | 'Cloud';
+
 export interface ServerData {
   name: string;
   description: string;
   apis: string[];
+  types?: ServerType[];
 }
 
 export interface PagesConfig {

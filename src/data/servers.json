@@ -3,6 +3,7 @@
       "name": "Authentication Server",
       "description": "จัดการการยืนยันตัวตนและความปลอดภัย",
       "backend": "mysql-db",
+      "types": ["Kubernetes", "Cloud"],
       "apis": [
         "POST /auth/login", 
         "GET /auth/validate", 
@@ -16,6 +17,7 @@
       "name": "Order Management Server",
       "description": "จัดการคำสั่งซื้อและสถานะ",
       "backend": "mysql-db",
+      "types": ["On-Premise"],
       "apis": [
         "GET /orders/list", 
         "GET /orders/details", 
@@ -27,6 +29,7 @@
       "name": "User Management Server", 
       "description": "จัดการข้อมูลผู้ใช้และการตั้งค่า",
       "backend": "redis-cache",
+      "types": ["Kubernetes"],
       "apis": [
         "GET /user/profile", 
         "PUT /user/profile", 
@@ -38,6 +41,7 @@
       "name": "Analytics Server",
       "description": "จัดการข้อมูลการวิเคราะห์และรายงาน",
       "backend": "mongodb",
+      "types": ["Cloud"],
       "apis": [
         "GET /analytics/summary", 
         "GET /analytics/reports", 
@@ -48,6 +52,7 @@
       "name": "Notification Server",
       "description": "จัดการการแจ้งเตือนและข้อความ",
       "backend": "rabbitmq",
+      "types": ["Kubernetes", "Cloud"],
       "apis": [
         "GET /notifications/recent", 
         "POST /notifications/mark-read", 
@@ -58,6 +63,7 @@
       "name": "Product Management Server",
       "description": "จัดการสินค้าและคลังสินค้า",
       "backend": "elasticsearch",
+      "types": ["On-Premise", "Cloud"],
       "apis": [
         "GET /products/list", 
         "POST /products/create", 
@@ -70,6 +76,7 @@
       "name": "Payment Server",
       "description": "จัดการการชำระเงินและธุรกรรม",
       "backend": "mysql-db",
+      "types": ["Kubernetes"],
       "apis": [
         "GET /payment/status", 
         "POST /payment/process", 
