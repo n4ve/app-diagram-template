@@ -168,6 +168,15 @@ export class HoverEventManager implements IHoverEventManager {
         
         this.isProcessing = true;
         
+        const cardId = card.id || card.dataset.server || card.className;
+        const cardRect = card.getBoundingClientRect();
+        
+        console.log(`👍 Hover triggered on card: ${cardId}`, {
+            position: { x: cardRect.left, y: cardRect.top },
+            size: { width: cardRect.width, height: cardRect.height },
+            timestamp: new Date().toISOString()
+        });
+        
         // Cancel any pending reset
         this.cancelReset();
         
@@ -181,7 +190,9 @@ export class HoverEventManager implements IHoverEventManager {
         this.relationshipManager.setActiveClasses(card, relatedElements);
         
         // Animate card positions
+        console.log(`🎨 Starting card repositioning animation for: ${cardId}`);
         this.animationManager.repositionRelatedCards(card, relatedElements).then(() => {
+            console.log(`✅ Card repositioning completed for: ${cardId}`);
             // Draw connections after repositioning
             setTimeout(() => {
                 this.drawConnections(card, relatedElements);
@@ -229,6 +240,8 @@ export class HoverEventManager implements IHoverEventManager {
     }
 
     resetAllCards(): void {
+        console.log(`🔄 Resetting all cards to original positions`);
+        
         this.isResettingCards = true;
         this.isProcessing = false;
         

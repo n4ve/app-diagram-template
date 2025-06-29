@@ -271,5 +271,36 @@ debug-tools/           # TypeScript debugging and validation scripts
 public/                # Static assets and compiled TypeScript modules
 ```
 
+## Development Guidelines
+- **Context Documentation** - Always update context.md whenever making changes, having insights, or understanding new aspects of the project
+  - Document all architectural decisions and rationale
+  - Record implementation details and patterns discovered
+  - Update Recent Updates section with all modifications
+  - Maintain comprehensive project state documentation
+
 ## Current State
 The project has a complete implementation with advanced interactive features, comprehensive testing (95.8% success rate), and is ready for production use. Recent work includes TypeScript migration, API frequency visualization, connection management fixes, and comprehensive documentation updates. The application supports Thai internationalization, advanced zoom/pan interactions, real-time API usage analytics, and maintains a fully TypeScript-only codebase with extensive debugging and validation tools.
+
+Position card hover logging is fully implemented with comprehensive tracking:
+- **HoverEventManager.ts:174-178** - Logs hover trigger with position and size details (👍 emoji)
+- **CardAnimationManager.ts:142-147** - Logs hovered card animation specifics (🎆 emoji)
+- **CardAnimationManager.ts:242-248** - Logs detailed position movement for related cards (🎯 emoji)
+- **CardAnimationManager.ts:269** - Logs hiding of unrelated cards with position and transform details (🔍 emoji)
+- **CardRelationshipManager.ts:50** - Logs related card finding process (🎯 emoji)
+- **HoverEventManager.ts:300** - Logs each connection being drawn with type and coordinates (📐 emoji)
+- **HoverEventManager.ts:355** - Logs successful connection creation (✅ emoji)
+
+The logging system provides complete visibility into:
+- Initial hover trigger with timestamp and card dimensions
+- Related card identification and repositioning calculations
+- Card position movements with distance calculations
+- Unrelated card hiding with transform details
+- Connection drawing process with type-specific handling
+- Successful completion confirmations for all operations
+
+**Movement Optimization Fix** - Resolved excessive card movement during hover:
+- Fixed auth-server moving 795px on User Portal hover by implementing progressive movement
+- Modified CardAnimationManager.ts:238-262 to use CardPositionManager.getProgressiveMoveRatio()
+- Now applies progressive movement ratios (15-30%) instead of full replacement positioning
+- Enhanced logging to show both full distance and actual movement with ratio percentage
+- Maintains visual grouping while preventing jarring card jumps

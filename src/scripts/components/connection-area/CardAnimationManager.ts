@@ -63,6 +63,10 @@ export class CardAnimationManager implements ICardAnimationManager {
         
         const hoveredCardId = hoveredCard.id || hoveredCard.dataset.server || hoveredCard.className;
         
+        console.log(`🎨 Starting card repositioning for hover on: ${hoveredCardId}`);
+        console.log(`   Related cards to move: ${relatedCards.length}`);
+        console.log(`   Cards to hide: ${Array.from(allCards).length - relatedCards.length - 1}`);
+        
         allCards.forEach(card => {
             if (card === hoveredCard) {
                 this._animateHoveredCard(card);
@@ -132,6 +136,16 @@ export class CardAnimationManager implements ICardAnimationManager {
     }
 
     private _animateHoveredCard(card: HTMLElement): void {
+        const cardId = card.id || card.dataset.server || card.className;
+        const cardRect = card.getBoundingClientRect();
+        
+        console.log(`🎆 Animating hovered card: ${cardId}`, {
+            position: { x: cardRect.left, y: cardRect.top },
+            size: { width: cardRect.width, height: cardRect.height },
+            transform: 'scale(1.1)',
+            zIndex: '100'
+        });
+        
         card.style.setProperty('transform', 'scale(1.1)');
         card.style.setProperty('opacity', '1');
         card.style.setProperty('z-index', '100');
@@ -221,11 +235,29 @@ export class CardAnimationManager implements ICardAnimationManager {
         const targetPosition = replacementPositions[cardId];
         if (!targetPosition) return;
         
-        const moveX = targetPosition.x - currentX;
-        const moveY = targetPosition.y - currentY;
+        const fullMoveX = targetPosition.x - currentX;
+        const fullMoveY = targetPosition.y - currentY;
+        const fullDistance = Math.sqrt(fullMoveX * fullMoveX + fullMoveY * fullMoveY);
+        
+        // Use progressive movement ratio based on distance to avoid excessive movement
+        const moveRatio = this.positionManager.getProgressiveMoveRatio(fullDistance, false);
+        const moveX = fullMoveX * moveRatio;
+        const moveY = fullMoveY * moveRatio;
+        
+        // Log position movement details
+        console.log(`🎯 Card Position Movement:`, {
+            cardId,
+            originalPosition: { x: currentX, y: currentY },
+            targetPosition: { x: targetPosition.x, y: targetPosition.y },
+            fullMovement: { deltaX: fullMoveX, deltaY: fullMoveY },
+            progressiveMovement: { deltaX: moveX, deltaY: moveY },
+            fullDistance: fullDistance.toFixed(1) + 'px',
+            actualDistance: Math.sqrt(moveX * moveX + moveY * moveY).toFixed(1) + 'px',
+            moveRatio: (moveRatio * 100).toFixed(1) + '%'
+        });
         
         
-        // Apply transform directly with maximum force
+        // Apply transform with progressive movement
         card.style.setProperty('transition', 'none', 'important');
         card.style.setProperty('transform', `translate(${moveX}px, ${moveY}px) scale(1.05)`, 'important');
         card.style.setProperty('z-index', '50', 'important');
@@ -240,6 +272,15 @@ export class CardAnimationManager implements ICardAnimationManager {
 
 
     private _hideUnrelatedCard(card: HTMLElement): void {
+        const cardId = card.id || card.dataset.server || card.className;
+        const cardRect = card.getBoundingClientRect();
+        
+        console.log(`🔍 Hiding unrelated card: ${cardId}`, {
+            position: { x: cardRect.left, y: cardRect.top },
+            transform: 'scale(0.7)',
+            opacity: '0.1'
+        });
+        
         card.style.setProperty('opacity', '0.1');
         card.style.setProperty('transform', 'scale(0.7)');
         card.style.setProperty('pointer-events', 'none');
