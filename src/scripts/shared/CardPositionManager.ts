@@ -121,21 +121,21 @@ export class CardPositionManager implements ICardPositionManager {
         const scaledDistance = distance * zoom;
         
         if (isTargetingUnrelated) {
-            if (scaledDistance > 400) return 0.9;
-            if (scaledDistance > 250) return 0.8;
-            if (scaledDistance > 150) return 0.7;
-            return 0.6;
+            if (scaledDistance > 400) return 0.35;
+            if (scaledDistance > 250) return 0.3;
+            if (scaledDistance > 150) return 0.25;
+            return 0.2;
         } else {
-            if (scaledDistance > 600) return 0.8;
-            if (scaledDistance > 400) return 0.7;
-            if (scaledDistance > 200) return 0.6;
-            return 0.4;
+            if (scaledDistance > 600) return 0.3;
+            if (scaledDistance > 400) return 0.25;
+            if (scaledDistance > 200) return 0.2;
+            return 0.15;
         }
     }
 
     ensureMinimumMovement(moveX: number, moveY: number, isTargetingUnrelated: boolean = false): MovementVector {
         const zoom = this.getCurrentZoom();
-        const minMovement = (isTargetingUnrelated ? 100 : 80) / zoom;
+        const minMovement = (isTargetingUnrelated ? 40 : 30) / zoom;
         const moveDistance = Math.sqrt(moveX * moveX + moveY * moveY);
         
         if (moveDistance < minMovement && moveDistance > 0) {
