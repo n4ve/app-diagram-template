@@ -289,7 +289,8 @@ export class GroupFilterManager implements IGroupFilterManager {
     }
 
     private hideCard(card: HTMLElement): void {
-        card.style.opacity = '0.3';
+        card.style.display = 'none';
+        card.style.opacity = '0';
         card.style.transform = 'scale(0.8)';
         card.style.pointerEvents = 'none';
         card.classList.add('filtered-hidden');

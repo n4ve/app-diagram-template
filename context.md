@@ -313,12 +313,14 @@ The logging system provides complete visibility into:
 - All 17 test files now pass with 130/130 tests successful
 
 **Group-Level Filtering Feature** - Added comprehensive filtering system for group-focused view:
-- Created `GroupFilter.astro` component with intuitive UI for selecting specific application groups
+- Created `GroupFilter.astro` component with dropdown interface for selecting application groups
 - Implemented `GroupFilterManager.ts` to handle filtering logic and card visibility management
 - Added "All Groups" option and individual group selection (User Portal, Order Application, Product Management)
-- Filtering shows only connected components when a specific group is selected
-- Unconnected cards are hidden with smooth fade/scale animations and pointer-events disabled
-- Integrated with existing ViewToggle system - filter only appears in group view mode
-- Added `group-filter.css` with animations, hover effects, and accessibility features
-- Enhanced DiagramController to coordinate between view modes and group filtering
-- Maintains 100% test success rate with comprehensive TypeScript implementation
+- Filtering completely hides unrelated components using `display: none` instead of dimming
+- Hidden cards receive `filtered-hidden` class with full opacity removal and scale transform
+- Dropdown interface replaces button layout for space efficiency - moved inline with ViewToggle
+- Enhanced with proper dropdown interactions, click outside closing, and keyboard accessibility
+- Connected servers and backends are identified and shown/hidden based on group relationships
+- Added comprehensive test coverage with 157 tests passing (100% success rate)
+- Removed Alt+V keyboard shortcut functionality as requested by user
+- Space-optimized layout fitting within existing view mode toggle area
