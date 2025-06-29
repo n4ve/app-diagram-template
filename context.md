@@ -9,10 +9,11 @@
 - Provide real-time interaction through card hover effects and animations
 - Support zoom/pan functionality for navigating complex diagrams
 - Demonstrate API dependencies and data flow visually
+- **Visual API Usage Analytics** - Display most called APIs from frontend pages without hover interaction required
 
 ## Technical Stack
 - **Astro 4.x** - Static site generator with component islands
-- **TypeScript** - Full type safety with ES modules
+- **TypeScript** - Full type safety with ES modules (TypeScript ONLY - no JavaScript files)
 - **Tailwind CSS** - Utility-first styling with custom components
 - **SVG Graphics** - Dynamic connection lines
 - **Vitest** - Testing framework
@@ -47,6 +48,7 @@ Frontend Pages → API Servers → Backend Services
 - **CardPositionManager** - Card movement calculations and boundary constraints
 - **CardAnimationManager** - Smooth CSS transform-based animations
 - **HoverEventManager** - User interaction coordination
+- **ApiFrequencyUtils** - Calculate API usage frequency from pages.json data
 
 ## Interactive Features
 1. **Hover Effects** - Highlight related components, dim unrelated ones
@@ -54,6 +56,7 @@ Frontend Pages → API Servers → Backend Services
 3. **Card Animation** - Strategic positioning for readability
 4. **Zoom & Pan** - Mouse, touch, keyboard navigation
 5. **Progressive Movement** - Distance and relationship-based positioning
+6. **API Usage Visualization** - Real-time display of most called APIs with visual indicators
 
 ## Visual Styling
 - Color-coded connections by HTTP method (GET=green, POST=blue, PUT=yellow, DELETE=red)
@@ -107,7 +110,7 @@ public/                 # Static assets/compiled scripts
 4. **Building**: `npm run build` (builds scripts + Astro check + production build)
 
 ## Key Strengths
-- Type-safe development with comprehensive interfaces
+- **TypeScript-only development** with comprehensive interfaces (no JavaScript files)
 - Modular architecture with clean separation of concerns
 - Performance-optimized animations and DOM operations
 - Extensible design ready for future enhancements
@@ -120,6 +123,16 @@ public/                 # Static assets/compiled scripts
 - Consolidated connection logic to use only HoverEventManager.drawConnections()
 - Added missing log line for successful connection creation
 - Improved separation of concerns between animation and connection management
+- **API Frequency Visualization Enhancement** - Added TypeScript-based API usage calculation
+  - Created `utils/apiFrequency.ts` for calculating API call frequency from pages.json
+  - Updated ServerCard to display most called APIs with visual indicators
+  - Separated calculation logic (TypeScript) from display logic (Astro components)
+  - APIs now sorted by frontend page usage with color-coded frequency badges
+- **Connection Management Fixes** - Resolved multiple pages calling same API issue
+  - Fixed CardRelationshipManager connection pair deduplication logic
+  - Updated ConnectionManager connectionId to include element context for uniqueness
+  - Ensures separate connection lines for each page-to-server relationship
+  - Multiple pages can now properly connect to same API endpoint simultaneously
 
 ## Current State
 The project has a complete implementation with interactive features, comprehensive testing, and is ready for production use. Recent work includes backend integration, connection validation improvements, and refactoring of connection management logic.

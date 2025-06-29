@@ -64,10 +64,17 @@ export class ConnectionManager implements IConnectionManager {
     ): SVGElement | null {
         if (!this.connectionSvg || !fromElement || !toElement) return null;
 
-        // Create unique connection ID based on data attributes and position
+        // Create unique connection ID including element context to handle multiple pages calling same API
         const fromApi = fromElement.dataset.fullApi || fromElement.dataset.apiText || fromElement.textContent?.trim();
         const toApi = toElement.dataset.fullApi || toElement.dataset.apiText || toElement.textContent?.trim();
-        const connectionId = `${fromApi}-to-${toApi}`;
+        const fromContext = (fromElement.closest('.page-card') as HTMLElement)?.dataset.page || 
+                            (fromElement.closest('.server-card') as HTMLElement)?.dataset.server || 
+                            fromElement.id || 'unknown';
+        const toContext = (toElement.closest('.page-card') as HTMLElement)?.dataset.page || 
+                          (toElement.closest('.server-card') as HTMLElement)?.dataset.server || 
+                          (toElement.closest('.backend-card') as HTMLElement)?.dataset.backend || 
+                          toElement.id || 'unknown';
+        const connectionId = `from:${fromContext}:${fromApi}-to:${toContext}:${toApi}`;
         
         
         if (this.drawnConnections.has(connectionId)) {

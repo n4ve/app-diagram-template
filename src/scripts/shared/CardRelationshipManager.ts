@@ -308,9 +308,10 @@ export class CardRelationshipManager implements ICardRelationshipManager {
                 });
 
                 if (serverApiElement) {
-                    const pageApiId = (pageApiElement as HTMLElement).dataset.fullApi || (pageApiElement as HTMLElement).getAttribute('data-full-api') || '';
-                    const serverApiId = (serverApiElement as HTMLElement).dataset.apiText || (serverApiElement as HTMLElement).getAttribute('data-api-text') || '';
-                    const pairKey = `${pageApiId}-${serverApiId}`;
+                    // Create unique key that includes both page ID and API to allow multiple pages to connect to same API
+                    const pageId = pageCard.dataset.page || pageCard.id || 'unknown-page';
+                    const serverId = serverCard.dataset.server || 'unknown-server';
+                    const pairKey = `page:${pageId}-server:${serverId}-api:${api}`;
                     if (!uniquePairs.has(pairKey)) {
                         uniquePairs.add(pairKey);
                         connectionPairs.push({
@@ -388,9 +389,9 @@ export class CardRelationshipManager implements ICardRelationshipManager {
                 });
                 
                 if (pageApiElement && serverApiElement) {
-                    const pageApiId = (pageApiElement as HTMLElement).dataset.fullApi || (pageApiElement as HTMLElement).getAttribute('data-full-api') || '';
-                    const serverApiId = (serverApiElement as HTMLElement).dataset.apiText || (serverApiElement as HTMLElement).getAttribute('data-api-text') || '';
-                    const pairKey = `${pageApiId}-${serverApiId}`;
+                    // Create unique key that includes both page ID and API to allow multiple pages to connect to same API
+                    const pageId = pageCard.dataset.page || pageCard.id || 'unknown-page';
+                    const pairKey = `page:${pageId}-server:${hoveredServerId}-api:${api}`;
                     if (!uniquePairs.has(pairKey)) {
                         uniquePairs.add(pairKey);
                         connectionPairs.push({
@@ -474,9 +475,9 @@ export class CardRelationshipManager implements ICardRelationshipManager {
                 }
                 
                 if (pageApiElement && serverApiElement) {
-                    const pageApiId = (pageApiElement as HTMLElement).dataset.fullApi || (pageApiElement as HTMLElement).getAttribute('data-full-api') || '';
-                    const serverApiId = (serverApiElement as HTMLElement).dataset.apiText || (serverApiElement as HTMLElement).getAttribute('data-api-text') || '';
-                    const pairKey = `${pageApiId}-${serverApiId}`;
+                    // Create unique key that includes both page ID and API to allow multiple pages to connect to same API
+                    const pageId = pageCard.dataset.page || pageCard.id || 'unknown-page';
+                    const pairKey = `page:${pageId}-server:${serverId}-api:${api}`;
                     if (!uniquePairs.has(pairKey)) {
                         uniquePairs.add(pairKey);
                         connectionPairs.push({
