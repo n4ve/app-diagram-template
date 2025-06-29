@@ -12,6 +12,7 @@ import { HoverEventManager } from '../scripts/components/connection-area/HoverEv
 import { ConnectionManager } from '../scripts/shared/ConnectionManager';
 import { CardRelationshipManager } from '../scripts/shared/CardRelationshipManager';
 import { CardAnimationManager } from '../scripts/components/connection-area/CardAnimationManager';
+import { CardPositionManager } from '../scripts/shared/CardPositionManager';
 
 // Mock DOM setup
 function createMockDOM() {
@@ -51,7 +52,9 @@ function createMockDOM() {
 
 // Mock SVG line creation
 function mockCreateSVGLine() {
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    const line = document.createElementNS ? 
+        document.createElementNS('http://www.w3.org/2000/svg', 'line') : 
+        document.createElement('line') as any;
     line.setAttribute = vi.fn();
     line.classList = {
         add: vi.fn(),
@@ -100,10 +103,16 @@ describe('Connection Logic Tests', () => {
             paymentServer.classList.add('active');
             mysqlBackend.classList.add('active');
             
-            // Create properly initialized HoverEventManager
+            // Create properly initialized managers
             const connectionManager = new ConnectionManager();
             const relationshipManager = new CardRelationshipManager();
-            const animationManager = new CardAnimationManager();
+            const positionManager = new CardAnimationManager().positionManager;
+            const animationManager = new CardAnimationManager(positionManager, connectionManager);
+            
+            // Initialize the managers
+            connectionManager.initialize();
+            relationshipManager.initialize();
+            animationManager.initialize();
             
             // Mock the dependencies
             vi.spyOn(connectionManager, 'clearConnections').mockImplementation(() => {});
@@ -116,22 +125,21 @@ describe('Connection Logic Tests', () => {
             vi.spyOn(relationshipManager, 'setActiveClasses').mockImplementation(() => {});
             vi.spyOn(animationManager, 'repositionRelatedCards').mockResolvedValue();
             
-            const hoverManager = new HoverEventManager();
-            // Inject the mocked dependencies
-            (hoverManager as any).connectionManager = connectionManager;
-            (hoverManager as any).relationshipManager = relationshipManager;
-            (hoverManager as any).animationManager = animationManager;
+            const hoverManager = new HoverEventManager(relationshipManager, animationManager, connectionManager);
+            hoverManager.initialize();
             
-            const spy = vi.spyOn(document, 'createElementNS');
+            const spy = vi.spyOn(connectionManager, 'createConnectionLine');
+            const mockLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            spy.mockReturnValue(mockLine);
             
             // Trigger page hover
             hoverManager.handleCardHover(loginPage);
             
-            // Wait a bit for async operations
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // Wait for repositioning and connection drawing
+            await new Promise(resolve => setTimeout(resolve, 200));
             
             // Should have called to create SVG lines
-            expect(spy).toHaveBeenCalledWith('http://www.w3.org/2000/svg', 'line');
+            expect(spy).toHaveBeenCalled();
         });
         
         it('should NOT create server-to-server connections', () => {
@@ -142,24 +150,33 @@ describe('Connection Logic Tests', () => {
             authServer.classList.add('active');
             paymentServer.classList.add('active');
             
-            import('../scripts/components/connection-area/HoverEventManager').then(({ HoverEventManager }) => {
-                const hoverManager = new HoverEventManager();
-                const connectionSpy = vi.spyOn(document, 'createElementNS');
-                
-                hoverManager.handleCardHover(loginPage);
-                
-                // Verify no direct auth-server to payment-server connection is created
-                const calls = connectionSpy.mock.calls;
-                const svgCreations = calls.filter(call => call[1] === 'line');
-                
-                // Should not have more than expected connections
-                expect(svgCreations.length).toBeLessThanOrEqual(4);
-            });
+            const connectionManager = new ConnectionManager();
+            const relationshipManager = new CardRelationshipManager();
+            const positionManager = new CardAnimationManager().positionManager;
+            const animationManager = new CardAnimationManager(positionManager, connectionManager);
+            
+            connectionManager.initialize();
+            relationshipManager.initialize();
+            animationManager.initialize();
+            
+            const hoverManager = new HoverEventManager(relationshipManager, animationManager, connectionManager);
+            hoverManager.initialize();
+            
+            const connectionSpy = vi.spyOn(document, 'createElementNS');
+            
+            hoverManager.handleCardHover(loginPage);
+            
+            // Verify no direct auth-server to payment-server connection is created
+            const calls = connectionSpy.mock.calls;
+            const svgCreations = calls.filter(call => call[1] === 'line');
+            
+            // Should not have more than expected connections
+            expect(svgCreations.length).toBeLessThanOrEqual(4);
         });
     });
 
     describe('Server Hover Connections', () => {
-        it('should connect server to its pages and backend when hovering on auth-server', () => {
+        it('should connect server to its pages and backend when hovering on auth-server', async () => {
             const authServer = document.querySelector('[data-server="auth-server"]') as HTMLElement;
             const loginPage = document.querySelector('[data-page="login"]') as HTMLElement;
             const mysqlBackend = document.querySelector('[data-backend="mysql-db"]') as HTMLElement;
@@ -168,21 +185,35 @@ describe('Connection Logic Tests', () => {
             loginPage.classList.add('active');
             mysqlBackend.classList.add('active');
             
-            import('../scripts/components/connection-area/HoverEventManager').then(({ HoverEventManager }) => {
-                const hoverManager = new HoverEventManager();
-                const spy = vi.spyOn(document, 'createElementNS');
-                
-                hoverManager.handleCardHover(authServer);
-                
-                // Should create:
-                // 1. login page API → auth-server API
-                // 2. auth-server → mysql-db
-                expect(spy).toHaveBeenCalledWith('http://www.w3.org/2000/svg', 'line');
-                expect(spy).toHaveBeenCalledTimes(2);
-            });
+            const connectionManager = new ConnectionManager();
+            const relationshipManager = new CardRelationshipManager();
+            const positionManager = new CardAnimationManager().positionManager;
+            const animationManager = new CardAnimationManager(positionManager, connectionManager);
+            
+            connectionManager.initialize();
+            relationshipManager.initialize();
+            animationManager.initialize();
+            
+            const hoverManager = new HoverEventManager(relationshipManager, animationManager, connectionManager);
+            hoverManager.initialize();
+            
+            const spy = vi.spyOn(connectionManager, 'createConnectionLine');
+            const mockLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            spy.mockReturnValue(mockLine);
+            
+            hoverManager.handleCardHover(authServer);
+            
+            // Wait for repositioning and connection drawing
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+            // Should create:
+            // 1. login page API → auth-server API
+            // 2. auth-server → mysql-db
+            expect(spy).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalledTimes(2);
         });
         
-        it('should only connect to the hovered server\'s backend, not all active servers\' backends', () => {
+        it('should only connect to the hovered server\'s backend, not all active servers\' backends', async () => {
             const authServer = document.querySelector('[data-server="auth-server"]') as HTMLElement;
             const paymentServer = document.querySelector('[data-server="payment-server"]') as HTMLElement;
             const loginPage = document.querySelector('[data-page="login"]') as HTMLElement;
@@ -193,26 +224,38 @@ describe('Connection Logic Tests', () => {
             loginPage.classList.add('active');
             mysqlBackend.classList.add('active');
             
-            import('../scripts/components/connection-area/HoverEventManager').then(({ HoverEventManager }) => {
-                const hoverManager = new HoverEventManager();
-                const spy = vi.spyOn(document, 'createElementNS');
-                
-                // Hover on auth-server
-                hoverManager.handleCardHover(authServer);
-                
-                // Should only create ONE backend connection (auth-server → mysql-db)
-                // Should NOT create payment-server → mysql-db
-                const calls = spy.mock.calls;
-                const lineCreations = calls.filter(call => call[1] === 'line');
-                
-                // Count backend connections (should be only 1)
-                expect(lineCreations.length).toBe(2); // 1 page-to-server + 1 server-to-backend
-            });
+            const connectionManager = new ConnectionManager();
+            const relationshipManager = new CardRelationshipManager();
+            const positionManager = new CardAnimationManager().positionManager;
+            const animationManager = new CardAnimationManager(positionManager, connectionManager);
+            
+            connectionManager.initialize();
+            relationshipManager.initialize();
+            animationManager.initialize();
+            
+            const hoverManager = new HoverEventManager(relationshipManager, animationManager, connectionManager);
+            hoverManager.initialize();
+            
+            const spy = vi.spyOn(connectionManager, 'createConnectionLine');
+            const mockLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            spy.mockReturnValue(mockLine);
+            
+            // Hover on auth-server
+            hoverManager.handleCardHover(authServer);
+            
+            // Wait for repositioning and connection drawing
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+            // Should only create ONE backend connection (auth-server → mysql-db)
+            // Should NOT create payment-server → mysql-db
+            
+            // Count connections (should be only 2)
+            expect(spy).toHaveBeenCalledTimes(2); // 1 page-to-server + 1 server-to-backend
         });
     });
 
     describe('Backend Hover Connections', () => {
-        it('should connect backend to all related servers and their pages when hovering on mysql-db', () => {
+        it('should connect backend to all related servers and their pages when hovering on mysql-db', async () => {
             const mysqlBackend = document.querySelector('[data-backend="mysql-db"]') as HTMLElement;
             const authServer = document.querySelector('[data-server="auth-server"]') as HTMLElement;
             const paymentServer = document.querySelector('[data-server="payment-server"]') as HTMLElement;
@@ -223,34 +266,61 @@ describe('Connection Logic Tests', () => {
             paymentServer.classList.add('active');
             loginPage.classList.add('active');
             
-            import('../scripts/components/connection-area/HoverEventManager').then(({ HoverEventManager }) => {
-                const hoverManager = new HoverEventManager();
-                const spy = vi.spyOn(document, 'createElementNS');
-                
-                hoverManager.handleCardHover(mysqlBackend);
-                
-                // Should create multiple connections showing the full flow
-                expect(spy).toHaveBeenCalledWith('http://www.w3.org/2000/svg', 'line');
-                expect(spy).toHaveBeenCalledTimes(4); // 2 page-to-server + 2 server-to-backend
-            });
+            const connectionManager = new ConnectionManager();
+            const relationshipManager = new CardRelationshipManager();
+            const positionManager = new CardAnimationManager().positionManager;
+            const animationManager = new CardAnimationManager(positionManager, connectionManager);
+            
+            connectionManager.initialize();
+            relationshipManager.initialize();
+            animationManager.initialize();
+            
+            const hoverManager = new HoverEventManager(relationshipManager, animationManager, connectionManager);
+            hoverManager.initialize();
+            
+            const spy = vi.spyOn(connectionManager, 'createConnectionLine');
+            const mockLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            spy.mockReturnValue(mockLine);
+            
+            hoverManager.handleCardHover(mysqlBackend);
+            
+            // Wait for repositioning and connection drawing
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+            // Should create multiple connections showing the full flow
+            expect(spy).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalledTimes(4); // 2 page-to-server + 2 server-to-backend
         });
     });
 
     describe('Connection Flow Integrity', () => {
-        it('should maintain proper frontend → server → backend flow', () => {
-            const testFlow = (hoveredCard: HTMLElement, expectedConnectionCount: number) => {
-                import('../scripts/components/connection-area/HoverEventManager').then(({ HoverEventManager }) => {
-                    const hoverManager = new HoverEventManager();
-                    const spy = vi.spyOn(document, 'createElementNS');
-                    
-                    // Clear previous state
-                    document.querySelectorAll('.active').forEach(el => el.classList.remove('active'));
-                    
-                    hoverManager.handleCardHover(hoveredCard);
-                    
-                    const lineCreations = spy.mock.calls.filter(call => call[1] === 'line');
-                    expect(lineCreations.length).toBe(expectedConnectionCount);
-                });
+        it('should maintain proper frontend → server → backend flow', async () => {
+            const testFlow = async (hoveredCard: HTMLElement, expectedConnectionCount: number) => {
+                const connectionManager = new ConnectionManager();
+                const relationshipManager = new CardRelationshipManager();
+                const positionManager = new CardAnimationManager().positionManager;
+                const animationManager = new CardAnimationManager(positionManager, connectionManager);
+                
+                connectionManager.initialize();
+                relationshipManager.initialize();
+                animationManager.initialize();
+                
+                const hoverManager = new HoverEventManager(relationshipManager, animationManager, connectionManager);
+                hoverManager.initialize();
+                
+                const spy = vi.spyOn(connectionManager, 'createConnectionLine');
+                const mockLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                spy.mockReturnValue(mockLine);
+                
+                // Clear previous state
+                document.querySelectorAll('.active').forEach(el => el.classList.remove('active'));
+                
+                hoverManager.handleCardHover(hoveredCard);
+                
+                // Wait for repositioning and connection drawing
+                await new Promise(resolve => setTimeout(resolve, 200));
+                
+                expect(spy).toHaveBeenCalledTimes(expectedConnectionCount);
             };
             
             // Test each card type
@@ -259,9 +329,9 @@ describe('Connection Logic Tests', () => {
             const mysqlBackend = document.querySelector('[data-backend="mysql-db"]') as HTMLElement;
             
             // Each should create appropriate number of connections
-            testFlow(loginPage, 4); // 2 to servers + 2 server-to-backend
-            testFlow(authServer, 2); // 1 from page + 1 to backend
-            testFlow(mysqlBackend, 4); // Full flow for all connected servers
+            await testFlow(loginPage, 4); // 2 to servers + 2 server-to-backend
+            await testFlow(authServer, 2); // 1 from page + 1 to backend
+            await testFlow(mysqlBackend, 4); // Full flow for all connected servers
         });
         
         it('should never create invalid connection types', () => {

@@ -93,8 +93,11 @@ describe('Connection Line Matching - Direct Testing', () => {
     container.appendChild(authServerCard);
     container.appendChild(paymentServerCard);
 
-    // Mock DOM queries
+    // Mock DOM queries BEFORE creating managers
     document.querySelectorAll = vi.fn((selector) => {
+      if (selector === '.page-card, .server-card, .backend-card') {
+        return [loginPageCard, authServerCard, paymentServerCard] as any;
+      }
       if (selector === '.page-card, .server-card') {
         return [loginPageCard, authServerCard, paymentServerCard] as any;
       }
@@ -103,6 +106,9 @@ describe('Connection Line Matching - Direct Testing', () => {
       }
       if (selector === '.server-card') {
         return [authServerCard, paymentServerCard] as any;
+      }
+      if (selector === '.backend-card') {
+        return [] as any;
       }
       return [] as any;
     });
@@ -115,7 +121,13 @@ describe('Connection Line Matching - Direct Testing', () => {
       return null;
     });
 
-    // Initialize managers
+    document.getElementById = vi.fn((id: string): HTMLElement | null => {
+      if (id === 'diagram-container') return container;
+      if (id === 'connection-svg') return svg as any;
+      return null;
+    });
+
+    // Initialize managers AFTER setting up mocks
     positionManager = new CardPositionManager();
     connectionManager = new ConnectionManager();
     relationshipManager = new CardRelationshipManager();

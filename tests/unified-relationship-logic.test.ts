@@ -3,7 +3,7 @@
  * Tests the bidirectional relationship system
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { CardRelationshipManager } from '../src/scripts/shared/CardRelationshipManager.js';
 
@@ -48,10 +48,29 @@ describe('Unified Relationship Logic Tests', () => {
                 </div>
             </body>
             </html>
-        `);
+        `, {
+            url: 'http://localhost',
+            pretendToBeVisual: true,
+            resources: 'usable'
+        });
         
         global.document = dom.window.document;
         global.window = dom.window as any;
+        
+        // Mock localStorage to avoid JSDOM security errors
+        if (!global.localStorage) {
+            Object.defineProperty(global, 'localStorage', {
+                value: {
+                    getItem: vi.fn(() => null),
+                    setItem: vi.fn(),
+                    removeItem: vi.fn(),
+                    clear: vi.fn(),
+                    length: 0,
+                    key: vi.fn(() => null)
+                },
+                writable: true
+            });
+        }
         
         relationshipManager = new CardRelationshipManager();
         relationshipManager.initialize();

@@ -85,11 +85,26 @@ docs/                   # Documentation
 public/                 # Static assets/compiled scripts
 ```
 
+## Testing Framework & Commands
+- **Framework**: Vitest with jsdom for DOM testing
+- **Run tests**: `npm test` (watch mode) or `npm run test:run` (single run)
+- **Type checking**: `npm run type-check` (TypeScript validation)
+- **Build scripts**: `npm run build-scripts` (compiles TypeScript modules)
+
 ## Testing Coverage
 - Connection validation and API relationship mapping
 - Component integration between managers
 - Animation logic and movement calculations
 - Relationship correctness from JSON data
+- Individual connection drawing and type validation
+- Three-component relationship testing
+- Connection correctness and integration tests
+
+## Development Workflow
+1. **Development**: `npm run dev` (builds scripts + starts Astro dev server)
+2. **Type checking**: `npm run type-check` (validates TypeScript)
+3. **Testing**: `npm test` (runs Vitest in watch mode)
+4. **Building**: `npm run build` (builds scripts + Astro check + production build)
 
 ## Key Strengths
 - Type-safe development with comprehensive interfaces
@@ -98,6 +113,13 @@ public/                 # Static assets/compiled scripts
 - Extensible design ready for future enhancements
 - Configuration-driven relationships without code changes
 - Responsive design across all devices
+- Comprehensive testing with Vitest framework
+
+## Recent Updates
+- Fixed duplicate connection drawing between CardAnimationManager and HoverEventManager
+- Consolidated connection logic to use only HoverEventManager.drawConnections()
+- Added missing log line for successful connection creation
+- Improved separation of concerns between animation and connection management
 
 ## Current State
-The project has a complete implementation with interactive features, comprehensive testing, and is ready for production use. Recent work includes backend integration and connection validation improvements.
+The project has a complete implementation with interactive features, comprehensive testing, and is ready for production use. Recent work includes backend integration, connection validation improvements, and refactoring of connection management logic.

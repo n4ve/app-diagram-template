@@ -139,33 +139,15 @@ describe('Connection Line Matching on Hover', () => {
     [loginPageCard, authServerCard, paymentServerCard, userServerCard]
       .forEach(card => diagramContainer.appendChild(card));
 
-    // Add the custom drawConnections methods that HoverEventManager expects
-    loginPageCard.drawConnections = vi.fn(() => {
-      // Simulate the page card connection drawing
-      const relatedElements = relationshipManager.findRelatedCards(loginPageCard);
-      (animationManager as any)._drawPageConnections(loginPageCard, relatedElements);
-    });
-    
-    authServerCard.drawServerConnections = vi.fn(() => {
-      // Simulate the server card connection drawing  
-      (animationManager as any)._drawServerConnections(authServerCard);
-    });
-    
-    paymentServerCard.drawServerConnections = vi.fn(() => {
-      (animationManager as any)._drawServerConnections(paymentServerCard);
-    });
-    
-    userServerCard.drawServerConnections = vi.fn(() => {
-      (animationManager as any)._drawServerConnections(userServerCard);
-    });
-
-    // Mock querySelector and querySelectorAll
+    // Mock querySelector and querySelectorAll BEFORE creating managers
     const allCards = [loginPageCard, authServerCard, paymentServerCard, userServerCard];
     
     document.querySelectorAll = vi.fn((selector: string) => {
+      if (selector === '.page-card, .server-card, .backend-card') return allCards as any;
       if (selector === '.page-card, .server-card') return allCards as any;
       if (selector === '.page-card') return [loginPageCard] as any;
       if (selector === '.server-card') return [authServerCard, paymentServerCard, userServerCard] as any;
+      if (selector === '.backend-card') return [] as any;
       if (selector === '.api-item') {
         // Return all API items from all cards
         const allApiItems: HTMLElement[] = [];
@@ -187,7 +169,13 @@ describe('Connection Line Matching on Hover', () => {
       return null;
     });
 
-    // Initialize managers
+    document.getElementById = vi.fn((id: string): HTMLElement | null => {
+      if (id === 'diagram-container') return diagramContainer;
+      if (id === 'connection-svg') return mockSvg as any;
+      return null;
+    });
+
+    // Initialize managers AFTER setting up mocks
     positionManager = new CardPositionManager();
     connectionManager = new ConnectionManager();
     relationshipManager = new CardRelationshipManager();
@@ -210,12 +198,10 @@ describe('Connection Line Matching on Hover', () => {
   });
 
   test('should create multiple connection lines when hovering login page', async () => {
-    const relatedElements = relationshipManager.findRelatedCards(loginPageCard);
+    // Trigger full hover behavior through HoverEventManager
+    hoverEventManager.handleCardHover(loginPageCard);
     
-    // Trigger hover behavior
-    await animationManager.repositionRelatedCards(loginPageCard, relatedElements);
-    
-    // Wait for connection drawing timeout
+    // Wait for animation and connection drawing to complete
     await new Promise(resolve => setTimeout(resolve, 100));
     
     // Should create 4 connection lines (one for each API match)
@@ -230,11 +216,10 @@ describe('Connection Line Matching on Hover', () => {
   });
 
   test('should highlight matching API elements when hovering login page', async () => {
-    const relatedElements = relationshipManager.findRelatedCards(loginPageCard);
+    // Trigger full hover behavior through HoverEventManager
+    hoverEventManager.handleCardHover(loginPageCard);
     
-    await animationManager.repositionRelatedCards(loginPageCard, relatedElements);
-    
-    // Wait for connection drawing timeout
+    // Wait for animation and connection drawing to complete
     await new Promise(resolve => setTimeout(resolve, 100));
     
     // Check that login page API elements are highlighted
@@ -274,10 +259,10 @@ describe('Connection Line Matching on Hover', () => {
   });
 
   test('should match correct API pairs for each connection', async () => {
-    const relatedElements = relationshipManager.findRelatedCards(loginPageCard);
-    await animationManager.repositionRelatedCards(loginPageCard, relatedElements);
+    // Trigger full hover behavior through HoverEventManager
+    hoverEventManager.handleCardHover(loginPageCard);
     
-    // Wait for connection drawing timeout
+    // Wait for animation and connection drawing to complete
     await new Promise(resolve => setTimeout(resolve, 100));
     
     // Verify that each connection line corresponds to a matching API pair
@@ -305,8 +290,11 @@ describe('Connection Line Matching on Hover', () => {
   });
 
   test('should not create connections to unrelated servers', async () => {
-    const relatedElements = relationshipManager.findRelatedCards(loginPageCard);
-    await animationManager.repositionRelatedCards(loginPageCard, relatedElements);
+    // Trigger full hover behavior through HoverEventManager
+    hoverEventManager.handleCardHover(loginPageCard);
+    
+    // Wait for animation and connection drawing to complete
+    await new Promise(resolve => setTimeout(resolve, 100));
     
     // User server should not have any highlighted API elements
     const userApiElements = userServerCard.querySelectorAll('.api-item') as NodeListOf<HTMLElement>;
@@ -328,10 +316,10 @@ describe('Connection Line Matching on Hover', () => {
       }
     });
 
-    const relatedElements = relationshipManager.findRelatedCards(loginPageCard);
-    await animationManager.repositionRelatedCards(loginPageCard, relatedElements);
+    // Trigger full hover behavior through HoverEventManager
+    hoverEventManager.handleCardHover(loginPageCard);
     
-    // Wait for connection drawing timeout
+    // Wait for animation and connection drawing to complete
     await new Promise(resolve => setTimeout(resolve, 100));
     
     // Verify that getMethodColor was called for each API type
@@ -345,10 +333,10 @@ describe('Connection Line Matching on Hover', () => {
   test('should clear previous connections before drawing new ones', async () => {
     const mockClearConnections = vi.spyOn(connectionManager, 'clearConnections');
     
-    const relatedElements = relationshipManager.findRelatedCards(loginPageCard);
-    await animationManager.repositionRelatedCards(loginPageCard, relatedElements);
+    // Trigger full hover behavior through HoverEventManager
+    hoverEventManager.handleCardHover(loginPageCard);
     
-    // Wait for connection drawing timeout (which includes clearConnections call)
+    // Wait for animation and connection drawing to complete
     await new Promise(resolve => setTimeout(resolve, 100));
     
     // clearConnections should be called before drawing new connections

@@ -147,7 +147,7 @@ describe('Three-Component Relationship: Login Page ↔ Auth Server ↔ MySQL DB'
                      dashboardPageCard, userServerCard, redisBackendCard];
     allCards.forEach(card => diagramContainer.appendChild(card));
 
-    // Mock querySelector and querySelectorAll
+    // Mock querySelector and querySelectorAll BEFORE creating managers
     document.querySelectorAll = vi.fn((selector: string) => {
       if (selector === '.page-card, .server-card, .backend-card') {
         return allCards as any;
@@ -179,6 +179,8 @@ describe('Three-Component Relationship: Login Page ↔ Auth Server ↔ MySQL DB'
       if (selector === '[data-server="user-server"]') return userServerCard;
       if (selector === '[data-backend="mysql-db"]') return mysqlBackendCard;
       if (selector === '[data-backend="redis-cache"]') return redisBackendCard;
+      if (selector === '.backend-card[data-backend="mysql-db"]') return mysqlBackendCard;
+      if (selector === '.backend-card[data-backend="redis-cache"]') return redisBackendCard;
       // Active queries
       if (selector === '[data-server="auth-server"].active') {
         return authServerCard.classList.contains('active') ? authServerCard : null;
@@ -189,13 +191,13 @@ describe('Three-Component Relationship: Login Page ↔ Auth Server ↔ MySQL DB'
       return null;
     });
 
-    document.getElementById = vi.fn((id: string) => {
+    document.getElementById = vi.fn((id: string): HTMLElement | null => {
       if (id === 'diagram-container') return diagramContainer;
-      if (id === 'connection-svg') return svg;
+      if (id === 'connection-svg') return svg as any;
       return null;
     });
 
-    // Initialize managers
+    // Initialize managers AFTER setting up mocks
     positionManager = new CardPositionManager();
     connectionManager = new ConnectionManager();
     relationshipManager = new CardRelationshipManager();
@@ -397,7 +399,7 @@ describe('Three-Component Relationship: Login Page ↔ Auth Server ↔ MySQL DB'
   });
 
   describe('Connection Drawing Integration', () => {
-    test('should draw page-to-server and server-to-backend connections on login page hover', () => {
+    test('should draw page-to-server and server-to-backend connections on login page hover', async () => {
       // Set up the relationship
       const relatedElements = relationshipManager.findRelatedCards(loginPageCard);
       relationshipManager.setActiveClasses(loginPageCard, relatedElements);
@@ -407,8 +409,11 @@ describe('Three-Component Relationship: Login Page ↔ Auth Server ↔ MySQL DB'
       const mockLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       createConnectionLineSpy.mockReturnValue(mockLine);
 
-      // Trigger connection drawing
-      hoverEventManager['drawPageConnections'](loginPageCard);
+      // Trigger connection drawing through HoverEventManager
+      hoverEventManager.handleCardHover(loginPageCard);
+
+      // Wait for repositioning and connection drawing
+      await new Promise(resolve => setTimeout(resolve, 150));
 
       // Should create connections for page APIs
       expect(createConnectionLineSpy).toHaveBeenCalled();
@@ -421,7 +426,7 @@ describe('Three-Component Relationship: Login Page ↔ Auth Server ↔ MySQL DB'
       expect(pageToServerCalls.length).toBeGreaterThan(0);
     });
 
-    test('should draw server-to-backend connections on auth server hover', () => {
+    test('should draw server-to-backend connections on auth server hover', async () => {
       // Set up the relationship
       const relatedElements = relationshipManager.findRelatedCards(authServerCard);
       relationshipManager.setActiveClasses(authServerCard, relatedElements);
@@ -431,14 +436,17 @@ describe('Three-Component Relationship: Login Page ↔ Auth Server ↔ MySQL DB'
       const mockLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       createConnectionLineSpy.mockReturnValue(mockLine);
 
-      // Trigger connection drawing
-      hoverEventManager['drawServerConnections'](authServerCard);
+      // Trigger connection drawing through HoverEventManager
+      hoverEventManager.handleCardHover(authServerCard);
+
+      // Wait for repositioning and connection drawing
+      await new Promise(resolve => setTimeout(resolve, 150));
 
       // Should create connections
       expect(createConnectionLineSpy).toHaveBeenCalled();
     });
 
-    test('should draw complete connection chain on backend hover', () => {
+    test('should draw complete connection chain on backend hover', async () => {
       // Set up the relationship
       const relatedElements = relationshipManager.findRelatedCards(mysqlBackendCard);
       relationshipManager.setActiveClasses(mysqlBackendCard, relatedElements);
@@ -448,14 +456,17 @@ describe('Three-Component Relationship: Login Page ↔ Auth Server ↔ MySQL DB'
       const mockLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       createConnectionLineSpy.mockReturnValue(mockLine);
 
-      // Trigger connection drawing
-      hoverEventManager['drawBackendConnections'](mysqlBackendCard);
+      // Trigger connection drawing through HoverEventManager
+      hoverEventManager.handleCardHover(mysqlBackendCard);
+
+      // Wait for repositioning and connection drawing
+      await new Promise(resolve => setTimeout(resolve, 150));
 
       // Should create both page-to-server and server-to-backend connections
       expect(createConnectionLineSpy).toHaveBeenCalled();
     });
 
-    test('should only draw connections between active (related) components', () => {
+    test('should only draw connections between active (related) components', async () => {
       // Set up login page relationship
       const relatedElements = relationshipManager.findRelatedCards(loginPageCard);
       relationshipManager.setActiveClasses(loginPageCard, relatedElements);
@@ -479,8 +490,11 @@ describe('Three-Component Relationship: Login Page ↔ Auth Server ↔ MySQL DB'
       const mockLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       createConnectionLineSpy.mockReturnValue(mockLine);
 
-      // Trigger connection drawing
-      hoverEventManager['drawPageConnections'](loginPageCard);
+      // Trigger connection drawing through HoverEventManager
+      hoverEventManager.handleCardHover(loginPageCard);
+
+      // Wait for repositioning and connection drawing
+      await new Promise(resolve => setTimeout(resolve, 150));
 
       // Verify that connections are only made to active components
       const calls = createConnectionLineSpy.mock.calls;

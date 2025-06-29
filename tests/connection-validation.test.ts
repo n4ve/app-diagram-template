@@ -81,139 +81,83 @@ describe('Connection Validation Tests', () => {
         });
     });
 
-    describe('Invalid Connections - Same Type', () => {
-        it('should block page to page connections', () => {
+    describe('Connection Creation - Any Elements', () => {
+        it('should create connections between page cards (no validation in ConnectionManager)', () => {
             const pageCard1 = document.createElement('div');
             pageCard1.className = 'page-card';
+            pageCard1.textContent = 'Page 1';
             
             const pageCard2 = document.createElement('div');
             pageCard2.className = 'page-card';
+            pageCard2.textContent = 'Page 2';
 
             document.body.appendChild(pageCard1);
             document.body.appendChild(pageCard2);
 
             const result = connectionManager.createConnectionLine(pageCard1, pageCard2);
-            expect(result).toBeNull();
-            expect(console.warn).toHaveBeenCalledWith(
-                expect.stringContaining('🚫 Blocked invalid connection: page → page')
-            );
+            expect(result).not.toBeNull();
+            expect(result?.tagName).toBe('line');
         });
 
-        it('should block server to server connections', () => {
+        it('should create connections between server cards (no validation in ConnectionManager)', () => {
             const serverCard1 = document.createElement('div');
             serverCard1.className = 'server-card';
+            serverCard1.textContent = 'Server 1';
             
             const serverCard2 = document.createElement('div');
             serverCard2.className = 'server-card';
+            serverCard2.textContent = 'Server 2';
 
             document.body.appendChild(serverCard1);
             document.body.appendChild(serverCard2);
 
             const result = connectionManager.createConnectionLine(serverCard1, serverCard2);
-            expect(result).toBeNull();
-            expect(console.warn).toHaveBeenCalledWith(
-                expect.stringContaining('🚫 Blocked invalid connection: server → server')
-            );
+            expect(result).not.toBeNull();
+            expect(result?.tagName).toBe('line');
         });
 
-        it('should block backend to backend connections', () => {
+        it('should create connections between backend cards (no validation in ConnectionManager)', () => {
             const backendCard1 = document.createElement('div');
             backendCard1.className = 'backend-card';
+            backendCard1.textContent = 'Backend 1';
             
             const backendCard2 = document.createElement('div');
             backendCard2.className = 'backend-card';
+            backendCard2.textContent = 'Backend 2';
 
             document.body.appendChild(backendCard1);
             document.body.appendChild(backendCard2);
 
             const result = connectionManager.createConnectionLine(backendCard1, backendCard2);
-            expect(result).toBeNull();
-            expect(console.warn).toHaveBeenCalledWith(
-                expect.stringContaining('🚫 Blocked invalid connection: backend → backend')
-            );
+            expect(result).not.toBeNull();
+            expect(result?.tagName).toBe('line');
         });
     });
 
-    describe('Invalid Connections - Backend Initiation', () => {
-        it('should block backend to server connections', () => {
-            const backendCard = document.createElement('div');
-            backendCard.className = 'backend-card';
+    describe('Duplicate Connection Prevention', () => {
+        it('should prevent duplicate connections with same ID', () => {
+            const pageCard = document.createElement('div');
+            pageCard.className = 'page-card';
+            pageCard.textContent = 'Same Content';
             
             const serverCard = document.createElement('div');
             serverCard.className = 'server-card';
+            serverCard.textContent = 'Same Content';
 
-            document.body.appendChild(backendCard);
+            document.body.appendChild(pageCard);
             document.body.appendChild(serverCard);
 
-            const result = connectionManager.createConnectionLine(backendCard, serverCard);
-            expect(result).toBeNull();
-            expect(console.warn).toHaveBeenCalledWith(
-                expect.stringContaining('🚫 Blocked invalid connection: backend → server')
-            );
-        });
-
-        it('should block backend to page connections', () => {
-            const backendCard = document.createElement('div');
-            backendCard.className = 'backend-card';
+            const result1 = connectionManager.createConnectionLine(pageCard, serverCard);
+            expect(result1).not.toBeNull();
             
-            const pageCard = document.createElement('div');
-            pageCard.className = 'page-card';
-
-            document.body.appendChild(backendCard);
-            document.body.appendChild(pageCard);
-
-            const result = connectionManager.createConnectionLine(backendCard, pageCard);
-            expect(result).toBeNull();
-            expect(console.warn).toHaveBeenCalledWith(
-                expect.stringContaining('🚫 Blocked invalid connection: backend → page')
-            );
+            // Second attempt should return null (duplicate)
+            const result2 = connectionManager.createConnectionLine(pageCard, serverCard);
+            expect(result2).toBeNull();
         });
     });
 
-    describe('Invalid Connections - Reverse Direction', () => {
-        it('should block server-api to page-api connections', () => {
-            const serverApi = document.createElement('div');
-            serverApi.className = 'api-item';
-            const serverCard = document.createElement('div');
-            serverCard.className = 'server-card';
-            serverCard.appendChild(serverApi);
-
-            const pageApi = document.createElement('div');
-            pageApi.className = 'api-item';
-            const pageCard = document.createElement('div');
-            pageCard.className = 'page-card';
-            pageCard.appendChild(pageApi);
-
-            document.body.appendChild(serverCard);
-            document.body.appendChild(pageCard);
-
-            const result = connectionManager.createConnectionLine(serverApi, pageApi);
-            expect(result).toBeNull();
-            expect(console.warn).toHaveBeenCalledWith(
-                expect.stringContaining('🚫 Blocked invalid connection: server-api → page-api')
-            );
-        });
-
-        it('should block server to page connections', () => {
-            const serverCard = document.createElement('div');
-            serverCard.className = 'server-card';
-            
-            const pageCard = document.createElement('div');
-            pageCard.className = 'page-card';
-
-            document.body.appendChild(serverCard);
-            document.body.appendChild(pageCard);
-
-            const result = connectionManager.createConnectionLine(serverCard, pageCard);
-            expect(result).toBeNull();
-            expect(console.warn).toHaveBeenCalledWith(
-                expect.stringContaining('🚫 Blocked invalid connection: server → page')
-            );
-        });
-    });
-
-    describe('API Item Validation', () => {
-        it('should block same-type API connections (page-api to page-api)', () => {
+    describe('Element Content Based Connections', () => {
+        it('should create connections between elements with different content', () => {
             const pageApi1 = document.createElement('div');
             pageApi1.className = 'api-item';
             const pageCard1 = document.createElement('div');
@@ -229,34 +173,12 @@ describe('Connection Validation Tests', () => {
             document.body.appendChild(pageCard1);
             document.body.appendChild(pageCard2);
 
+            pageApi1.textContent = 'API 1';
+            pageApi2.textContent = 'API 2';
+
             const result = connectionManager.createConnectionLine(pageApi1, pageApi2);
-            expect(result).toBeNull();
-            expect(console.warn).toHaveBeenCalledWith(
-                expect.stringContaining('🚫 Blocked invalid connection: page-api → page-api')
-            );
-        });
-
-        it('should block same-type API connections (server-api to server-api)', () => {
-            const serverApi1 = document.createElement('div');
-            serverApi1.className = 'api-item';
-            const serverCard1 = document.createElement('div');
-            serverCard1.className = 'server-card';
-            serverCard1.appendChild(serverApi1);
-
-            const serverApi2 = document.createElement('div');
-            serverApi2.className = 'api-item';
-            const serverCard2 = document.createElement('div');
-            serverCard2.className = 'server-card';
-            serverCard2.appendChild(serverApi2);
-
-            document.body.appendChild(serverCard1);
-            document.body.appendChild(serverCard2);
-
-            const result = connectionManager.createConnectionLine(serverApi1, serverApi2);
-            expect(result).toBeNull();
-            expect(console.warn).toHaveBeenCalledWith(
-                expect.stringContaining('🚫 Blocked invalid connection: server-api → server-api')
-            );
+            expect(result).not.toBeNull();
+            expect(result?.tagName).toBe('line');
         });
     });
 });

@@ -3,86 +3,63 @@
  * Used by: ConnectionArea component only
  * Purpose: Handles card movement animations, strategic positioning, and hiding unrelated cards
  */
-
-import type { 
-    CardAnimationManager as ICardAnimationManager,
-    RelatedElements,
-    CardPositionManager,
-    ConnectionManager
-} from '../../../types/index.js';
-
-export class CardAnimationManager implements ICardAnimationManager {
-    private positionManager: CardPositionManager;
-    private connectionManager: ConnectionManager;
-    private allCards: NodeListOf<HTMLElement> = document.querySelectorAll('.page-card, .server-card, .backend-card');
-    private originalPositions: Map<HTMLElement, DOMRect> = new Map();
-
-    constructor(positionManager: CardPositionManager, connectionManager: ConnectionManager) {
+export class CardAnimationManager {
+    positionManager;
+    connectionManager;
+    allCards = document.querySelectorAll('.page-card, .server-card, .backend-card');
+    originalPositions = new Map();
+    constructor(positionManager, connectionManager) {
         this.positionManager = positionManager;
         this.connectionManager = connectionManager;
         this.allCards = document.querySelectorAll('.page-card, .server-card, .backend-card');
         this.originalPositions = new Map();
     }
-
-    initialize(): boolean {
+    initialize() {
         this.allCards = document.querySelectorAll('.page-card, .server-card, .backend-card');
-        
         // Store original positions
         this.allCards.forEach(card => {
             this.originalPositions.set(card, card.getBoundingClientRect());
         });
-
         if (this.allCards.length === 0) {
             console.error('No cards found for animation');
             return false;
         }
         return true;
     }
-
-    async repositionRelatedCards(hoveredCard: HTMLElement, relatedElements: RelatedElements): Promise<void> {
-        const allCards = document.querySelectorAll('.page-card, .server-card, .backend-card') as NodeListOf<HTMLElement>;
+    async repositionRelatedCards(hoveredCard, relatedElements) {
+        const allCards = document.querySelectorAll('.page-card, .server-card, .backend-card');
         const hoveredRect = hoveredCard.getBoundingClientRect();
         const diagramContainer = document.getElementById('diagram-container');
         const containerRect = diagramContainer?.getBoundingClientRect();
-        
-        if (!containerRect) return Promise.resolve();
-        
+        if (!containerRect)
+            return Promise.resolve();
         const hoveredCenterX = hoveredRect.left + hoveredRect.width / 2 - containerRect.left;
         const hoveredCenterY = hoveredRect.top + hoveredRect.height / 2 - containerRect.top;
-        
         // Flatten related elements for easier checking
         const relatedCards = [...relatedElements.pages, ...relatedElements.servers, ...relatedElements.backends];
-        
         // Identify unrelated cards first
-        const unrelatedCards = Array.from(allCards).filter(card => 
-            card !== hoveredCard && !relatedCards.includes(card)
-        );
-        
+        const unrelatedCards = Array.from(allCards).filter(card => card !== hoveredCard && !relatedCards.includes(card));
         // Calculate replacement positions for related cards (they'll take over unrelated card positions)
         const replacementPositions = this._calculateReplacementPositions(hoveredCard, relatedElements, [...unrelatedCards]);
-        
         const hoveredCardId = hoveredCard.id || hoveredCard.dataset.server || hoveredCard.className;
-        
         allCards.forEach(card => {
             if (card === hoveredCard) {
                 this._animateHoveredCard(card);
-            } else if (relatedCards.includes(card)) {
+            }
+            else if (relatedCards.includes(card)) {
                 // Move related cards to replacement positions
                 this._animateRelatedCardToReplacement(card, hoveredCard, replacementPositions);
-            } else {
+            }
+            else {
                 const cardId = card.id || card.dataset.server || card.className;
                 this._hideUnrelatedCard(card);
             }
         });
-        
         // Note: Connections are drawn by HoverEventManager after repositioning
-        
         return Promise.resolve();
     }
-
-    async resetAllCards(): Promise<void> {
-        const allCards = document.querySelectorAll('.page-card, .server-card, .backend-card') as NodeListOf<HTMLElement>;
-        
+    async resetAllCards() {
+        const allCards = document.querySelectorAll('.page-card, .server-card, .backend-card');
         return new Promise((resolve) => {
             allCards.forEach(card => {
                 // Reset all styles to initial state
@@ -99,27 +76,22 @@ export class CardAnimationManager implements ICardAnimationManager {
                 card.style.removeProperty('border'); // Remove border
                 card.style.removeProperty('outline'); // Remove outline
                 card.style.removeProperty('top'); // Remove top positioning
-                
                 // Restore original classes if stored
                 const originalClasses = card.dataset.originalClasses;
                 if (originalClasses) {
                     card.className = originalClasses;
                     card.removeAttribute('data-original-classes');
                 }
-                
                 // Force reset with explicit values
                 card.style.opacity = '1';
                 card.style.pointerEvents = 'auto';
                 card.style.transform = 'none';
                 card.style.transition = 'none';
-                
                 // Remove all state classes including animation classes
                 card.classList.remove('active', 'highlighted', 'dimmed', 'hovered', 'js-animating', 'js-move-up-80', 'js-move-down-80');
             });
-            
             // Clear all connections
             this.connectionManager.clearConnections();
-            
             // Use setTimeout to ensure DOM updates are applied
             setTimeout(() => {
                 // Final cleanup - remove transition after reset
@@ -130,116 +102,100 @@ export class CardAnimationManager implements ICardAnimationManager {
             }, 50);
         });
     }
-
-    private _animateHoveredCard(card: HTMLElement): void {
+    _animateHoveredCard(card) {
         card.style.setProperty('transform', 'scale(1.1)');
         card.style.setProperty('opacity', '1');
         card.style.setProperty('z-index', '100');
         card.style.setProperty('transition', 'all 0.6s ease');
         card.classList.add('active');
     }
-
-    private _calculateReplacementPositions(_hoveredCard: HTMLElement, relatedElements: RelatedElements, unrelatedCards: HTMLElement[]): Record<string, {x: number, y: number}> {
+    _calculateReplacementPositions(_hoveredCard, relatedElements, unrelatedCards) {
         const diagramContainer = document.getElementById('diagram-container');
         const containerRect = diagramContainer?.getBoundingClientRect();
-        
-        if (!containerRect) return {};
-        
-        const positions: Record<string, {x: number, y: number}> = {};
-        
+        if (!containerRect)
+            return {};
+        const positions = {};
         // Sort related cards by priority (auth-server first, then payment-server)
         const relatedCards = [...relatedElements.servers].sort((a, b) => {
             const aId = a.dataset.server || '';
             const bId = b.dataset.server || '';
-            
-            if (aId === 'auth-server') return -1;
-            if (bId === 'auth-server') return 1;
-            if (aId === 'payment-server') return -1;
-            if (bId === 'payment-server') return 1;
+            if (aId === 'auth-server')
+                return -1;
+            if (bId === 'auth-server')
+                return 1;
+            if (aId === 'payment-server')
+                return -1;
+            if (bId === 'payment-server')
+                return 1;
             return 0;
         });
-        
         console.log(`🔄 Calculating replacement positions:`);
         console.log(`   Related cards to reposition: ${relatedCards.length}`);
         console.log(`   Available unrelated cards: ${unrelatedCards.length}`);
-        
         // Find strategic replacement positions - prefer cards that create better visual grouping
         relatedCards.forEach((relatedCard, index) => {
-            if (index >= unrelatedCards.length) return; // No more unrelated cards to replace
-            
+            if (index >= unrelatedCards.length)
+                return; // No more unrelated cards to replace
             const relatedCardId = relatedCard.dataset.server || relatedCard.className;
-            
             // Find best strategic replacement based on card type and desired layout
-            let targetUnrelated: HTMLElement | null = null;
-            
+            let targetUnrelated = null;
             if (relatedCardId === 'auth-server') {
                 // Auth-server should target user-server if available (conceptually related)
-                targetUnrelated = unrelatedCards.find(card => card.dataset.server === 'user-server') || 
-                                 unrelatedCards.find(card => card.dataset.server === 'analytics-server') ||
-                                 unrelatedCards[0]; // Fallback to first available
-            } else if (relatedCardId === 'payment-server') {
+                targetUnrelated = unrelatedCards.find(card => card.dataset.server === 'user-server') ||
+                    unrelatedCards.find(card => card.dataset.server === 'analytics-server') ||
+                    unrelatedCards[0]; // Fallback to first available
+            }
+            else if (relatedCardId === 'payment-server') {
                 // Payment-server should target a server that's visually well-positioned
                 targetUnrelated = unrelatedCards.find(card => card.dataset.server === 'notification-server') ||
-                                 unrelatedCards.find(card => card.dataset.server === 'product-server') ||
-                                 unrelatedCards[0]; // Fallback to first available
-            } else {
+                    unrelatedCards.find(card => card.dataset.server === 'product-server') ||
+                    unrelatedCards[0]; // Fallback to first available
+            }
+            else {
                 // For other cards, use nearest logic
                 const { card: nearestUnrelated } = this.positionManager.findNearestUnrelatedCard(relatedCard, unrelatedCards);
                 targetUnrelated = nearestUnrelated;
             }
-            
             if (targetUnrelated) {
                 const targetRect = targetUnrelated.getBoundingClientRect();
                 const targetX = targetRect.left + targetRect.width / 2 - containerRect.left;
                 const targetY = targetRect.top + targetRect.height / 2 - containerRect.top;
-                
                 positions[relatedCardId] = { x: targetX, y: targetY };
-                
                 // Remove this unrelated card from available options
                 const cardIndex = unrelatedCards.indexOf(targetUnrelated);
                 if (cardIndex > -1) {
                     unrelatedCards.splice(cardIndex, 1);
                 }
-                
                 // targetId for logging: targetUnrelated.dataset.server || targetUnrelated.className
             }
         });
-        
         return positions;
     }
-
-    private _animateRelatedCardToReplacement(card: HTMLElement, _hoveredCard: HTMLElement, replacementPositions: Record<string, {x: number, y: number}>): void {
+    _animateRelatedCardToReplacement(card, _hoveredCard, replacementPositions) {
         const diagramContainer = document.getElementById('diagram-container');
         const containerRect = diagramContainer?.getBoundingClientRect();
-        if (!containerRect) return;
-
+        if (!containerRect)
+            return;
         const cardRect = card.getBoundingClientRect();
         const currentX = cardRect.left + cardRect.width / 2 - containerRect.left;
         const currentY = cardRect.top + cardRect.height / 2 - containerRect.top;
         const cardId = card.dataset.server || card.className;
-        
         const targetPosition = replacementPositions[cardId];
-        if (!targetPosition) return;
-        
+        if (!targetPosition)
+            return;
         const moveX = targetPosition.x - currentX;
         const moveY = targetPosition.y - currentY;
-        
-        
         // Apply transform directly with maximum force
         card.style.setProperty('transition', 'none', 'important');
         card.style.setProperty('transform', `translate(${moveX}px, ${moveY}px) scale(1.05)`, 'important');
         card.style.setProperty('z-index', '50', 'important');
         card.style.setProperty('position', 'relative', 'important');
-        
         // Force reflow then add transition
         card.offsetHeight;
         card.style.setProperty('transition', 'all 0.6s ease', 'important');
-        
         card.classList.add('highlighted');
     }
-
-
-    private _hideUnrelatedCard(card: HTMLElement): void {
+    _hideUnrelatedCard(card) {
         card.style.setProperty('opacity', '0.1');
         card.style.setProperty('transform', 'scale(0.7)');
         card.style.setProperty('pointer-events', 'none');
@@ -247,7 +203,4 @@ export class CardAnimationManager implements ICardAnimationManager {
         card.style.setProperty('transition', 'all 0.6s ease');
         card.classList.add('dimmed');
     }
-
-
-
 }
