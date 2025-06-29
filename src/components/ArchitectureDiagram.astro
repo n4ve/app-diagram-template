@@ -71,9 +71,12 @@ Object.entries(groups).forEach(([groupId, group]) => {
         
         <!-- Page View -->
         <div id="page-view" class="pages-grid">
-          {Object.entries(flattenedPages).map(([pageId, page]) => (
-            <PageCard pageId={pageId} page={page} />
-          ))}
+          {Object.entries(flattenedPages).map(([pageId, page]) => {
+            const groupData = page.groupId ? groups[page.groupId] : null;
+            return (
+              <PageCard pageId={pageId} page={page} group={groupData} />
+            );
+          })}
         </div>
         
         <!-- Group View (hidden by default) -->

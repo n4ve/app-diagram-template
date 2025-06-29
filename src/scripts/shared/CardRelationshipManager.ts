@@ -16,20 +16,23 @@ export class CardRelationshipManager implements ICardRelationshipManager {
     private pageCards: NodeListOf<HTMLElement> = document.querySelectorAll('.page-card');
     private serverCards: NodeListOf<HTMLElement> = document.querySelectorAll('.server-card');
     private backendCards: NodeListOf<HTMLElement> = document.querySelectorAll('.backend-card');
+    private groupCards: NodeListOf<HTMLElement> = document.querySelectorAll('.group-card');
 
     constructor() {
         this.pageCards = document.querySelectorAll('.page-card');
         this.serverCards = document.querySelectorAll('.server-card');
         this.backendCards = document.querySelectorAll('.backend-card');
+        this.groupCards = document.querySelectorAll('.group-card');
     }
 
     initialize(): boolean {
         this.pageCards = document.querySelectorAll('.page-card');
         this.serverCards = document.querySelectorAll('.server-card');
         this.backendCards = document.querySelectorAll('.backend-card');
+        this.groupCards = document.querySelectorAll('.group-card');
         
         // Only require that at least one type of card exists
-        const totalCards = this.pageCards.length + this.serverCards.length + this.backendCards.length;
+        const totalCards = this.pageCards.length + this.serverCards.length + this.backendCards.length + this.groupCards.length;
         if (totalCards === 0) {
             console.error('No cards found');
             return false;
@@ -54,14 +57,29 @@ export class CardRelationshipManager implements ICardRelationshipManager {
             // Page relations: page -> servers -> backends
             this._findServersRelatedToPage(hoveredCard, relatedServers, relatedApiItems);
             this._findBackendsRelatedToServers(relatedServers, relatedBackends);
+        } else if (hoveredCard.classList.contains('group-card')) {
+            // Group relations: group -> servers -> backends (using all APIs from group)
+            this._findServersRelatedToGroup(hoveredCard, relatedServers, relatedApiItems);
+            this._findBackendsRelatedToServers(relatedServers, relatedBackends);
         } else if (hoveredCard.classList.contains('server-card')) {
             // Server relations: server -> pages & server -> backends
-            this._findPagesRelatedToServer(hoveredCard, relatedPages, relatedApiItems);
+            // In group view, find related groups instead of pages
+            const isGroupView = this.groupCards.length > 0 && this.pageCards.length === 0;
+            if (isGroupView) {
+                this._findGroupsRelatedToServer(hoveredCard, relatedPages, relatedApiItems);
+            } else {
+                this._findPagesRelatedToServer(hoveredCard, relatedPages, relatedApiItems);
+            }
             this._findBackendsRelatedToServers([hoveredCard], relatedBackends);
         } else if (hoveredCard.classList.contains('backend-card')) {
-            // Backend relations: backend -> servers -> pages
+            // Backend relations: backend -> servers -> pages/groups
             this._findServersRelatedToBackend(hoveredCard, relatedServers);
-            this._findPagesRelatedToServers(relatedServers, relatedPages, relatedApiItems);
+            const isGroupView = this.groupCards.length > 0 && this.pageCards.length === 0;
+            if (isGroupView) {
+                this._findGroupsRelatedToServers(relatedServers, relatedPages, relatedApiItems);
+            } else {
+                this._findPagesRelatedToServers(relatedServers, relatedPages, relatedApiItems);
+            }
         }
 
         const result = {
@@ -239,7 +257,7 @@ export class CardRelationshipManager implements ICardRelationshipManager {
     }
 
     clearActiveClasses(): void {
-        [...this.pageCards, ...this.serverCards, ...this.backendCards].forEach(card => {
+        [...this.pageCards, ...this.serverCards, ...this.backendCards, ...this.groupCards].forEach(card => {
             card.classList.remove('active', 'highlighted', 'hovered');
             
             // Clear API item classes too
@@ -264,6 +282,8 @@ export class CardRelationshipManager implements ICardRelationshipManager {
 
         if (hoveredCard.classList.contains('page-card')) {
             return this._getPageConnectionPairs(hoveredCard, relatedElements, connectionPairs, uniquePairs);
+        } else if (hoveredCard.classList.contains('group-card')) {
+            return this._getGroupConnectionPairs(hoveredCard, relatedElements, connectionPairs, uniquePairs);
         } else if (hoveredCard.classList.contains('server-card')) {
             return this._getServerConnectionPairs(hoveredCard, relatedElements, connectionPairs, uniquePairs);
         } else if (hoveredCard.classList.contains('backend-card')) {
@@ -509,5 +529,127 @@ export class CardRelationshipManager implements ICardRelationshipManager {
         });
 
         return connectionPairs;
+    }
+
+    private _getGroupConnectionPairs(
+        groupCard: HTMLElement, 
+        relatedElements: RelatedElements, 
+        connectionPairs: ConnectionPair[], 
+        uniquePairs: Set<string>
+    ): ConnectionPair[] {
+        // Group connections work like page connections but with aggregated APIs
+        
+        // 1. Group-to-Server connections
+        relatedElements.servers.forEach(serverCard => {
+            const serverId = serverCard.dataset.server;
+            if (!serverId) return;
+            
+            // Create a single connection from group to server (not individual API connections)
+            const pairKey = `group:${groupCard.dataset.group}-server:${serverId}`;
+            if (!uniquePairs.has(pairKey)) {
+                uniquePairs.add(pairKey);
+                connectionPairs.push({
+                    from: groupCard,
+                    to: serverCard,
+                    type: ConnectionType.PAGE_TO_SERVER
+                });
+            }
+        });
+
+        // 2. Server-to-Backend connections
+        relatedElements.servers.forEach(serverCard => {
+            const serverId = serverCard.dataset.server;
+            const serverBackend = serverCard.dataset.backend;
+            
+            if (serverId && serverBackend) {
+                const backendCard = relatedElements.backends.find(b => b.dataset.backend === serverBackend);
+                if (backendCard) {
+                    const pairKey = `${serverId}-${serverBackend}`;
+                    if (!uniquePairs.has(pairKey)) {
+                        uniquePairs.add(pairKey);
+                        connectionPairs.push({
+                            from: serverCard,
+                            to: backendCard,
+                            type: ConnectionType.SERVER_TO_BACKEND
+                        });
+                    }
+                }
+            }
+        });
+
+        return connectionPairs;
+    }
+
+    // Group-specific relationship methods
+    private _findServersRelatedToGroup(groupCard: HTMLElement, relatedServers: HTMLElement[], relatedApiItems: HTMLElement[]): void {
+        const groupApisData = groupCard.dataset.apis;
+        if (!groupApisData) return;
+
+        const groupApis: string[] = JSON.parse(groupApisData);
+        const relatedServerIds = new Set<string>();
+        
+        // Extract server IDs from group APIs
+        groupApis.forEach(api => {
+            const [serverId] = api.split(':');
+            relatedServerIds.add(serverId);
+        });
+        
+        // Find server cards that have direct API connections
+        this.serverCards.forEach(serverCard => {
+            const serverId = serverCard.dataset.server;
+            if (serverId && relatedServerIds.has(serverId)) {
+                relatedServers.push(serverCard);
+                
+                // Find specific API items within the server card that match group APIs
+                const serverApiItems = serverCard.querySelectorAll('.api-item') as NodeListOf<HTMLElement>;
+                serverApiItems.forEach(apiItem => {
+                    const apiText = apiItem.textContent?.trim();
+                    const isRelated = groupApis.some(groupApi => {
+                        const [, apiPath] = groupApi.split(':');
+                        return apiText === apiPath.trim();
+                    });
+                    if (isRelated) {
+                        relatedApiItems.push(apiItem);
+                    }
+                });
+            }
+        });
+    }
+
+    private _findGroupsRelatedToServer(serverCard: HTMLElement, relatedGroups: HTMLElement[], relatedApiItems: HTMLElement[]): void {
+        const hoveredServerId = serverCard.dataset.server;
+        if (!hoveredServerId) return;
+        
+        // Find groups that have direct API connections to this server
+        this.groupCards.forEach(groupCard => {
+            const groupApisData = groupCard.dataset.apis;
+            if (!groupApisData) return;
+            
+            const groupApis: string[] = JSON.parse(groupApisData);
+            const hasApiConnection = groupApis.some(api => api.startsWith(`${hoveredServerId}:`));
+            
+            if (hasApiConnection) {
+                relatedGroups.push(groupCard);
+                
+                // Mark specific APIs in the server card as related to this group
+                const serverApiItems = serverCard.querySelectorAll('.api-item') as NodeListOf<HTMLElement>;
+                serverApiItems.forEach(apiItem => {
+                    const apiText = apiItem.textContent?.trim();
+                    const isRelated = groupApis.some(groupApi => {
+                        const [, apiPath] = groupApi.split(':');
+                        return apiText === apiPath.trim();
+                    });
+                    if (isRelated && !relatedApiItems.includes(apiItem)) {
+                        relatedApiItems.push(apiItem);
+                    }
+                });
+            }
+        });
+    }
+
+    private _findGroupsRelatedToServers(servers: HTMLElement[], relatedGroups: HTMLElement[], relatedApiItems: HTMLElement[]): void {
+        servers.forEach(serverCard => {
+            this._findGroupsRelatedToServer(serverCard, relatedGroups, relatedApiItems);
+        });
     }
 }

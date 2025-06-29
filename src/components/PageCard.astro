@@ -1,5 +1,11 @@
 ---
-const { pageId, page } = Astro.props;
+import type { GroupData } from '../types/index.ts';
+
+const { pageId, page, group } = Astro.props as {
+  pageId: string;
+  page: any;
+  group: GroupData | null;
+};
 
 // Create a mapping of server names to colors for consistent visual identity
 const serverColors = {
@@ -27,10 +33,23 @@ const uniqueServers = [...new Set((page.apis || []).map(api => api.split(':')[0]
 ---
 
 <div 
-  class="page-card bg-white rounded-xl p-5 shadow-lg border-l-4 border-l-blue-500 cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
+  class="page-card bg-white rounded-xl p-5 shadow-lg border-l-4 cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
+  style={`border-left-color: ${group?.color || '#3B82F6'}`}
   data-page={pageId}
   data-apis={JSON.stringify(page.apis || [])}
+  data-group={page.groupId || ''}
 >
+  <!-- Group Badge -->
+  {group && (
+    <div class="mb-3">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium" 
+           style={`background-color: ${group.color}20; color: ${group.color}; border: 1px solid ${group.color}40`}>
+        <span class="text-sm">📂</span>
+        <span>{group.name}</span>
+      </div>
+    </div>
+  )}
+  
   <!-- Screenshot Placeholder -->
   <div class="w-full h-32 rounded-lg mb-4 border-2 border-gray-200 overflow-hidden bg-gray-50">
     <div class="w-full h-full flex flex-col items-center justify-center text-gray-400">

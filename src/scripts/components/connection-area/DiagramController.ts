@@ -28,7 +28,7 @@ export class DiagramController implements IDiagramController {
     private currentZoom: number = 1;
     private currentPanX: number = 0;
     private currentPanY: number = 0;
-    private readonly minZoom: number = 0.3;
+    private readonly minZoom: number = 0.1;
     private readonly maxZoom: number = 3;
     private readonly zoomStep: number = 0.75;
     private isPanning: boolean = false;
