@@ -3,11 +3,38 @@
  * Run this in the browser console to verify connection behavior
  */
 
+interface ConnectionInfo {
+    id: number;
+    context: string;
+    timestamp: number;
+}
+
+interface DOMResults {
+    pageCards: number;
+    serverCards: number;
+    backendCards: number;
+}
+
+interface ConnectionExpectation {
+    'frontend-to-server': number;
+    'server-to-backend': number;
+    'server-to-server': number;
+}
+
+interface ConnectionExpectations {
+    [scenario: string]: ConnectionExpectation;
+}
+
+interface ConnectionMonitor {
+    getConnections: () => ConnectionInfo[];
+    getCount: () => number;
+}
+
 console.log('🔍 Connection Logic Verification');
 console.log('================================');
 
 // Test 1: Verify DOM structure
-function testDOMStructure() {
+function testDOMStructure(): DOMResults {
     console.log('\n📋 Test 1: DOM Structure');
     
     const pageCards = document.querySelectorAll('.page-card');
@@ -19,12 +46,12 @@ function testDOMStructure() {
     console.log(`Found ${backendCards.length} backend cards`);
     
     // Check specific cards
-    const loginPage = document.querySelector('[data-page="login"]');
-    const authServer = document.querySelector('[data-server="auth-server"]');
-    const paymentServer = document.querySelector('[data-server="payment-server"]');
+    const loginPage = document.querySelector('[data-page="login"]') as HTMLElement;
+    const authServer = document.querySelector('[data-server="auth-server"]') as HTMLElement;
+    const paymentServer = document.querySelector('[data-server="payment-server"]') as HTMLElement;
     
     if (loginPage) {
-        const apis = JSON.parse(loginPage.dataset.apis || '[]');
+        const apis: string[] = JSON.parse(loginPage.dataset.apis || '[]');
         console.log(`Login page APIs: ${apis.join(', ')}`);
         
         const hasAuthServer = apis.some(api => api.startsWith('auth-server:'));
@@ -50,15 +77,15 @@ function testDOMStructure() {
 }
 
 // Test 2: Monitor connection creation
-function testConnectionCreation() {
+function testConnectionCreation(): ConnectionMonitor {
     console.log('\n🔗 Test 2: Monitor Connection Creation');
     
     let connectionCount = 0;
-    const connections = [];
+    const connections: ConnectionInfo[] = [];
     
     // Override createElementNS to track line creation
     const originalCreateElementNS = document.createElementNS;
-    document.createElementNS = function(namespace, tagName) {
+    document.createElementNS = function(namespace: string, tagName: string): Element {
         const element = originalCreateElementNS.call(this, namespace, tagName);
         
         if (namespace === 'http://www.w3.org/2000/svg' && tagName === 'line') {
@@ -67,9 +94,9 @@ function testConnectionCreation() {
             // Try to get some context about where this line is being created
             const stack = new Error().stack;
             let context = 'unknown';
-            if (stack.includes('drawPageConnections')) context = 'page-hover';
-            else if (stack.includes('drawServerConnections')) context = 'server-hover';
-            else if (stack.includes('drawBackendConnections')) context = 'backend-hover';
+            if (stack?.includes('drawPageConnections')) context = 'page-hover';
+            else if (stack?.includes('drawServerConnections')) context = 'server-hover';
+            else if (stack?.includes('drawBackendConnections')) context = 'backend-hover';
             
             connections.push({
                 id: connectionCount,
@@ -87,11 +114,11 @@ function testConnectionCreation() {
 }
 
 // Test 3: Simulate hover events
-function testHoverBehavior() {
+function testHoverBehavior(): void {
     console.log('\n🖱️ Test 3: Hover Behavior Simulation');
     
-    const loginPage = document.querySelector('[data-page="login"]');
-    const authServer = document.querySelector('[data-server="auth-server"]');
+    const loginPage = document.querySelector('[data-page="login"]') as HTMLElement;
+    const authServer = document.querySelector('[data-server="auth-server"]') as HTMLElement;
     
     if (!loginPage || !authServer) {
         console.log('❌ Required elements not found');
@@ -101,7 +128,7 @@ function testHoverBehavior() {
     console.log('Testing login page hover...');
     
     // Clear any existing connections
-    const svg = document.getElementById('connection-svg');
+    const svg = document.getElementById('connection-svg') as SVGElement;
     if (svg) {
         svg.innerHTML = '';
     }
@@ -116,7 +143,6 @@ function testHoverBehavior() {
         console.log(`Connections created: ${lines.length}`);
         
         // Check for server-to-server connections (should be 0)
-        let serverToServerCount = 0;
         lines.forEach((line, index) => {
             const method = line.getAttribute('data-method');
             console.log(`Line ${index + 1}: method=${method}`);
@@ -134,10 +160,10 @@ function testHoverBehavior() {
 }
 
 // Test 4: Verify connection logic expectations
-function testConnectionExpectations() {
+function testConnectionExpectations(): ConnectionExpectations {
     console.log('\n🎯 Test 4: Connection Logic Expectations');
     
-    const expectations = {
+    const expectations: ConnectionExpectations = {
         'Page Hover (login)': {
             'frontend-to-server': 2, // auth-server + payment-server
             'server-to-backend': 2,  // both servers to mysql-db
@@ -163,7 +189,7 @@ function testConnectionExpectations() {
 }
 
 // Run all tests
-function runAllTests() {
+function runAllTests(): void {
     console.log('🧪 Running All Connection Verification Tests');
     console.log('===========================================');
     
@@ -193,7 +219,5 @@ if (typeof window !== 'undefined') {
     runAllTests();
 }
 
-// Export for manual execution
-if (typeof module !== 'undefined') {
-    module.exports = { runAllTests, testDOMStructure, testConnectionCreation, testHoverBehavior };
-}
+// Export for manual execution (ES modules)
+export { runAllTests, testDOMStructure, testConnectionCreation, testHoverBehavior, testConnectionExpectations };

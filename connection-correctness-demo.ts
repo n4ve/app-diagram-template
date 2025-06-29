@@ -3,23 +3,54 @@
  * Verifies 100% correct connection logic without blocking
  */
 
+interface PageCard extends HTMLElement {
+    dataset: {
+        page: string;
+        apis: string;
+    };
+}
+
+interface ServerCard extends HTMLElement {
+    dataset: {
+        server: string;
+        backend: string;
+    };
+}
+
+interface ServerMapping {
+    id: string;
+    expectedBackend: string;
+}
+
+interface ApiTestCase {
+    page: string;
+    pageApi: string;
+    expectedServer: string;
+    expectedApiText: string;
+}
+
+interface ConnectionFlow {
+    name: string;
+    steps: string[];
+}
+
 console.log('✅ Connection Correctness Demo');
 console.log('=============================');
 
-function testConnectionCorrectness() {
+function testConnectionCorrectness(): void {
     console.log('\n🎯 Testing Connection Correctness');
     
     // Test 1: Orders page should connect to order-server (not auth-server)
     console.log('\n📋 Test 1: Orders Page Connections');
-    const ordersPage = document.querySelector('[data-page="orders"]');
+    const ordersPage = document.querySelector('[data-page="orders"]') as PageCard | null;
     
     if (ordersPage) {
-        const apis = JSON.parse(ordersPage.dataset.apis || '[]');
+        const apis: string[] = JSON.parse(ordersPage.dataset.apis || '[]');
         console.log('Orders page APIs:', apis);
         
-        const connectsToOrderServer = apis.some(api => api.startsWith('order-server:'));
-        const connectsToAuthServer = apis.some(api => api.startsWith('auth-server:'));
-        const connectsToPaymentServer = apis.some(api => api.startsWith('payment-server:'));
+        const connectsToOrderServer = apis.some((api: string) => api.startsWith('order-server:'));
+        const connectsToAuthServer = apis.some((api: string) => api.startsWith('auth-server:'));
+        const connectsToPaymentServer = apis.some((api: string) => api.startsWith('payment-server:'));
         
         console.log(`✅ Connects to order-server: ${connectsToOrderServer}`);
         console.log(`✅ Connects to payment-server: ${connectsToPaymentServer}`);
@@ -34,15 +65,15 @@ function testConnectionCorrectness() {
     
     // Test 2: Server backend mappings
     console.log('\n🔗 Test 2: Server-to-Backend Mappings');
-    const serverMappings = [
+    const serverMappings: ServerMapping[] = [
         { id: 'auth-server', expectedBackend: 'mysql-db' },
         { id: 'order-server', expectedBackend: 'mysql-db' },
         { id: 'payment-server', expectedBackend: 'mysql-db' },
         { id: 'user-server', expectedBackend: 'redis-cache' }
     ];
     
-    serverMappings.forEach(({ id, expectedBackend }) => {
-        const serverCard = document.querySelector(`[data-server="${id}"]`);
+    serverMappings.forEach(({ id, expectedBackend }: ServerMapping) => {
+        const serverCard = document.querySelector(`[data-server="${id}"]`) as ServerCard | null;
         if (serverCard) {
             const actualBackend = serverCard.dataset.backend;
             const isCorrect = actualBackend === expectedBackend;
@@ -61,8 +92,8 @@ function testConnectionCorrectness() {
     testConnectionFlow();
 }
 
-function testApiMatching() {
-    const testCases = [
+function testApiMatching(): void {
+    const testCases: ApiTestCase[] = [
         {
             page: 'orders',
             pageApi: 'order-server:GET /orders/list',
@@ -77,12 +108,12 @@ function testApiMatching() {
         }
     ];
     
-    testCases.forEach(({ page, pageApi, expectedServer, expectedApiText }) => {
+    testCases.forEach(({ page, pageApi, expectedServer, expectedApiText }: ApiTestCase) => {
         console.log(`\n  Testing: ${pageApi}`);
         
         // Find page API element
-        const pageApiElement = document.querySelector(`[data-page="${page}"] [data-full-api="${pageApi}"]`);
-        const serverApiElement = document.querySelector(`[data-server="${expectedServer}"] [data-api-text="${expectedApiText}"]`);
+        const pageApiElement = document.querySelector(`[data-page="${page}"] [data-full-api="${pageApi}"]`) as HTMLElement | null;
+        const serverApiElement = document.querySelector(`[data-server="${expectedServer}"] [data-api-text="${expectedApiText}"]`) as HTMLElement | null;
         
         if (pageApiElement && serverApiElement) {
             console.log(`    ✅ Found matching API elements`);
@@ -96,11 +127,11 @@ function testApiMatching() {
     });
 }
 
-function testConnectionFlow() {
+function testConnectionFlow(): void {
     console.log('\n  Expected Architecture Flow:');
     console.log('  📱 Frontend (Pages) → 🖥️ Servers (APIs) → 💾 Backends (Databases)');
     
-    const flows = [
+    const flows: ConnectionFlow[] = [
         {
             name: 'Orders Management Flow',
             steps: [
@@ -121,13 +152,13 @@ function testConnectionFlow() {
         }
     ];
     
-    flows.forEach(({ name, steps }) => {
+    flows.forEach(({ name, steps }: ConnectionFlow) => {
         console.log(`\n  ${name}:`);
-        steps.forEach(step => console.log(`    ${step}`));
+        steps.forEach((step: string) => console.log(`    ${step}`));
     });
 }
 
-function demonstrateCorrectness() {
+function demonstrateCorrectness(): void {
     console.log('\n🏆 Connection Correctness Principles');
     console.log('===================================');
     
@@ -157,7 +188,7 @@ function demonstrateCorrectness() {
     console.log('  • Proper separation of concerns');
 }
 
-function runCorrectnessDemo() {
+function runCorrectnessDemo(): void {
     console.log('✅ Running Connection Correctness Demo');
     console.log('=====================================');
     
@@ -180,3 +211,5 @@ function runCorrectnessDemo() {
 if (typeof window !== 'undefined') {
     setTimeout(runCorrectnessDemo, 1000);
 }
+
+export {};

@@ -3,16 +3,47 @@
  * Demonstrates that invalid connections are blocked
  */
 
+interface PageCard extends HTMLElement {
+    dataset: {
+        page: string;
+    };
+}
+
+interface ServerCard extends HTMLElement {
+    dataset: {
+        server: string;
+        backend: string;
+    };
+}
+
+interface BackendCard extends HTMLElement {
+    dataset: {
+        backend: string;
+    };
+}
+
+interface DiagramController {
+    connectionManager: {
+        createConnectionLine: (fromElement: HTMLElement, toElement: HTMLElement) => boolean | null;
+    };
+}
+
+declare global {
+    interface Window {
+        diagramController?: DiagramController;
+    }
+}
+
 console.log('🛡️ Connection Validation Demo');
 console.log('============================');
 
-function testConnectionValidation() {
+function testConnectionValidation(): void {
     console.log('\n🧪 Testing Connection Validation Rules');
     
     // Find example elements
-    const pageCard = document.querySelector('.page-card');
-    const serverCard = document.querySelector('.server-card');
-    const backendCard = document.querySelector('.backend-card');
+    const pageCard = document.querySelector('.page-card') as PageCard | null;
+    const serverCard = document.querySelector('.server-card') as ServerCard | null;
+    const backendCard = document.querySelector('.backend-card') as BackendCard | null;
     
     if (!pageCard || !serverCard || !backendCard) {
         console.log('❌ Required elements not found for testing');
@@ -26,11 +57,11 @@ function testConnectionValidation() {
     
     // Override console.warn to capture blocked connections
     const originalWarn = console.warn;
-    const blockedConnections = [];
+    const blockedConnections: string[] = [];
     
-    console.warn = function(...args) {
+    console.warn = function(...args: any[]): void {
         if (args[0] && args[0].includes('🚫 Blocked invalid connection')) {
-            blockedConnections.push(args[0]);
+            blockedConnections.push(args[0] as string);
         }
         originalWarn.apply(console, args);
     };
@@ -54,7 +85,7 @@ function testConnectionValidation() {
     // Summary
     console.log('\n📊 Validation Results:');
     console.log(`Total blocked connections: ${blockedConnections.length}`);
-    blockedConnections.forEach((blocked, index) => {
+    blockedConnections.forEach((blocked: string, index: number) => {
         console.log(`  ${index + 1}. ${blocked}`);
     });
     
@@ -65,7 +96,7 @@ function testConnectionValidation() {
     }
 }
 
-function testValidConnection(fromElement, toElement, description) {
+function testValidConnection(fromElement: HTMLElement, toElement: HTMLElement, description: string): void {
     console.log(`\n  Testing: ${description}`);
     
     // Try to create connection through ConnectionManager
@@ -82,7 +113,7 @@ function testValidConnection(fromElement, toElement, description) {
     }
 }
 
-function testInvalidConnection(fromElement, toElement, description) {
+function testInvalidConnection(fromElement: HTMLElement, toElement: HTMLElement, description: string): void {
     console.log(`\n  Testing: ${description}`);
     
     // Try to create connection through ConnectionManager
@@ -98,7 +129,7 @@ function testInvalidConnection(fromElement, toElement, description) {
     }
 }
 
-function demonstrateValidationRules() {
+function demonstrateValidationRules(): void {
     console.log('\n📋 Connection Validation Rules');
     console.log('=============================');
     
@@ -123,7 +154,7 @@ function demonstrateValidationRules() {
     console.log('  (Pages)   (APIs)   (Database/Services)');
 }
 
-function runValidationDemo() {
+function runValidationDemo(): void {
     console.log('🛡️ Running Connection Validation Demo');
     console.log('=====================================');
     
@@ -148,3 +179,5 @@ function runValidationDemo() {
 if (typeof window !== 'undefined') {
     setTimeout(runValidationDemo, 1000);
 }
+
+export {};

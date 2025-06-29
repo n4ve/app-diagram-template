@@ -3,12 +3,18 @@
  * Specifically tests the orders page → order-server → MySQL connection
  */
 
+interface ConnectionInfo {
+    id: number;
+    timestamp: number;
+    color: string;
+}
+
 console.log('🧪 Testing Orders Page Connections');
 console.log('==================================');
 
-function testOrdersPageConnections() {
+function testOrdersPageConnections(): boolean {
     // Check if orders page exists and has correct configuration
-    const ordersPage = document.querySelector('[data-page="orders"]');
+    const ordersPage = document.querySelector('[data-page="orders"]') as HTMLElement;
     
     if (!ordersPage) {
         console.log('❌ Orders page not found in DOM');
@@ -24,7 +30,7 @@ function testOrdersPageConnections() {
         return false;
     }
     
-    const apis = JSON.parse(apisData);
+    const apis: string[] = JSON.parse(apisData);
     console.log('📋 Orders page APIs:', apis);
     
     // Expected APIs:
@@ -47,8 +53,8 @@ function testOrdersPageConnections() {
     }
     
     // Check server configurations
-    const orderServer = document.querySelector('[data-server="order-server"]');
-    const paymentServer = document.querySelector('[data-server="payment-server"]');
+    const orderServer = document.querySelector('[data-server="order-server"]') as HTMLElement;
+    const paymentServer = document.querySelector('[data-server="payment-server"]') as HTMLElement;
     
     if (!orderServer) {
         console.log('❌ Order server not found in DOM');
@@ -75,7 +81,7 @@ function testOrdersPageConnections() {
     }
     
     // Check if MySQL backend exists
-    const mysqlBackend = document.querySelector('[data-backend="mysql-db"]');
+    const mysqlBackend = document.querySelector('[data-backend="mysql-db"]') as HTMLElement;
     if (!mysqlBackend) {
         console.log('❌ MySQL backend not found in DOM');
         return false;
@@ -86,27 +92,27 @@ function testOrdersPageConnections() {
     return true;
 }
 
-function simulateOrdersPageHover() {
+function simulateOrdersPageHover(): void {
     console.log('\n🖱️ Simulating Orders Page Hover');
     
-    const ordersPage = document.querySelector('[data-page="orders"]');
+    const ordersPage = document.querySelector('[data-page="orders"]') as HTMLElement;
     if (!ordersPage) {
         console.log('❌ Cannot simulate - orders page not found');
         return;
     }
     
     // Clear any existing connections
-    const svg = document.getElementById('connection-svg');
+    const svg = document.getElementById('connection-svg') as SVGElement;
     if (svg) {
         svg.innerHTML = '';
     }
     
     // Monitor connection creation
     let connectionCount = 0;
-    const connections = [];
+    const connections: ConnectionInfo[] = [];
     
     const originalCreateElementNS = document.createElementNS;
-    document.createElementNS = function(namespace, tagName) {
+    document.createElementNS = function(namespace: string, tagName: string): Element {
         const element = originalCreateElementNS.call(this, namespace, tagName);
         
         if (namespace === 'http://www.w3.org/2000/svg' && tagName === 'line') {
@@ -161,7 +167,7 @@ function simulateOrdersPageHover() {
     }, 200);
 }
 
-function runOrdersTest() {
+function runOrdersTest(): void {
     console.log('🧪 Running Orders Connection Test');
     console.log('=================================');
     
@@ -181,7 +187,5 @@ if (typeof window !== 'undefined') {
     setTimeout(runOrdersTest, 1000);
 }
 
-// Export for manual execution
-if (typeof module !== 'undefined') {
-    module.exports = { runOrdersTest, testOrdersPageConnections, simulateOrdersPageHover };
-}
+// Export for manual execution (ES modules)
+export { runOrdersTest, testOrdersPageConnections, simulateOrdersPageHover };

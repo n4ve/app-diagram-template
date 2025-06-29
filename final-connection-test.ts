@@ -3,14 +3,40 @@
  * This verifies that hovering on Orders Management shows purple lines to MySQL
  */
 
+interface PageCard {
+    dataset: {
+        page: string;
+        apis: string;
+    };
+}
+
+interface ServerCard {
+    dataset: {
+        server: string;
+        backend: string;
+    };
+}
+
+interface PurpleBackendConnection {
+    id: number;
+    color: string;
+    method: string;
+}
+
+interface ConnectionMonitorResult {
+    getConnections: () => PurpleBackendConnection[];
+    getCount: () => number;
+    restore: () => void;
+}
+
 console.log('🧪 Final Orders Connection Test');
 console.log('===============================');
 
-function testOrdersConnection() {
+function testOrdersConnection(): boolean {
     console.log('\n🎯 Testing Orders Management Page Connections');
     
     // Find the orders page
-    const ordersPage = document.querySelector('[data-page="orders"]');
+    const ordersPage = document.querySelector('[data-page="orders"]') as PageCard | null;
     if (!ordersPage) {
         console.log('❌ Orders page not found');
         return false;
@@ -19,13 +45,13 @@ function testOrdersConnection() {
     console.log('✅ Orders page found');
     
     // Check the APIs configuration
-    const apis = JSON.parse(ordersPage.dataset.apis || '[]');
+    const apis: string[] = JSON.parse(ordersPage.dataset.apis || '[]');
     console.log('📋 Orders APIs:', apis);
     
     // Verify expected APIs
-    const hasOrderServerAPI = apis.some(api => api.startsWith('order-server:'));
-    const hasPaymentServerAPI = apis.some(api => api.startsWith('payment-server:'));
-    const hasAuthServerAPI = apis.some(api => api.startsWith('auth-server:'));
+    const hasOrderServerAPI = apis.some((api: string) => api.startsWith('order-server:'));
+    const hasPaymentServerAPI = apis.some((api: string) => api.startsWith('payment-server:'));
+    const hasAuthServerAPI = apis.some((api: string) => api.startsWith('auth-server:'));
     
     console.log(`✅ Has order-server APIs: ${hasOrderServerAPI}`);
     console.log(`✅ Has payment-server APIs: ${hasPaymentServerAPI}`);
@@ -37,8 +63,8 @@ function testOrdersConnection() {
     }
     
     // Check server backend mappings
-    const orderServer = document.querySelector('[data-server="order-server"]');
-    const paymentServer = document.querySelector('[data-server="payment-server"]');
+    const orderServer = document.querySelector('[data-server="order-server"]') as ServerCard | null;
+    const paymentServer = document.querySelector('[data-server="payment-server"]') as ServerCard | null;
     
     if (!orderServer || !paymentServer) {
         console.log('❌ Required servers not found');
@@ -57,17 +83,17 @@ function testOrdersConnection() {
     return true;
 }
 
-function simulateOrdersHover() {
+function simulateOrdersHover(): void {
     console.log('\n🖱️ Simulating Orders Page Hover');
     
-    const ordersPage = document.querySelector('[data-page="orders"]');
+    const ordersPage = document.querySelector('[data-page="orders"]') as PageCard | null;
     if (!ordersPage) {
         console.log('❌ Cannot simulate hover - orders page not found');
         return;
     }
     
     // Clear existing connections
-    const svg = document.getElementById('connection-svg');
+    const svg = document.getElementById('connection-svg') as SVGElement | null;
     if (svg) {
         svg.innerHTML = '';
         console.log('🧹 Cleared existing connections');
@@ -75,10 +101,10 @@ function simulateOrdersHover() {
     
     // Monitor connection creation
     let connectionCount = 0;
-    const purpleBackendConnections = [];
+    const purpleBackendConnections: PurpleBackendConnection[] = [];
     
     const originalCreateElementNS = document.createElementNS;
-    document.createElementNS = function(namespace, tagName) {
+    document.createElementNS = function(namespace: string, tagName: string): Element {
         const element = originalCreateElementNS.call(this, namespace, tagName);
         
         if (namespace === 'http://www.w3.org/2000/svg' && tagName === 'line') {
@@ -86,11 +112,12 @@ function simulateOrdersHover() {
             console.log(`📍 Connection ${connectionCount} created`);
             
             // Monitor for purple backend connections
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
+            const observer = new MutationObserver((mutations: MutationRecord[]) => {
+                mutations.forEach((mutation: MutationRecord) => {
                     if (mutation.type === 'attributes' && mutation.attributeName === 'stroke') {
-                        const stroke = element.getAttribute('stroke');
-                        const method = element.getAttribute('data-method');
+                        const lineElement = element as SVGLineElement;
+                        const stroke = lineElement.getAttribute('stroke');
+                        const method = lineElement.getAttribute('data-method');
                         
                         if (method === 'DB' && stroke === '#8b5cf6') {
                             purpleBackendConnections.push({
@@ -116,7 +143,7 @@ function simulateOrdersHover() {
         bubbles: true,
         view: window 
     });
-    ordersPage.dispatchEvent(hoverEvent);
+    (ordersPage as unknown as EventTarget).dispatchEvent(hoverEvent);
     
     // Check results after delay
     setTimeout(() => {
@@ -131,7 +158,7 @@ function simulateOrdersHover() {
             let purpleBackendCount = 0;
             let authServerConnections = 0;
             
-            lines.forEach((line, index) => {
+            lines.forEach((line: SVGLineElement, index: number) => {
                 const method = line.getAttribute('data-method');
                 const stroke = line.getAttribute('stroke');
                 
@@ -170,7 +197,7 @@ function simulateOrdersHover() {
     }, 500);
 }
 
-function runFinalTest() {
+function runFinalTest(): void {
     console.log('🧪 Running Final Connection Test');
     console.log('================================');
     
@@ -198,3 +225,5 @@ function runFinalTest() {
 if (typeof window !== 'undefined') {
     setTimeout(runFinalTest, 1000);
 }
+
+export {};
