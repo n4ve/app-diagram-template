@@ -324,3 +324,31 @@ The logging system provides complete visibility into:
 - Added comprehensive test coverage with 157 tests passing (100% success rate)
 - Removed Alt+V keyboard shortcut functionality as requested by user
 - Space-optimized layout fitting within existing view mode toggle area
+
+**Group View Connection Line Fix** - Resolved connection line positioning issues in group view mode:
+- **Root Cause**: CardRelationshipManager was detecting group view correctly but using wrong connection types
+- **View Mode Detection Fix**: Replaced flawed element count detection with proper visibility checking in `_isGroupViewMode()`
+- **Connection Type Enhancement**: Added missing `GROUP_TO_SERVER` connection type to enum in `types/index.ts`
+- **Connection Manager Update**: Enhanced ConnectionManager with proper edge-to-edge positioning for group cards:
+  - Added group-to-server: group right edge → server left edge
+  - Added server-to-group: server left edge → group right edge  
+  - Added group-to-backend: group right edge → backend left edge
+  - Added backend-to-group: backend left edge → group right edge
+- **Fixed Connection Pair Generation**: Updated `_getGroupConnectionPairs()` to use `ConnectionType.GROUP_TO_SERVER` instead of `PAGE_TO_SERVER`
+- **Result**: Server/backend hover in group view now correctly draws connection lines to group cards with proper edge positioning
+- **Debug Logging**: Added comprehensive debug logging for view mode detection and connection type identification
+
+**Server/Backend Hover in Group Mode Fix** - Resolved missing connection lines when hovering servers/backends in group view:
+- **Root Cause**: `_getServerConnectionPairs()` and `_getBackendConnectionPairs()` methods only handled page cards, not group cards
+- **HoverEventManager Enhancement**: Added `GROUP_TO_SERVER` connection type handling in `drawConnection()` method:
+  - Added teal color (#14b8a6) styling for group-to-server connections
+  - Added proper element highlighting for group and server cards
+  - Updated HoverEventManager.ts:333-340 with new connection type case
+- **CardRelationshipManager Updates**: Enhanced both connection pair methods to support group view mode:
+  - **_getServerConnectionPairs()** (lines 396-466): Added group view mode detection and GROUP_TO_SERVER connection creation
+  - **_getBackendConnectionPairs()** (lines 506-585): Added group view mode detection and GROUP_TO_SERVER connection creation
+  - Both methods now check `_isGroupViewMode()` and handle group cards appropriately
+  - Group connections use simplified group-to-server logic without individual API elements
+- **Test Updates**: Updated `connection-type-enum.test.ts` to expect the new `GROUP_TO_SERVER` enum value
+- **Result**: Hovering on servers or backends in group view now properly displays teal connection lines back to related group cards
+- **Test Coverage**: All 156 tests passing with complete TypeScript compilation success

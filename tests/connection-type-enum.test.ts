@@ -52,12 +52,14 @@ describe('ConnectionType Enum Tests', () => {
     describe('ConnectionType Enum Values', () => {
         it('should have correct enum values', () => {
             expect(ConnectionType.PAGE_TO_SERVER).toBe('page-to-server');
+            expect(ConnectionType.GROUP_TO_SERVER).toBe('group-to-server');
             expect(ConnectionType.SERVER_TO_BACKEND).toBe('server-to-backend');
         });
 
         it('should be accessible as enum members', () => {
             expect(Object.values(ConnectionType)).toEqual([
                 'page-to-server',
+                'group-to-server',
                 'server-to-backend'
             ]);
         });

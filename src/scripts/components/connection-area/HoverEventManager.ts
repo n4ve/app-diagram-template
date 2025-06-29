@@ -292,8 +292,10 @@ export class HoverEventManager implements IHoverEventManager {
         // Debug: Show summary of connections
         const pageToServerCount = connectionPairs.filter(p => p.type === ConnectionType.PAGE_TO_SERVER).length;
         const serverToBackendCount = connectionPairs.filter(p => p.type === ConnectionType.SERVER_TO_BACKEND).length;
+        const grouptoToServerCount = connectionPairs.filter(p => p.type === ConnectionType.GROUP_TO_SERVER).length;
         console.log(`  - ${pageToServerCount} page-to-server connections`);
         console.log(`  - ${serverToBackendCount} server-to-backend connections`);
+        console.log(`  - ${grouptoToServerCount} group-to-server connections`);
         
         // Draw each connection individually
         connectionPairs.forEach((pair, index) => {
@@ -328,6 +330,14 @@ export class HoverEventManager implements IHoverEventManager {
             color = this.connectionManager.getMethodColor(method);
             
             // Highlight the API elements
+            connectionPair.from.classList.add('highlighted');
+            connectionPair.to.classList.add('highlighted');
+        } else if (connectionPair.type === ConnectionType.GROUP_TO_SERVER) {
+            // For group-to-server connections, use teal color for group connections
+            method = 'GROUP';
+            color = '#14b8a6'; // teal-500
+            
+            // Highlight the group and server elements
             connectionPair.from.classList.add('highlighted');
             connectionPair.to.classList.add('highlighted');
         } else if (connectionPair.type === ConnectionType.SERVER_TO_BACKEND) {

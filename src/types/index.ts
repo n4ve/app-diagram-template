@@ -125,6 +125,7 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 
 // Connection Types
 export enum ConnectionType {
   PAGE_TO_SERVER = 'page-to-server',
+  GROUP_TO_SERVER = 'group-to-server', 
   SERVER_TO_BACKEND = 'server-to-backend'
 }
 

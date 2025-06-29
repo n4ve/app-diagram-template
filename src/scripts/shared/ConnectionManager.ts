@@ -99,10 +99,26 @@ export class ConnectionManager implements IConnectionManager {
             // Page to server: page right edge to server left edge
             fromX = fromRect.right - svgRect.left;
             toX = toRect.left - svgRect.left;
+        } else if (fromElement.closest('.group-card') && toElement.closest('.server-card')) {
+            // Group to server: group right edge to server left edge
+            fromX = fromRect.right - svgRect.left;
+            toX = toRect.left - svgRect.left;
+        } else if (fromElement.closest('.server-card') && toElement.closest('.group-card')) {
+            // Server to group: server left edge to group right edge
+            fromX = fromRect.left - svgRect.left;
+            toX = toRect.right - svgRect.left;
         } else if (fromElement.closest('.server-card') && toElement.closest('.backend-card')) {
             // Server to backend: server right edge to backend left edge
             fromX = fromRect.right - svgRect.left;
             toX = toRect.left - svgRect.left;
+        } else if (fromElement.closest('.group-card') && toElement.closest('.backend-card')) {
+            // Group to backend: group right edge to backend left edge
+            fromX = fromRect.right - svgRect.left;
+            toX = toRect.left - svgRect.left;
+        } else if (fromElement.closest('.backend-card') && toElement.closest('.group-card')) {
+            // Backend to group: backend left edge to group right edge
+            fromX = fromRect.left - svgRect.left;
+            toX = toRect.right - svgRect.left;
         } else {
             // Default: center to center
             fromX = fromRect.left + fromRect.width / 2 - svgRect.left;

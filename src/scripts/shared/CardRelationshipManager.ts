@@ -41,6 +41,7 @@ export class CardRelationshipManager implements ICardRelationshipManager {
     }
 
     findRelatedCards(hoveredCard: HTMLElement): RelatedElements {
+        console.log('🚨🚨🚨 CARDRELATIONSHIPMANAGER FINDRELATEDCARDS CALLED 🚨🚨🚨');
         const relatedPages: HTMLElement[] = [];
         const relatedServers: HTMLElement[] = [];
         const relatedBackends: HTMLElement[] = [];
@@ -53,18 +54,27 @@ export class CardRelationshipManager implements ICardRelationshipManager {
             dataset: hoveredCard.dataset
         });
 
+        console.log('🔍 TESTING CONDITIONS:');
+        console.log('🔍 has page-card:', hoveredCard.classList.contains('page-card'));
+        console.log('🔍 has group-card:', hoveredCard.classList.contains('group-card'));
+        console.log('🔍 has server-card:', hoveredCard.classList.contains('server-card'));
+        console.log('🔍 has backend-card:', hoveredCard.classList.contains('backend-card'));
+        
         if (hoveredCard.classList.contains('page-card')) {
+            console.log('🔍 ENTERING PAGE CARD LOGIC');
             // Page relations: page -> servers -> backends
             this._findServersRelatedToPage(hoveredCard, relatedServers, relatedApiItems);
             this._findBackendsRelatedToServers(relatedServers, relatedBackends);
         } else if (hoveredCard.classList.contains('group-card')) {
+            console.log('🔍 ENTERING GROUP CARD LOGIC');
             // Group relations: group -> servers -> backends (using all APIs from group)
             this._findServersRelatedToGroup(hoveredCard, relatedServers, relatedApiItems);
             this._findBackendsRelatedToServers(relatedServers, relatedBackends);
         } else if (hoveredCard.classList.contains('server-card')) {
             // Server relations: server -> pages & server -> backends
             // In group view, find related groups instead of pages
-            const isGroupView = this.groupCards.length > 0 && this.pageCards.length === 0;
+            console.log('🔍 SERVER CARD DETECTED - calling _isGroupViewMode()');
+            const isGroupView = this._isGroupViewMode();
             if (isGroupView) {
                 this._findGroupsRelatedToServer(hoveredCard, relatedPages, relatedApiItems);
             } else {
@@ -74,7 +84,8 @@ export class CardRelationshipManager implements ICardRelationshipManager {
         } else if (hoveredCard.classList.contains('backend-card')) {
             // Backend relations: backend -> servers -> pages/groups
             this._findServersRelatedToBackend(hoveredCard, relatedServers);
-            const isGroupView = this.groupCards.length > 0 && this.pageCards.length === 0;
+            console.log('🔍 BACKEND CARD DETECTED - calling _isGroupViewMode()');
+            const isGroupView = this._isGroupViewMode();
             if (isGroupView) {
                 this._findGroupsRelatedToServers(relatedServers, relatedPages, relatedApiItems);
             } else {
@@ -382,49 +393,77 @@ export class CardRelationshipManager implements ICardRelationshipManager {
         const hoveredServerId = serverCard.dataset.server;
         if (!hoveredServerId) return connectionPairs;
 
-        // 1. Page-to-Server API connections
-        relatedElements.pages.forEach(pageCard => {
-            const pageApisData = pageCard.dataset.apis;
-            if (!pageApisData) return;
+        // Check if we're in group view mode
+        const isGroupView = this._isGroupViewMode();
 
-            const pageApis: string[] = JSON.parse(pageApisData);
-            
-            pageApis.forEach(api => {
-                const [serverId, apiPath] = api.split(':');
-                if (serverId !== hoveredServerId) return;
+        if (isGroupView) {
+            // 1. Group-to-Server connections (when in group view mode)
+            relatedElements.pages.forEach(groupCard => { // Note: in group view, relatedElements.pages contains group cards
+                const groupApisData = groupCard.dataset.apis;
+                if (!groupApisData) return;
+
+                const groupApis: string[] = JSON.parse(groupApisData);
                 
-                const method = apiPath.trim().split(' ')[0] as HttpMethod;
-                
-                // Find page API element
-                const pageApiElement = pageCard.querySelector(`[data-full-api="${api}"]`) as HTMLElement;
-                
-                // Find server API element
-                let serverApiElement: HTMLElement | null = null;
-                const serverApiElements = serverCard.querySelectorAll('.api-item') as NodeListOf<HTMLElement>;
-                serverApiElements.forEach(element => {
-                    const serverApiText = element.dataset.apiText || element.textContent?.trim();
-                    if (serverApiText === apiPath.trim()) {
-                        serverApiElement = element;
-                    }
-                });
-                
-                if (pageApiElement && serverApiElement) {
-                    // Create unique key that includes both page ID and API to allow multiple pages to connect to same API
-                    const pageId = pageCard.dataset.page || pageCard.id || 'unknown-page';
-                    const pairKey = `page:${pageId}-server:${hoveredServerId}-api:${api}`;
+                // Check if group has APIs for this server
+                const hasServerApis = groupApis.some(api => api.startsWith(`${hoveredServerId}:`));
+                if (hasServerApis) {
+                    const groupId = groupCard.dataset.group || groupCard.id || 'unknown-group';
+                    const pairKey = `group:${groupId}-server:${hoveredServerId}`;
                     if (!uniquePairs.has(pairKey)) {
                         uniquePairs.add(pairKey);
                         connectionPairs.push({
-                            from: pageApiElement,
-                            to: serverApiElement,
-                            type: ConnectionType.PAGE_TO_SERVER,
-                            method: method,
-                            api: api
+                            from: groupCard,
+                            to: serverCard,
+                            type: ConnectionType.GROUP_TO_SERVER
                         });
                     }
                 }
             });
-        });
+        } else {
+            // 1. Page-to-Server API connections (when in page view mode)
+            relatedElements.pages.forEach(pageCard => {
+                const pageApisData = pageCard.dataset.apis;
+                if (!pageApisData) return;
+
+                const pageApis: string[] = JSON.parse(pageApisData);
+                
+                pageApis.forEach(api => {
+                    const [serverId, apiPath] = api.split(':');
+                    if (serverId !== hoveredServerId) return;
+                    
+                    const method = apiPath.trim().split(' ')[0] as HttpMethod;
+                    
+                    // Find page API element
+                    const pageApiElement = pageCard.querySelector(`[data-full-api="${api}"]`) as HTMLElement;
+                    
+                    // Find server API element
+                    let serverApiElement: HTMLElement | null = null;
+                    const serverApiElements = serverCard.querySelectorAll('.api-item') as NodeListOf<HTMLElement>;
+                    serverApiElements.forEach(element => {
+                        const serverApiText = element.dataset.apiText || element.textContent?.trim();
+                        if (serverApiText === apiPath.trim()) {
+                            serverApiElement = element;
+                        }
+                    });
+                    
+                    if (pageApiElement && serverApiElement) {
+                        // Create unique key that includes both page ID and API to allow multiple pages to connect to same API
+                        const pageId = pageCard.dataset.page || pageCard.id || 'unknown-page';
+                        const pairKey = `page:${pageId}-server:${hoveredServerId}-api:${api}`;
+                        if (!uniquePairs.has(pairKey)) {
+                            uniquePairs.add(pairKey);
+                            connectionPairs.push({
+                                from: pageApiElement,
+                                to: serverApiElement,
+                                type: ConnectionType.PAGE_TO_SERVER,
+                                method: method,
+                                api: api
+                            });
+                        }
+                    }
+                });
+            });
+        }
 
         // 2. Server-to-Backend connection
         const serverBackend = serverCard.dataset.backend;
@@ -464,53 +503,86 @@ export class CardRelationshipManager implements ICardRelationshipManager {
             }
         });
 
-        // 1. Page-to-Server API connections for related pages/servers
-        relatedElements.pages.forEach(pageCard => {
-            const pageApisData = pageCard.dataset.apis;
-            if (!pageApisData) return;
+        // Check if we're in group view mode
+        const isGroupView = this._isGroupViewMode();
 
-            const pageApis: string[] = JSON.parse(pageApisData);
-            
-            pageApis.forEach(api => {
-                const [serverId, apiPath] = api.split(':');
-                if (!connectedServerIds.includes(serverId)) return;
+        if (isGroupView) {
+            // 1. Group-to-Server connections for related groups/servers (when in group view mode)
+            relatedElements.pages.forEach(groupCard => { // Note: in group view, relatedElements.pages contains group cards
+                const groupApisData = groupCard.dataset.apis;
+                if (!groupApisData) return;
+
+                const groupApis: string[] = JSON.parse(groupApisData);
                 
-                const method = apiPath.trim().split(' ')[0] as HttpMethod;
-                
-                // Find page API element
-                const pageApiElement = pageCard.querySelector(`[data-full-api="${api}"]`) as HTMLElement;
-                
-                // Find server card and API element
-                const serverCard = relatedElements.servers.find(s => s.dataset.server === serverId);
-                let serverApiElement: HTMLElement | null = null;
-                
-                if (serverCard) {
-                    const serverApiElements = serverCard.querySelectorAll('.api-item') as NodeListOf<HTMLElement>;
-                    serverApiElements.forEach(element => {
-                        const serverApiText = element.dataset.apiText || element.textContent?.trim();
-                        if (serverApiText === apiPath.trim()) {
-                            serverApiElement = element;
+                // Check if group has APIs for any connected servers
+                groupApis.forEach(api => {
+                    const [serverId] = api.split(':');
+                    if (!connectedServerIds.includes(serverId)) return;
+                    
+                    const serverCard = relatedElements.servers.find(s => s.dataset.server === serverId);
+                    if (serverCard) {
+                        const groupId = groupCard.dataset.group || groupCard.id || 'unknown-group';
+                        const pairKey = `group:${groupId}-server:${serverId}`;
+                        if (!uniquePairs.has(pairKey)) {
+                            uniquePairs.add(pairKey);
+                            connectionPairs.push({
+                                from: groupCard,
+                                to: serverCard,
+                                type: ConnectionType.GROUP_TO_SERVER
+                            });
                         }
-                    });
-                }
+                    }
+                });
+            });
+        } else {
+            // 1. Page-to-Server API connections for related pages/servers (when in page view mode)
+            relatedElements.pages.forEach(pageCard => {
+                const pageApisData = pageCard.dataset.apis;
+                if (!pageApisData) return;
+
+                const pageApis: string[] = JSON.parse(pageApisData);
                 
-                if (pageApiElement && serverApiElement) {
-                    // Create unique key that includes both page ID and API to allow multiple pages to connect to same API
-                    const pageId = pageCard.dataset.page || pageCard.id || 'unknown-page';
-                    const pairKey = `page:${pageId}-server:${serverId}-api:${api}`;
-                    if (!uniquePairs.has(pairKey)) {
-                        uniquePairs.add(pairKey);
-                        connectionPairs.push({
-                            from: pageApiElement,
-                            to: serverApiElement,
-                            type: ConnectionType.PAGE_TO_SERVER,
-                            method: method,
-                            api: api
+                pageApis.forEach(api => {
+                    const [serverId, apiPath] = api.split(':');
+                    if (!connectedServerIds.includes(serverId)) return;
+                    
+                    const method = apiPath.trim().split(' ')[0] as HttpMethod;
+                    
+                    // Find page API element
+                    const pageApiElement = pageCard.querySelector(`[data-full-api="${api}"]`) as HTMLElement;
+                    
+                    // Find server card and API element
+                    const serverCard = relatedElements.servers.find(s => s.dataset.server === serverId);
+                    let serverApiElement: HTMLElement | null = null;
+                    
+                    if (serverCard) {
+                        const serverApiElements = serverCard.querySelectorAll('.api-item') as NodeListOf<HTMLElement>;
+                        serverApiElements.forEach(element => {
+                            const serverApiText = element.dataset.apiText || element.textContent?.trim();
+                            if (serverApiText === apiPath.trim()) {
+                                serverApiElement = element;
+                            }
                         });
                     }
-                }
+                    
+                    if (pageApiElement && serverApiElement) {
+                        // Create unique key that includes both page ID and API to allow multiple pages to connect to same API
+                        const pageId = pageCard.dataset.page || pageCard.id || 'unknown-page';
+                        const pairKey = `page:${pageId}-server:${serverId}-api:${api}`;
+                        if (!uniquePairs.has(pairKey)) {
+                            uniquePairs.add(pairKey);
+                            connectionPairs.push({
+                                from: pageApiElement,
+                                to: serverApiElement,
+                                type: ConnectionType.PAGE_TO_SERVER,
+                                method: method,
+                                api: api
+                            });
+                        }
+                    }
+                });
             });
-        });
+        }
 
         // 2. Server-to-Backend connections
         relatedElements.servers.forEach(serverCard => {
@@ -551,7 +623,7 @@ export class CardRelationshipManager implements ICardRelationshipManager {
                 connectionPairs.push({
                     from: groupCard,
                     to: serverCard,
-                    type: ConnectionType.PAGE_TO_SERVER
+                    type: ConnectionType.GROUP_TO_SERVER
                 });
             }
         });
@@ -651,5 +723,49 @@ export class CardRelationshipManager implements ICardRelationshipManager {
         servers.forEach(serverCard => {
             this._findGroupsRelatedToServer(serverCard, relatedGroups, relatedApiItems);
         });
+    }
+
+    /**
+     * Determine if we're currently in group view mode by checking element visibility
+     * instead of just element count (which is unreliable since both views exist in DOM)
+     */
+    private _isGroupViewMode(): boolean {
+        // Check if any group cards are visible
+        const groupCards = document.querySelectorAll('.group-card') as NodeListOf<HTMLElement>;
+        const pageCards = document.querySelectorAll('.page-card') as NodeListOf<HTMLElement>;
+        
+        console.log('🔍 View mode detection:', {
+            groupCardsCount: groupCards.length,
+            pageCardsCount: pageCards.length
+        });
+        
+        // If no cards exist, default to page view
+        if (groupCards.length === 0 && pageCards.length === 0) {
+            console.log('🔍 No cards found, defaulting to page view');
+            return false;
+        }
+        
+        // Check if group cards are visible (not hidden with display: none or hidden class)
+        for (let i = 0; i < groupCards.length; i++) {
+            const groupCard = groupCards[i];
+            const isVisible = groupCard.style.display !== 'none' && 
+                            !groupCard.classList.contains('hidden') &&
+                            groupCard.offsetParent !== null; // Check if element is actually visible
+            
+            console.log(`🔍 Group card ${i}:`, {
+                display: groupCard.style.display,
+                hasHiddenClass: groupCard.classList.contains('hidden'),
+                offsetParent: !!groupCard.offsetParent,
+                isVisible: isVisible
+            });
+            
+            if (isVisible) {
+                console.log('🔍 Found visible group card - GROUP VIEW MODE');
+                return true;
+            }
+        }
+        
+        console.log('🔍 No visible group cards found - PAGE VIEW MODE');
+        return false;
     }
 }
