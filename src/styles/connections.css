@@ -74,6 +74,10 @@
   stroke: #8b5cf6 !important;
 }
 
+.connection-line[data-method="WEBSOCKET"] {
+  stroke: #888888 !important;
+}
+
 /* Animated connection lines */
 .animated-connection {
   stroke-width: 5 !important;

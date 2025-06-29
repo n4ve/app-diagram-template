@@ -55,7 +55,8 @@
           "apis": [
             "user-server:GET /user/profile", 
             "analytics-server:GET /analytics/summary", 
-            "notification-server:GET /notifications/recent"
+            "notification-server:GET /notifications/recent",
+            "notification-server:WEBSOCKET /notifications/live"
           ]
         }
       }

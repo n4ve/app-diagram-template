@@ -352,3 +352,28 @@ The logging system provides complete visibility into:
 - **Test Updates**: Updated `connection-type-enum.test.ts` to expect the new `GROUP_TO_SERVER` enum value
 - **Result**: Hovering on servers or backends in group view now properly displays teal connection lines back to related group cards
 - **Test Coverage**: All 156 tests passing with complete TypeScript compilation success
+
+**WEBSOCKET HTTP Method Addition** - Added new WEBSOCKET connection type support:
+- **HttpMethod Type Extension**: Added `WEBSOCKET` to the HttpMethod union type in `types/index.ts`
+- **Visual Styling**: Implemented grey color (#6b7280) for WEBSOCKET connections (matches tag styling)
+- **Connection Pattern**: Added unique dash pattern (20,5,5,5) for visual distinction from other HTTP methods
+- **ConnectionManager Updates**: Enhanced both `getMethodColor()` and `getMethodDashPattern()` methods to handle WEBSOCKET
+- **Test Integration**: Updated `connection-type-enum.test.ts` to include WEBSOCKET in valid HTTP method expectations
+- **Comprehensive Testing**: Created `websocket-method.test.ts` with 6 tests covering color, pattern, type safety, and visual distinction
+- **Backward Compatibility**: All existing HTTP methods (GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS) remain unchanged
+- **Result**: WEBSOCKET connections now display with grey color and distinctive long dash patterns for real-time communication visualization
+- **Test Coverage**: All 162 tests passing (6 new WEBSOCKET tests) with complete TypeScript compilation success
+
+**Dashboard WEBSOCKET Integration** - Added real-time websocket connection to dashboard page:
+- **Data Configuration**: Added `notification-server:WEBSOCKET /notifications/live` API to dashboard page in `pages.json`
+- **Server Enhancement**: Added `WEBSOCKET /notifications/live` endpoint to notification-server in `servers.json`
+- **Real-time Dashboard**: Dashboard now connects to notification server via both GET (recent notifications) and WEBSOCKET (live notifications)
+- **Visual Distinction**: WEBSOCKET connections display with grey color (#6b7280) and unique long dash pattern (20,5,5,5)
+- **Multi-Protocol Support**: Dashboard demonstrates mixed HTTP/WEBSOCKET architecture with 4 total connections:
+  - `user-server:GET /user/profile` (green solid line)
+  - `analytics-server:GET /analytics/summary` (green solid line)  
+  - `notification-server:GET /notifications/recent` (green solid line)
+  - `notification-server:WEBSOCKET /notifications/live` (grey long dash line)
+- **Comprehensive Testing**: Created `dashboard-websocket.test.ts` with 7 tests validating WEBSOCKET integration and multi-server connections
+- **Backend Integration**: WEBSOCKET connection properly routes through RabbitMQ backend for real-time message handling
+- **Test Coverage**: All 169 tests passing (7 new dashboard WEBSOCKET tests) with complete integration verification

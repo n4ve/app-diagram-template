@@ -303,31 +303,20 @@ describe('Connection Line Matching on Hover', () => {
     });
   });
 
-  test('should use correct HTTP method colors for connection lines', async () => {
-    // Mock the getMethodColor function to return specific colors
-    const mockGetMethodColor = vi.spyOn(connectionManager, 'getMethodColor');
-    mockGetMethodColor.mockImplementation((method: string) => {
-      switch (method) {
-        case 'GET': return '#10b981';
-        case 'POST': return '#3b82f6';
-        case 'PUT': return '#f59e0b';
-        case 'DELETE': return '#ef4444';
-        default: return '#6B7280';
-      }
-    });
-
-    // Trigger full hover behavior through HoverEventManager
-    hoverEventManager.handleCardHover(loginPageCard);
+  test('should set data-method attributes for HTTP method styling', () => {
+    // Test that connection lines get proper data-method attributes for CSS styling
+    const postLine = connectionManager.createConnectionLine(loginPageCard, authServerCard, '#6B7280', 'POST');
+    const getLine = connectionManager.createConnectionLine(loginPageCard, authServerCard, '#6B7280', 'GET');
+    const websocketLine = connectionManager.createConnectionLine(loginPageCard, authServerCard, '#6B7280', 'WEBSOCKET');
     
-    // Wait for animation and connection drawing to complete
-    await new Promise(resolve => setTimeout(resolve, 100));
+    expect(postLine?.getAttribute('data-method')).toBe('POST');
+    expect(getLine?.getAttribute('data-method')).toBe('GET');
+    expect(websocketLine?.getAttribute('data-method')).toBe('WEBSOCKET');
     
-    // Verify that getMethodColor was called for each API type
-    expect(mockGetMethodColor).toHaveBeenCalledWith('POST'); // For login and forgot-password
-    expect(mockGetMethodColor).toHaveBeenCalledWith('GET');  // For validate and payment status
-    
-    // Should have been called multiple times (8 calls total due to connection logic)
-    expect(mockGetMethodColor.mock.calls.length).toBeGreaterThanOrEqual(4);
+    // Verify dash patterns are set correctly
+    expect(postLine?.getAttribute('stroke-dasharray')).toBe('5,5');
+    expect(getLine?.getAttribute('stroke-dasharray')).toBe('none');
+    expect(websocketLine?.getAttribute('stroke-dasharray')).toBe('20,5,5,5');
   });
 
   test('should clear previous connections before drawing new ones', async () => {

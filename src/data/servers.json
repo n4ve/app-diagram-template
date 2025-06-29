@@ -56,7 +56,8 @@
       "apis": [
         "GET /notifications/recent", 
         "POST /notifications/mark-read", 
-        "POST /notifications/send"
+        "POST /notifications/send",
+        "WEBSOCKET /notifications/live"
       ]
     },
     "product-server": {

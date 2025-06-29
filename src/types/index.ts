@@ -120,7 +120,7 @@ export interface SVGConnectionData {
 }
 
 // HTTP Methods
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS';
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS' | 'WEBSOCKET';
 
 // Connection Types
 export enum ConnectionType {
@@ -184,7 +184,6 @@ export interface StyleConfig {
 
 // Forward declarations for circular dependencies
 export interface ConnectionManager extends ManagerInitialization {
-  getMethodColor(method: string): string;
   getMethodDashPattern(method: string): string;
   createConnectionLine(fromElement: HTMLElement, toElement: HTMLElement, color?: string, method?: string): SVGElement | null;
   clearConnections(): void;

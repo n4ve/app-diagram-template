@@ -17,16 +17,6 @@ describe('ConnectionManager', () => {
     })
   })
 
-  describe('getMethodColor', () => {
-    it('should return correct colors for HTTP methods', () => {
-      expect(connectionManager.getMethodColor('GET')).toBe('#10b981')
-      expect(connectionManager.getMethodColor('POST')).toBe('#3b82f6')
-      expect(connectionManager.getMethodColor('PUT')).toBe('#f59e0b')
-      expect(connectionManager.getMethodColor('DELETE')).toBe('#ef4444')
-      expect(connectionManager.getMethodColor('PATCH')).toBe('#8b5cf6')
-      expect(connectionManager.getMethodColor('UNKNOWN')).toBe('#6B7280')
-    })
-  })
 
   describe('createConnectionLine', () => {
     let sourceElement: HTMLElement

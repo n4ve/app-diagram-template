@@ -30,18 +30,6 @@ export class ConnectionManager implements IConnectionManager {
         return true;
     }
 
-    getMethodColor(method: string): string {
-        const colors: Record<HttpMethod, string> = {
-            'GET': '#10b981',
-            'POST': '#3b82f6', 
-            'PUT': '#f59e0b',
-            'DELETE': '#ef4444',
-            'PATCH': '#8b5cf6',
-            'HEAD': '#6b7280',
-            'OPTIONS': '#6b7280'
-        };
-        return colors[method as HttpMethod] || '#6B7280';
-    }
 
     getMethodDashPattern(method: string): string {
         const patterns: Record<HttpMethod, string> = {
@@ -51,7 +39,8 @@ export class ConnectionManager implements IConnectionManager {
             'DELETE': '15,10,5,10',
             'PATCH': '8,3,3,3',
             'HEAD': '2,2',
-            'OPTIONS': '1,1'
+            'OPTIONS': '1,1',
+            'WEBSOCKET': '20,5,5,5' // distinctive long dash pattern for websockets
         };
         return patterns[method as HttpMethod] || 'none';
     }
@@ -74,7 +63,7 @@ export class ConnectionManager implements IConnectionManager {
                           (toElement.closest('.server-card') as HTMLElement)?.dataset.server || 
                           (toElement.closest('.backend-card') as HTMLElement)?.dataset.backend || 
                           toElement.id || 'unknown';
-        const connectionId = `from:${fromContext}:${fromApi}-to:${toContext}:${toApi}`;
+        const connectionId = `from:${fromContext}:${fromApi}-to:${toContext}:${toApi}-method:${method}`;
         
         
         if (this.drawnConnections.has(connectionId)) {
@@ -173,7 +162,7 @@ export class ConnectionManager implements IConnectionManager {
             pageApis.forEach(pageApi => {
                 const [serverId, apiPath] = pageApi.split(':');
                 const method = apiPath.trim().split(' ')[0] as HttpMethod;
-                const color = this.getMethodColor(method);
+                const color = '#6B7280'; // Default grey, will be overridden by CSS data-method rules
                 
                 const serverCard = Array.from(activeServerCards).find(card => 
                     card.dataset.server === serverId

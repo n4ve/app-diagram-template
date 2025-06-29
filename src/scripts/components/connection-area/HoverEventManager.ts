@@ -327,7 +327,7 @@ export class HoverEventManager implements IHoverEventManager {
         if (connectionPair.type === ConnectionType.PAGE_TO_SERVER) {
             // For API connections, use the HTTP method for color and styling
             method = connectionPair.method || 'GET';
-            color = this.connectionManager.getMethodColor(method);
+            color = '#6B7280'; // Default grey, will be overridden by CSS data-method rules
             
             // Highlight the API elements
             connectionPair.from.classList.add('highlighted');

@@ -146,7 +146,7 @@ describe('ConnectionType Enum Tests', () => {
             pageToServerPairs.forEach(pair => {
                 expect(pair.method).toBeDefined();
                 expect(pair.api).toBeDefined();
-                expect(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']).toContain(pair.method);
+                expect(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS', 'WEBSOCKET']).toContain(pair.method);
             });
 
             // SERVER_TO_BACKEND should not have method/api data (they're DB connections)
