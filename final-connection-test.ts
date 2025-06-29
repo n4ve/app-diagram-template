@@ -36,7 +36,7 @@ function testOrdersConnection(): boolean {
     console.log('\n🎯 Testing Orders Management Page Connections');
     
     // Find the orders page
-    const ordersPage = document.querySelector('[data-page="orders"]') as PageCard | null;
+    const ordersPage = document.querySelector('[data-page="orders"]') as unknown as PageCard | null;
     if (!ordersPage) {
         console.log('❌ Orders page not found');
         return false;
@@ -63,8 +63,8 @@ function testOrdersConnection(): boolean {
     }
     
     // Check server backend mappings
-    const orderServer = document.querySelector('[data-server="order-server"]') as ServerCard | null;
-    const paymentServer = document.querySelector('[data-server="payment-server"]') as ServerCard | null;
+    const orderServer = document.querySelector('[data-server="order-server"]') as unknown as ServerCard | null;
+    const paymentServer = document.querySelector('[data-server="payment-server"]') as unknown as ServerCard | null;
     
     if (!orderServer || !paymentServer) {
         console.log('❌ Required servers not found');
@@ -86,14 +86,14 @@ function testOrdersConnection(): boolean {
 function simulateOrdersHover(): void {
     console.log('\n🖱️ Simulating Orders Page Hover');
     
-    const ordersPage = document.querySelector('[data-page="orders"]') as PageCard | null;
+    const ordersPage = document.querySelector('[data-page="orders"]') as unknown as PageCard | null;
     if (!ordersPage) {
         console.log('❌ Cannot simulate hover - orders page not found');
         return;
     }
     
     // Clear existing connections
-    const svg = document.getElementById('connection-svg') as SVGElement | null;
+    const svg = document.getElementById('connection-svg') as unknown as SVGElement | null;
     if (svg) {
         svg.innerHTML = '';
         console.log('🧹 Cleared existing connections');
@@ -104,7 +104,7 @@ function simulateOrdersHover(): void {
     const purpleBackendConnections: PurpleBackendConnection[] = [];
     
     const originalCreateElementNS = document.createElementNS;
-    document.createElementNS = function(namespace: string, tagName: string): Element {
+    (document as any).createElementNS = function(namespace: string, tagName: string): Element {
         const element = originalCreateElementNS.call(this, namespace, tagName);
         
         if (namespace === 'http://www.w3.org/2000/svg' && tagName === 'line') {
@@ -192,7 +192,7 @@ function simulateOrdersHover(): void {
         }
         
         // Restore original function
-        document.createElementNS = originalCreateElementNS;
+        (document as any).createElementNS = originalCreateElementNS;
         
     }, 500);
 }

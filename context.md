@@ -311,3 +311,14 @@ The logging system provides complete visibility into:
 - Fixed ViewToggle test slider positioning issue in DiagramController.ts:280-285
 - Added fallback logic for test environments where button offset is 0
 - All 17 test files now pass with 130/130 tests successful
+
+**Group-Level Filtering Feature** - Added comprehensive filtering system for group-focused view:
+- Created `GroupFilter.astro` component with intuitive UI for selecting specific application groups
+- Implemented `GroupFilterManager.ts` to handle filtering logic and card visibility management
+- Added "All Groups" option and individual group selection (User Portal, Order Application, Product Management)
+- Filtering shows only connected components when a specific group is selected
+- Unconnected cards are hidden with smooth fade/scale animations and pointer-events disabled
+- Integrated with existing ViewToggle system - filter only appears in group view mode
+- Added `group-filter.css` with animations, hover effects, and accessibility features
+- Enhanced DiagramController to coordinate between view modes and group filtering
+- Maintains 100% test success rate with comprehensive TypeScript implementation

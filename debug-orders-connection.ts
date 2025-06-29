@@ -3,7 +3,7 @@
  * This will trace exactly what happens when hovering orders page
  */
 
-interface ApiItem {
+interface ApiItem extends Element {
     dataset: {
         apiText?: string;
     };
@@ -50,7 +50,7 @@ console.log('===================================');
 function debugOrdersPage(): void {
     // Step 1: Find and examine the orders page
     console.log('\n📋 Step 1: Examining Orders Page');
-    const ordersPage = document.querySelector('[data-page="orders"]') as PageCard | null;
+    const ordersPage = document.querySelector('[data-page="orders"]') as unknown as PageCard | null;
     
     if (!ordersPage) {
         console.log('❌ Orders page not found!');
@@ -74,7 +74,7 @@ function debugOrdersPage(): void {
         console.log(`  API Path: ${apiPath}`);
         
         // Find the server card
-        const serverCard = document.querySelector(`[data-server="${serverId}"]`) as ServerCard | null;
+        const serverCard = document.querySelector(`[data-server="${serverId}"]`) as unknown as ServerCard | null;
         if (serverCard) {
             console.log(`  ✅ Server found: ${serverCard.dataset.server}`);
             console.log(`  Backend: ${serverCard.dataset.backend}`);
@@ -103,15 +103,15 @@ function debugOrdersPage(): void {
     
     // Step 3: Check backends
     console.log('\n💾 Step 3: Checking Backend Mappings');
-    const uniqueServerIds = [...new Set(apis.map((api: string) => api.split(':')[0]))];
+    const uniqueServerIds = Array.from(new Set(apis.map((api: string) => api.split(':')[0])));
     
     uniqueServerIds.forEach((serverId: string) => {
-        const serverCard = document.querySelector(`[data-server="${serverId}"]`) as ServerCard | null;
+        const serverCard = document.querySelector(`[data-server="${serverId}"]`) as unknown as ServerCard | null;
         if (serverCard) {
             const backendId = serverCard.dataset.backend;
             console.log(`\n${serverId} → ${backendId}`);
             
-            const backendCard = document.querySelector(`[data-backend="${backendId}"]`) as BackendCard | null;
+            const backendCard = document.querySelector(`[data-backend="${backendId}"]`) as unknown as BackendCard | null;
             if (backendCard) {
                 console.log(`  ✅ Backend found: ${backendId}`);
             } else {
@@ -129,7 +129,7 @@ function debugConnectionCreation(): ConnectionMonitor {
     
     // Override createElementNS to trace all SVG line creation
     const originalCreateElementNS = document.createElementNS;
-    document.createElementNS = function(namespace: string, tagName: string): Element {
+    (document as any).createElementNS = function(namespace: string, tagName: string): Element {
         const element = originalCreateElementNS.call(this, namespace, tagName);
         
         if (namespace === 'http://www.w3.org/2000/svg' && tagName === 'line') {
@@ -165,14 +165,14 @@ function debugConnectionCreation(): ConnectionMonitor {
     return {
         getConnections: (): DebugConnection[] => connections,
         getCount: (): number => connectionCount,
-        restore: (): void => { document.createElementNS = originalCreateElementNS; }
+        restore: (): void => { (document as any).createElementNS = originalCreateElementNS; }
     };
 }
 
 function analyzeConnections(monitor: ConnectionMonitor): void {
     console.log('\n📊 Step 5: Analyzing Created Connections');
     
-    const svg = document.getElementById('connection-svg') as SVGElement | null;
+    const svg = document.getElementById('connection-svg') as unknown as SVGElement | null;
     if (!svg) {
         console.log('❌ No SVG found');
         return;
@@ -230,14 +230,14 @@ function runFullDebug(): void {
     const monitor = debugConnectionCreation();
     
     // Step 3: Clear existing connections
-    const svg = document.getElementById('connection-svg') as SVGElement | null;
+    const svg = document.getElementById('connection-svg') as unknown as SVGElement | null;
     if (svg) {
         svg.innerHTML = '';
         console.log('\n🧹 Cleared existing connections');
     }
     
     // Step 4: Trigger hover on orders page
-    const ordersPage = document.querySelector('[data-page="orders"]') as PageCard | null;
+    const ordersPage = document.querySelector('[data-page="orders"]') as unknown as PageCard | null;
     if (ordersPage) {
         console.log('\n🖱️ Triggering hover on orders page...');
         const hoverEvent = new MouseEvent('mouseenter', { 

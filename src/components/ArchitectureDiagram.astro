@@ -5,6 +5,7 @@ import ServerCard from './ServerCard.astro';
 import BackendCard from './BackendCard.astro';
 import ConnectionArea from './ConnectionArea.astro';
 import ViewToggle from './ViewToggle.astro';
+import GroupFilter from './GroupFilter.astro';
 import type { NestedGroupsConfig, PagesConfig } from '../types/index.ts';
 
 const { pagesData, servers, backends } = Astro.props as {
@@ -54,8 +55,11 @@ Object.entries(groups).forEach(([groupId, group]) => {
       </div>
     </div>
     
-    <!-- View Toggle -->
+    <!-- View Toggle with inline Group Filter -->
     <ViewToggle currentView="page" />
+    
+    <!-- Hidden Group Filter (moved to inline position by JavaScript) -->
+    <GroupFilter currentView="page" selectedGroup="all" />
   </div>
   
   <div id="diagram-container" class="overflow-auto w-full border border-gray-200 rounded-lg bg-white relative cursor-grab">

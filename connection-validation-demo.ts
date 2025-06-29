@@ -3,6 +3,8 @@
  * Demonstrates that invalid connections are blocked
  */
 
+import type { DiagramController } from './src/types/index.js';
+
 interface PageCard extends HTMLElement {
     dataset: {
         page: string;
@@ -20,18 +22,6 @@ interface BackendCard extends HTMLElement {
     dataset: {
         backend: string;
     };
-}
-
-interface DiagramController {
-    connectionManager: {
-        createConnectionLine: (fromElement: HTMLElement, toElement: HTMLElement) => boolean | null;
-    };
-}
-
-declare global {
-    interface Window {
-        diagramController?: DiagramController;
-    }
 }
 
 console.log('🛡️ Connection Validation Demo');
@@ -101,8 +91,8 @@ function testValidConnection(fromElement: HTMLElement, toElement: HTMLElement, d
     
     // Try to create connection through ConnectionManager
     // Note: In a real scenario, this would go through the actual connection creation flow
-    if (window.diagramController && window.diagramController.connectionManager) {
-        const result = window.diagramController.connectionManager.createConnectionLine(fromElement, toElement);
+    if (window.diagramController && window.diagramController.getConnectionManager()) {
+        const result = window.diagramController.getConnectionManager().createConnectionLine(fromElement, toElement);
         if (result) {
             console.log(`    ✅ Connection allowed: ${description}`);
         } else {
@@ -117,8 +107,8 @@ function testInvalidConnection(fromElement: HTMLElement, toElement: HTMLElement,
     console.log(`\n  Testing: ${description}`);
     
     // Try to create connection through ConnectionManager
-    if (window.diagramController && window.diagramController.connectionManager) {
-        const result = window.diagramController.connectionManager.createConnectionLine(fromElement, toElement);
+    if (window.diagramController && window.diagramController.getConnectionManager()) {
+        const result = window.diagramController.getConnectionManager().createConnectionLine(fromElement, toElement);
         if (result) {
             console.log(`    ❌ ERROR: Connection was allowed but should be blocked: ${description}`);
         } else {

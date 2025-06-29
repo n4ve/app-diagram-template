@@ -85,7 +85,7 @@ function testConnectionCreation(): ConnectionMonitor {
     
     // Override createElementNS to track line creation
     const originalCreateElementNS = document.createElementNS;
-    document.createElementNS = function(namespace: string, tagName: string): Element {
+    (document as any).createElementNS = function(namespace: string, tagName: string): Element {
         const element = originalCreateElementNS.call(this, namespace, tagName);
         
         if (namespace === 'http://www.w3.org/2000/svg' && tagName === 'line') {
@@ -128,7 +128,7 @@ function testHoverBehavior(): void {
     console.log('Testing login page hover...');
     
     // Clear any existing connections
-    const svg = document.getElementById('connection-svg') as SVGElement;
+    const svg = document.getElementById('connection-svg') as unknown as SVGElement;
     if (svg) {
         svg.innerHTML = '';
     }

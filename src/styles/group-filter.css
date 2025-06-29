@@ -1,0 +1,214 @@
+/* Group Filter Component Styles */
+
+.group-filter-container {
+  display: none; /* Hidden by default, shown only in group view */
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.group-filter-container.visible {
+  display: block;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dropdown Toggle Button */
+.group-filter-dropdown-toggle {
+  min-height: 3rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.group-filter-dropdown-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+}
+
+.group-filter-dropdown-toggle:focus {
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.group-filter-dropdown-toggle[aria-expanded="true"] {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+/* Dropdown Menu */
+.group-filter-dropdown-menu {
+  max-height: 16rem;
+  overflow-y: auto;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.group-filter-dropdown-menu.opacity-100 {
+  animation: dropdownOpen 0.2s ease-out;
+}
+
+.group-filter-dropdown-menu.opacity-0 {
+  animation: dropdownClose 0.2s ease-in;
+}
+
+@keyframes dropdownOpen {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes dropdownClose {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+}
+
+/* Dropdown Options */
+.group-filter-option {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.group-filter-option:hover {
+  background-color: rgba(139, 92, 246, 0.05) !important;
+  transform: translateX(4px);
+}
+
+.group-filter-option:focus {
+  background-color: rgba(139, 92, 246, 0.05) !important;
+  outline: 2px solid rgba(139, 92, 246, 0.3);
+  outline-offset: -2px;
+}
+
+.group-filter-option.bg-purple-50 {
+  background-color: rgba(139, 92, 246, 0.1) !important;
+  position: relative;
+}
+
+.group-filter-option.bg-purple-50::after {
+  content: '✓';
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8b5cf6;
+  font-weight: bold;
+}
+
+/* Dropdown Arrow Animation */
+#dropdown-arrow {
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Legacy Button Styles (for backward compatibility) */
+.group-filter-btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.group-filter-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+}
+
+.group-filter-btn.active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.25);
+}
+
+.group-filter-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.group-filter-btn:hover::before {
+  left: 100%;
+}
+
+/* Card filtering states */
+.filtered-hidden {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: grayscale(0.7) blur(1px);
+  opacity: 0.3 !important;
+  transform: scale(0.8) !important;
+  pointer-events: none !important;
+}
+
+.filtered-visible {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: none;
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  pointer-events: auto !important;
+}
+
+/* Enhanced focus states for accessibility */
+.group-filter-btn:focus {
+  outline: 2px solid rgba(139, 92, 246, 0.5);
+  outline-offset: 2px;
+}
+
+/* Filter description animations */
+#filter-description {
+  transition: all 0.3s ease-in-out;
+}
+
+.filter-description-updating {
+  opacity: 0.7;
+  transform: scale(0.98);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .group-filter-container {
+    padding: 1rem;
+  }
+  
+  .group-filter-btn {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .group-filter-container .flex.flex-wrap {
+    justify-content: center;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .group-filter-container {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.1));
+    border-color: rgba(139, 92, 246, 0.3);
+  }
+  
+  .group-filter-btn:not(.active) {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #e5e7eb;
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}

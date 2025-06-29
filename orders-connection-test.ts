@@ -102,7 +102,7 @@ function simulateOrdersPageHover(): void {
     }
     
     // Clear any existing connections
-    const svg = document.getElementById('connection-svg') as SVGElement;
+    const svg = document.getElementById('connection-svg') as unknown as SVGElement;
     if (svg) {
         svg.innerHTML = '';
     }
@@ -112,7 +112,7 @@ function simulateOrdersPageHover(): void {
     const connections: ConnectionInfo[] = [];
     
     const originalCreateElementNS = document.createElementNS;
-    document.createElementNS = function(namespace: string, tagName: string): Element {
+    (document as any).createElementNS = function(namespace: string, tagName: string): Element {
         const element = originalCreateElementNS.call(this, namespace, tagName);
         
         if (namespace === 'http://www.w3.org/2000/svg' && tagName === 'line') {
@@ -155,7 +155,7 @@ function simulateOrdersPageHover(): void {
         }
         
         // Restore original function
-        document.createElementNS = originalCreateElementNS;
+        (document as any).createElementNS = originalCreateElementNS;
         
         console.log('\n🎯 Expected for Orders Page Hover:');
         console.log('1. Orders → Order Server (API connection)');

@@ -2,6 +2,7 @@
 import { ConnectionManager } from '../../shared/ConnectionManager.js';
 import { CardRelationshipManager } from '../../shared/CardRelationshipManager.js';
 import { CardPositionManager } from '../../shared/CardPositionManager.js';
+import { GroupFilterManager } from '../../shared/GroupFilterManager.js';
 import { CardAnimationManager } from './CardAnimationManager.js';
 import { HoverEventManager } from './HoverEventManager.js';
 
@@ -10,6 +11,7 @@ import type {
     ConnectionManager as IConnectionManager,
     CardRelationshipManager as ICardRelationshipManager,
     CardPositionManager as ICardPositionManager,
+    GroupFilterManager as IGroupFilterManager,
     CardAnimationManager as ICardAnimationManager,
     HoverEventManager as IHoverEventManager
 } from '../../../types/index.js';
@@ -18,6 +20,7 @@ export class DiagramController implements IDiagramController {
     private connectionManager: IConnectionManager;
     private relationshipManager: ICardRelationshipManager;
     private positionManager: ICardPositionManager;
+    private groupFilterManager: IGroupFilterManager;
     private animationManager: ICardAnimationManager;
     private hoverEventManager: IHoverEventManager;
     
@@ -53,6 +56,7 @@ export class DiagramController implements IDiagramController {
         this.connectionManager = new ConnectionManager();
         this.relationshipManager = new CardRelationshipManager();
         this.positionManager = new CardPositionManager();
+        this.groupFilterManager = new GroupFilterManager();
         this.animationManager = new CardAnimationManager(this.positionManager, this.connectionManager);
         this.hoverEventManager = new HoverEventManager(
             this.relationshipManager, 
@@ -82,6 +86,11 @@ export class DiagramController implements IDiagramController {
 
             if (!this.positionManager.initialize()) {
                 console.error('Failed to initialize CardPositionManager');
+                return false;
+            }
+
+            if (!this.groupFilterManager.initialize()) {
+                console.error('Failed to initialize GroupFilterManager');
                 return false;
             }
 
@@ -187,14 +196,6 @@ export class DiagramController implements IDiagramController {
             });
         }
         
-        // Initialize keyboard shortcut (Alt+V)
-        document.addEventListener('keydown', (e) => {
-            if (e.altKey && e.key.toLowerCase() === 'v') {
-                e.preventDefault();
-                console.log('DiagramController: Alt+V pressed, toggling view mode');
-                this.toggleViewMode();
-            }
-        });
     }
     
     private handleViewToggle(event: Event): void {
@@ -209,10 +210,6 @@ export class DiagramController implements IDiagramController {
         }
     }
     
-    private toggleViewMode(): void {
-        const newMode = this.currentViewMode === 'page' ? 'group' : 'page';
-        this.setViewMode(newMode);
-    }
     
     private setViewMode(mode: 'page' | 'group'): void {
         console.log('DiagramController: Setting view mode to', mode);
@@ -222,6 +219,9 @@ export class DiagramController implements IDiagramController {
         this.updateViewToggleButtons();
         this.updateViewDisplay();
         this.updateColumnTitle();
+        
+        // Notify GroupFilterManager of view mode change
+        this.groupFilterManager.setViewMode(mode);
         
         // Reset diagram state
         this.resetDiagram();

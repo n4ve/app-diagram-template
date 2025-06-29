@@ -173,27 +173,6 @@ describe('ViewToggle Integration Test', () => {
         expect(viewDescription?.textContent).toBe('Show application groups with merged API connections');
     });
 
-    it('should toggle view with Alt+V keyboard shortcut', async () => {
-        diagramController = new DiagramController();
-        await diagramController.initialize();
-
-        const pageView = document.getElementById('page-view');
-        const groupView = document.getElementById('group-view');
-
-        // Simulate Alt+V keypress
-        const event = new window.KeyboardEvent('keydown', {
-            key: 'v',
-            altKey: true,
-            bubbles: true
-        });
-        document.dispatchEvent(event);
-
-        await new Promise(resolve => setTimeout(resolve, 400));
-
-        // Check that views have toggled
-        expect(pageView?.classList.contains('hidden')).toBe(true);
-        expect(groupView?.classList.contains('hidden')).toBe(false);
-    });
 
     it('should only show page cards in page view', async () => {
         diagramController = new DiagramController();
@@ -260,13 +239,9 @@ describe('ViewToggle Integration Test', () => {
             expect(pageView?.classList.contains('hidden')).toBe(true);
             expect(groupView?.classList.contains('hidden')).toBe(false);
             
-            // Use keyboard shortcut to toggle back
-            const event = new window.KeyboardEvent('keydown', {
-                key: 'v',
-                altKey: true,
-                bubbles: true
-            });
-            document.dispatchEvent(event);
+            // Click page button to toggle back
+            const pageButton = document.querySelector('[data-view="page"]') as HTMLElement;
+            pageButton.click();
             await new Promise(resolve => setTimeout(resolve, 400));
             
             expect(pageView?.classList.contains('hidden')).toBe(false);

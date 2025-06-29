@@ -219,6 +219,13 @@ export interface HoverEventManager extends ManagerInitialization {
   setDragState?(isDragging: boolean): void;
 }
 
+export interface GroupFilterManager extends ManagerInitialization {
+  setViewMode(viewMode: ViewMode): void;
+  setSelectedGroup(groupId: string): void;
+  getSelectedGroup(): string;
+  getConnectedComponents(groupId: string): { servers: string[], backends: string[] };
+}
+
 export interface DiagramController {
   initialize(): Promise<boolean>;
   getConnectionManager(): ConnectionManager;
