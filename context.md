@@ -429,3 +429,20 @@ The logging system provides complete visibility into:
   - Maintains backward compatibility with existing string-only APIs
 - **Visual Design**: New APIs show animated green "NEW" badge next to HTTP method tag
 - **Result**: Clear visual indication of newly added APIs without breaking existing functionality
+
+**Protocol Buffer API Support** - Added protobuf flag to identify APIs using Protocol Buffers:
+- **Type Enhancement**: Added optional `protobuf?: boolean` field to `ApiDefinition` interface
+- **servers.json Updates**: Added protobuf flags to several APIs:
+  - analytics-server: "GET /analytics/summary" and "GET /analytics/reports" use protobuf
+  - order-server: "GET /orders/list" uses protobuf, "POST /orders/create" is both new and protobuf
+- **ServerCard.astro Implementation**:
+  - Extracts `isProtobuf` flag from API object
+  - Displays purple "Proto" badge for protobuf APIs
+  - Badge appears between endpoint path and other tags
+- **Visual Design**: 
+  - Purple background (#9333ea / bg-purple-600) with white text
+  - Rectangular badge style (not rounded-full like NEW tag)
+  - Title attribute shows "Protocol Buffer" on hover
+  - Can combine with other tags (NEW, MOST USED)
+- **Example**: Order server's "POST /orders/create" shows both "Proto" and "NEW" badges
+- **Result**: Clear identification of APIs using Protocol Buffers for efficient binary serialization

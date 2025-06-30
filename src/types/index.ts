@@ -21,6 +21,7 @@ export type ApiStatus = 'new' | 'stable' | 'deprecated';
 export interface ApiDefinition {
   endpoint: string;
   status?: ApiStatus;
+  protobuf?: boolean;
 }
 
 export interface ServerData {

@@ -19,10 +19,10 @@
       "backend": "mysql-db",
       "types": ["On-Premise"],
       "apis": [
-        "GET /orders/list", 
+        {"endpoint": "GET /orders/list", "protobuf": true}, 
         "GET /orders/details", 
         "PUT /orders/status", 
-        "POST /orders/create"
+        {"endpoint": "POST /orders/create", "status": "new", "protobuf": true}
       ]
     },
     "user-server": {
@@ -43,8 +43,8 @@
       "backend": "mongodb",
       "types": ["Cloud"],
       "apis": [
-        "GET /analytics/summary", 
-        "GET /analytics/reports", 
+        {"endpoint": "GET /analytics/summary", "protobuf": true}, 
+        {"endpoint": "GET /analytics/reports", "protobuf": true}, 
         "POST /analytics/track"
       ]
     },
