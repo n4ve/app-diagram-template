@@ -49,11 +49,15 @@ const totalPageConnections = getTotalPageConnections(serverId);
   
   <div class="space-y-2">
     {sortApisByFrequency(server.apis || [], apiFrequency).map((api, index) => {
+      // Handle both string and object API formats
+      const apiEndpoint = typeof api === 'string' ? api : api.endpoint;
+      const apiStatus = typeof api === 'object' ? api.status : undefined;
+      
       // Parse API to extract method and path
-      const [method, ...pathParts] = api.trim().split(' ');
+      const [method, ...pathParts] = apiEndpoint.trim().split(' ');
       const path = pathParts.join(' ');
-      const usageCount = apiFrequency[api] || 0;
-      const isHighestUsage = index === 0 && isMostUsedApi(api, serverId);
+      const usageCount = apiFrequency[apiEndpoint] || 0;
+      const isHighestUsage = index === 0 && isMostUsedApi(apiEndpoint, serverId);
       
       return (
         <div 
@@ -64,10 +68,10 @@ const totalPageConnections = getTotalPageConnections(serverId);
               usageCount === 1 ? 'bg-yellow-50 border-l-yellow-400' :
               'bg-gray-100 border-l-gray-400'
           }`}
-          data-api={`${serverId}:${api}`}
-          data-full-api={`${serverId}:${api}`}
+          data-api={`${serverId}:${apiEndpoint}`}
+          data-full-api={`${serverId}:${apiEndpoint}`}
           data-server-id={serverId}
-          data-api-text={api}
+          data-api-text={apiEndpoint}
         >
           <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 flex-1">
@@ -82,6 +86,11 @@ const totalPageConnections = getTotalPageConnections(serverId);
                 {method}
               </span>
               <span class="font-mono text-gray-700 truncate">{path}</span>
+              {apiStatus === 'new' && (
+                <span class="px-2 py-1 text-xs font-bold bg-green-500 text-white rounded-full animate-pulse">
+                  NEW
+                </span>
+              )}
               {isHighestUsage && (
                 <span class="px-2 py-1 text-xs font-bold bg-orange-100 text-orange-800 rounded-full border border-orange-300">
                   🔥 MOST USED
@@ -101,7 +110,7 @@ const totalPageConnections = getTotalPageConnections(serverId);
             )}
           </div>
           <!-- Hidden text for JavaScript matching -->
-          <span class="sr-only">{api}</span>
+          <span class="sr-only">{apiEndpoint}</span>
         </div>
       );
     })}

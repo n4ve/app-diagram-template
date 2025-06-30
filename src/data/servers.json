@@ -9,8 +9,8 @@
         "GET /auth/validate", 
         "POST /auth/refresh", 
         "POST /auth/logout", 
-        "POST /auth/forgot-password", 
-        "POST /auth/reset-password"
+        {"endpoint": "POST /auth/forgot-password", "status": "new"}, 
+        {"endpoint": "POST /auth/reset-password", "status": "new"}
       ]
     },
     "order-server": {
@@ -56,8 +56,8 @@
       "apis": [
         "GET /notifications/recent", 
         "POST /notifications/mark-read", 
-        "POST /notifications/send",
-        "WEBSOCKET /notifications/live"
+        {"endpoint": "POST /notifications/send", "status": "new"},
+        {"endpoint": "WEBSOCKET /notifications/live", "status": "new"}
       ]
     },
     "product-server": {
@@ -70,7 +70,7 @@
         "POST /products/create", 
         "PUT /products/update", 
         "DELETE /products/delete",
-        "GET /products/categories"
+        {"endpoint": "GET /products/categories", "status": "new"}
       ]
     },
     "payment-server": {

@@ -1,4 +1,4 @@
-import type { NestedGroupsConfig } from '../types/index.js';
+import type { NestedGroupsConfig, ApiDefinition } from '../types/index.js';
 import pagesData from '../data/pages.json';
 
 export interface ApiFrequencyData {
@@ -47,10 +47,12 @@ export function getServerApiFrequency(serverId: string): ApiFrequencyData {
 /**
  * Sort APIs by usage frequency (most used first)
  */
-export function sortApisByFrequency(apis: string[], frequency: ApiFrequencyData): string[] {
+export function sortApisByFrequency(apis: (string | ApiDefinition)[], frequency: ApiFrequencyData): (string | ApiDefinition)[] {
   return apis.sort((a, b) => {
-    const aUsage = frequency[a] || 0;
-    const bUsage = frequency[b] || 0;
+    const aEndpoint = typeof a === 'string' ? a : a.endpoint;
+    const bEndpoint = typeof b === 'string' ? b : b.endpoint;
+    const aUsage = frequency[aEndpoint] || 0;
+    const bUsage = frequency[bEndpoint] || 0;
     return bUsage - aUsage;
   });
 }

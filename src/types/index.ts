@@ -16,10 +16,17 @@ export interface GroupData {
 
 export type ServerType = 'Kubernetes' | 'On-Premise' | 'Cloud';
 
+export type ApiStatus = 'new' | 'stable' | 'deprecated';
+
+export interface ApiDefinition {
+  endpoint: string;
+  status?: ApiStatus;
+}
+
 export interface ServerData {
   name: string;
   description: string;
-  apis: string[];
+  apis: (string | ApiDefinition)[];
   types?: ServerType[];
 }
 

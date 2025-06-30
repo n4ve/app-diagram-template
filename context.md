@@ -410,3 +410,22 @@ The logging system provides complete visibility into:
 - **Solution**: Removed `.slice(0, 4)` from line 51 in ServerCard.astro to show all APIs
 - **Also Removed**: The "+X more APIs" message (lines 108-112) since all APIs are now displayed
 - **Result**: All server APIs are now visible without any limitation, providing complete API visibility
+
+**API Status Tags** - Added support for API status tags to highlight new APIs:
+- **Type System Enhancement**: 
+  - Added `ApiStatus` type with values: 'new' | 'stable' | 'deprecated'
+  - Created `ApiDefinition` interface with `endpoint` and optional `status` fields
+  - Updated `ServerData` interface to accept `apis: (string | ApiDefinition)[]`
+- **servers.json Updates**: Added status tags to new APIs:
+  - auth-server: "POST /auth/forgot-password" and "POST /auth/reset-password" marked as "new"
+  - notification-server: "POST /notifications/send" and "WEBSOCKET /notifications/live" marked as "new"
+  - product-server: "GET /products/categories" marked as "new"
+- **ServerCard.astro Changes**:
+  - Handles both string and object API formats transparently
+  - Extracts `apiEndpoint` and `apiStatus` from API data
+  - Displays green "NEW" badge with pulse animation for new APIs
+- **apiFrequency.ts Updates**:
+  - Updated `sortApisByFrequency` to handle mixed string/object API arrays
+  - Maintains backward compatibility with existing string-only APIs
+- **Visual Design**: New APIs show animated green "NEW" badge next to HTTP method tag
+- **Result**: Clear visual indication of newly added APIs without breaking existing functionality
