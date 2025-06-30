@@ -47,6 +47,19 @@ export interface ServersConfig {
   [serverId: string]: ServerData;
 }
 
+export type BackendType = 'implemented' | 'external';
+
+export interface BackendData {
+  name: string;
+  description: string;
+  type: BackendType;
+  externalServices?: string[];
+}
+
+export interface BackendsConfig {
+  [backendId: string]: BackendData;
+}
+
 export type ViewMode = 'page' | 'group';
 
 // Position and movement types

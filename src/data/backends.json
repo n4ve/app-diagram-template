@@ -1,22 +1,31 @@
 {
     "mysql-db": {
       "name": "MySQL Database",
-      "description": "Primary relational database for user data and transactions"
+      "description": "Primary relational database for user data and transactions",
+      "type": "implemented",
+      "externalServices": ["AWS RDS"]
     },
     "redis-cache": {
       "name": "Redis Cache",
-      "description": "In-memory cache for session management and quick data access"
+      "description": "In-memory cache for session management and quick data access",
+      "type": "implemented",
+      "externalServices": ["Redis Cloud"]
     },
     "mongodb": {
       "name": "MongoDB",
-      "description": "Document database for analytics and product catalog"
+      "description": "Document database for analytics and product catalog",
+      "type": "implemented"
     },
     "elasticsearch": {
       "name": "Elasticsearch",
-      "description": "Search engine for product discovery and logging"
+      "description": "Search engine for product discovery and logging",
+      "type": "external",
+      "externalServices": ["Elastic Cloud", "CloudFlare CDN"]
     },
     "rabbitmq": {
       "name": "RabbitMQ",
-      "description": "Message queue for notification and event processing"
+      "description": "Message queue for notification and event processing",
+      "type": "external",
+      "externalServices": ["SendGrid", "Twilio"]
     }
 }

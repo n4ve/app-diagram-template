@@ -446,3 +446,30 @@ The logging system provides complete visibility into:
   - Can combine with other tags (NEW, MOST USED)
 - **Example**: Order server's "POST /orders/create" shows both "Proto" and "NEW" badges
 - **Result**: Clear identification of APIs using Protocol Buffers for efficient binary serialization
+
+**Backend Implementation Distinction & External Service Relay** - Added clear visual distinction between internal vs external backends:
+- **Type System Enhancement**:
+  - Added `BackendType` with values: 'implemented' | 'external'
+  - Updated `BackendData` interface with required `type` field and optional `externalServices?: string[]`
+  - Added `BackendsConfig` interface for backend configuration
+- **backends.json Classification**: Categorized all backends by implementation status:
+  - **Internal/Implemented**: mysql-db, redis-cache, mongodb (backends you control/implement)
+  - **External**: elasticsearch, rabbitmq (third-party services you don't implement)
+  - External services can still have their own external dependencies
+- **BackendCard.astro Visual Distinction**:
+  - **Card Background**: 
+    - Internal: Green gradient (from-green-50 to-emerald-100) with green border
+    - External: Blue gradient (from-blue-50 to-sky-100) with blue border
+  - **Header Elements**:
+    - Color-coded status indicator dot (green for internal, blue for external)
+    - "Internal" or "External" badge with matching color scheme
+    - Status icon: checkmark for internal, link icon for external
+- **External Services Display** (unchanged from previous):
+  - **Header Indicator**: Orange external link icon for backends with external services
+  - **Dedicated Section**: Prominent orange-themed section
+  - **Service List**: Arrow icons and semibold text in orange container
+- **Visual Hierarchy**:
+  - **Green Theme**: Internal backends (you implement) - suggests control and ownership
+  - **Blue Theme**: External backends (third-party) - suggests external dependency
+  - **Orange Theme**: External service relays - highlights third-party integrations
+- **Result**: Clear, immediate visual distinction between backends you implement vs external services, with prominent external service dependency indicators
