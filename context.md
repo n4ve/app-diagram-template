@@ -403,3 +403,10 @@ The logging system provides complete visibility into:
 - **Solution**: Removed server-to-backend connection creation from `_getGroupConnectionPairs()` method
 - **Rationale**: Group view should emphasize group-to-server relationships, not internal infrastructure
 - **Result**: Group hover now shows only `- X group-to-server connections` line, cleaner visual focus
+
+**Full API Display** - Removed 4-API limit to show all server APIs:
+- **Issue**: ServerCard component was limiting API display to only 4 APIs using `.slice(0, 4)`
+- **Problem**: Servers with more than 4 APIs (auth-server has 6, product-server has 5) were truncated
+- **Solution**: Removed `.slice(0, 4)` from line 51 in ServerCard.astro to show all APIs
+- **Also Removed**: The "+X more APIs" message (lines 108-112) since all APIs are now displayed
+- **Result**: All server APIs are now visible without any limitation, providing complete API visibility
