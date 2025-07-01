@@ -580,6 +580,7 @@ document.getElementById('connection-svg').innerHTML = '';
   "server-id": {
     "name": "Server Name",
     "description": "Server description",
+    "backends": ["backend-id1", "backend-id2"],     // Array of backend IDs
     "apis": [
       "METHOD /endpoint/path",
       {
@@ -629,6 +630,7 @@ export interface ServerData {
   name: string;
   description: string;
   apis: (string | ApiDefinition)[];
+  backends?: string[];          // Array of backend IDs that this server connects to
   types?: ServerType[];
 }
 

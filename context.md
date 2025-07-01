@@ -32,7 +32,7 @@ Frontend Pages → API Servers → Backend Services
 
 ### Data Layer
 - `pages.json` - Frontend pages (Login, Dashboard, Products, Orders) with API dependencies and screenshot configuration
-- `servers.json` - Backend servers (Auth, User, Analytics) with endpoints and database connections  
+- `servers.json` - Backend servers (Auth, User, Analytics) with endpoints and backend service connections (array-based)  
 - `backends.json` - Database/infrastructure services (MySQL, Redis, MongoDB, Elasticsearch, RabbitMQ)
 
 ### Astro Components
@@ -490,3 +490,17 @@ The logging system provides complete visibility into:
 - **Configuration**: Set in pages.json with screenshot path and optional type
 - **File Organization**: Screenshots stored in `/public/screenshots/` directory
 - **Result**: Enhanced visual preview of pages with support for both mobile and web interfaces
+
+**Backend Array Structure** - Updated servers.json to use array-based backend connections:
+- **Type System Enhancement**:
+  - Updated `ServerData` interface to include `backends?: string[]` property
+  - Changed from single `backend` string to `backends` array for multiple backend support
+- **Data Structure Update**:
+  - Modified all servers in servers.json to use `backends: ["backend-id"]` format
+  - Analytics server now demonstrates multiple backends: `["mongodb", "elasticsearch"]`
+- **Enhanced Flexibility**:
+  - Servers can now connect to multiple backend services
+  - Better reflects real-world microservice architectures
+  - Maintains backward compatibility with single backend servers
+- **Documentation Updates**: Updated API_REFERENCE.md with new array-based structure examples
+- **Result**: More accurate representation of server-to-backend relationships with multi-backend support

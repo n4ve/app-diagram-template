@@ -32,6 +32,7 @@ export interface ServerData {
   name: string;
   description: string;
   apis: (string | ApiDefinition)[];
+  backends?: string[];
   types?: ServerType[];
 }
 

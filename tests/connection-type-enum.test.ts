@@ -27,11 +27,11 @@ describe('ConnectionType Enum Tests', () => {
                     </div>
                     
                     <!-- Server Cards -->
-                    <div class="server-card" data-server="auth-server" data-backend="mysql-db">
+                    <div class="server-card" data-server="auth-server" data-backends='["mysql-db"]'>
                         <div class="api-item" data-api-text="POST /auth/login">POST /auth/login</div>
                     </div>
                     
-                    <div class="server-card" data-server="payment-server" data-backend="mysql-db">
+                    <div class="server-card" data-server="payment-server" data-backends='["mysql-db"]'>
                         <div class="api-item" data-api-text="GET /payment/status">GET /payment/status</div>
                     </div>
                     

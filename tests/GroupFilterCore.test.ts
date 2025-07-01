@@ -25,8 +25,8 @@ describe('Group Filter Core Functionality', () => {
             <!-- Test cards -->
             <div class="group-card" data-group="user-portal">User Portal</div>
             <div class="group-card" data-group="order-app">Order App</div>
-            <div class="server-card" data-server="auth-server" data-backend="mysql-db">Auth Server</div>
-            <div class="server-card" data-server="order-server" data-backend="mysql-db">Order Server</div>
+            <div class="server-card" data-server="auth-server" data-backends='["mysql-db"]'>Auth Server</div>
+            <div class="server-card" data-server="order-server" data-backends='["mysql-db"]'>Order Server</div>
             <div class="backend-card" data-backend="mysql-db">MySQL</div>
         `;
 

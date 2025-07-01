@@ -220,11 +220,18 @@ export class CardRelationshipManager implements ICardRelationshipManager {
 
     private _findBackendsRelatedToServers(servers: HTMLElement[], relatedBackends: HTMLElement[]): void {
         servers.forEach(serverCard => {
-            const serverBackend = serverCard.dataset.backend;
-            if (serverBackend) {
-                const backendCard = document.querySelector(`.backend-card[data-backend="${serverBackend}"]`) as HTMLElement;
-                if (backendCard && !relatedBackends.includes(backendCard)) {
-                    relatedBackends.push(backendCard);
+            const serverBackendsJson = serverCard.dataset.backends;
+            if (serverBackendsJson) {
+                try {
+                    const serverBackends = JSON.parse(serverBackendsJson) as string[];
+                    serverBackends.forEach(backendId => {
+                        const backendCard = document.querySelector(`.backend-card[data-backend="${backendId}"]`) as HTMLElement;
+                        if (backendCard && !relatedBackends.includes(backendCard)) {
+                            relatedBackends.push(backendCard);
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error parsing server backends data:', error);
                 }
             }
         });
@@ -236,9 +243,16 @@ export class CardRelationshipManager implements ICardRelationshipManager {
         
         // Find servers that use this backend
         this.serverCards.forEach(serverCard => {
-            const serverBackend = serverCard.dataset.backend;
-            if (serverBackend === hoveredBackendId) {
-                relatedServers.push(serverCard);
+            const serverBackendsJson = serverCard.dataset.backends;
+            if (serverBackendsJson) {
+                try {
+                    const serverBackends = JSON.parse(serverBackendsJson) as string[];
+                    if (serverBackends.includes(hoveredBackendId)) {
+                        relatedServers.push(serverCard);
+                    }
+                } catch (error) {
+                    console.error('Error parsing server backends data:', error);
+                }
             }
         });
     }
@@ -362,20 +376,27 @@ export class CardRelationshipManager implements ICardRelationshipManager {
         uniqueServerIds.forEach(serverId => {
             const serverCard = relatedElements.servers.find(s => s.dataset.server === serverId);
             if (serverCard) {
-                const serverBackend = serverCard.dataset.backend;
-                if (serverBackend) {
-                    const backendCard = relatedElements.backends.find(b => b.dataset.backend === serverBackend);
-                    if (backendCard) {
-                        const pairKey = `${serverId}-${serverBackend}`;
-                        console.log(`    Checking pair: ${pairKey}, already exists: ${uniquePairs.has(pairKey)}`);
-                        if (!uniquePairs.has(pairKey)) {
-                            uniquePairs.add(pairKey);
-                            connectionPairs.push({
-                                from: serverCard,
-                                to: backendCard,
-                                type: ConnectionType.SERVER_TO_BACKEND
-                            });
-                        }
+                const serverBackendsJson = serverCard.dataset.backends;
+                if (serverBackendsJson) {
+                    try {
+                        const serverBackends = JSON.parse(serverBackendsJson) as string[];
+                        serverBackends.forEach(backendId => {
+                            const backendCard = relatedElements.backends.find(b => b.dataset.backend === backendId);
+                            if (backendCard) {
+                                const pairKey = `${serverId}-${backendId}`;
+                                console.log(`    Checking pair: ${pairKey}, already exists: ${uniquePairs.has(pairKey)}`);
+                                if (!uniquePairs.has(pairKey)) {
+                                    uniquePairs.add(pairKey);
+                                    connectionPairs.push({
+                                        from: serverCard,
+                                        to: backendCard,
+                                        type: ConnectionType.SERVER_TO_BACKEND
+                                    });
+                                }
+                            }
+                        });
+                    } catch (error) {
+                        console.error('Error parsing server backends data:', error);
                     }
                 }
             }
@@ -471,20 +492,27 @@ export class CardRelationshipManager implements ICardRelationshipManager {
             });
         }
 
-        // 2. Server-to-Backend connection
-        const serverBackend = serverCard.dataset.backend;
-        if (serverBackend) {
-            const backendCard = relatedElements.backends.find(b => b.dataset.backend === serverBackend);
-            if (backendCard) {
-                const pairKey = `${hoveredServerId}-${serverBackend}`;
-                if (!uniquePairs.has(pairKey)) {
-                    uniquePairs.add(pairKey);
-                    connectionPairs.push({
-                        from: serverCard,
-                        to: backendCard,
-                        type: ConnectionType.SERVER_TO_BACKEND
-                    });
-                }
+        // 2. Server-to-Backend connections
+        const serverBackendsJson = serverCard.dataset.backends;
+        if (serverBackendsJson) {
+            try {
+                const serverBackends = JSON.parse(serverBackendsJson) as string[];
+                serverBackends.forEach(backendId => {
+                    const backendCard = relatedElements.backends.find(b => b.dataset.backend === backendId);
+                    if (backendCard) {
+                        const pairKey = `${hoveredServerId}-${backendId}`;
+                        if (!uniquePairs.has(pairKey)) {
+                            uniquePairs.add(pairKey);
+                            connectionPairs.push({
+                                from: serverCard,
+                                to: backendCard,
+                                type: ConnectionType.SERVER_TO_BACKEND
+                            });
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error parsing server backends data:', error);
             }
         }
 
@@ -596,18 +624,27 @@ export class CardRelationshipManager implements ICardRelationshipManager {
             });
         }
 
-        // 2. Server-to-Backend connections
+        // 2. Server-to-Backend connections (only for servers that actually use this backend)
         relatedElements.servers.forEach(serverCard => {
             const serverId = serverCard.dataset.server;
-            if (serverId) {
-                const pairKey = `${serverId}-${hoveredBackendId}`;
-                if (!uniquePairs.has(pairKey)) {
-                    uniquePairs.add(pairKey);
-                    connectionPairs.push({
-                        from: serverCard,
-                        to: backendCard,
-                        type: ConnectionType.SERVER_TO_BACKEND
-                    });
+            const serverBackendsJson = serverCard.dataset.backends;
+            if (serverId && serverBackendsJson) {
+                try {
+                    const serverBackends = JSON.parse(serverBackendsJson) as string[];
+                    // Only create connection if this server actually uses the hovered backend
+                    if (serverBackends.includes(hoveredBackendId)) {
+                        const pairKey = `${serverId}-${hoveredBackendId}`;
+                        if (!uniquePairs.has(pairKey)) {
+                            uniquePairs.add(pairKey);
+                            connectionPairs.push({
+                                from: serverCard,
+                                to: backendCard,
+                                type: ConnectionType.SERVER_TO_BACKEND
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error parsing server backends data:', error);
                 }
             }
         });

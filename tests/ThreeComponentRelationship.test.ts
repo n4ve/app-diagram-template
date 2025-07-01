@@ -103,7 +103,7 @@ describe('Three-Component Relationship: Login Page ↔ Auth Server ↔ MySQL DB'
 
     authServerCard = createMockCard('auth-server', 'server-card', { 
       server: 'auth-server',
-      backend: 'mysql-db'
+      backends: JSON.stringify(['mysql-db'])
     });
 
     mysqlBackendCard = createMockCard('mysql-db', 'backend-card', { 

@@ -222,9 +222,16 @@ export class GroupFilterManager implements IGroupFilterManager {
         document.querySelectorAll('.server-card').forEach(serverCard => {
             const serverId = serverCard.getAttribute('data-server');
             if (serverId && connectedServers.has(serverId)) {
-                const backend = serverCard.getAttribute('data-backend');
-                if (backend) {
-                    connectedBackends.add(backend);
+                const backendsJson = serverCard.getAttribute('data-backends');
+                if (backendsJson) {
+                    try {
+                        const backends = JSON.parse(backendsJson) as string[];
+                        backends.forEach(backend => {
+                            connectedBackends.add(backend);
+                        });
+                    } catch (error) {
+                        console.error('Error parsing server backends data:', error);
+                    }
                 }
             }
         });
@@ -369,8 +376,24 @@ export class GroupFilterManager implements IGroupFilterManager {
             });
         });
 
-        // Note: Backend detection would need server data to be fully accurate
-        // This is a simplified version for the interface
+        // Find backends connected to these servers
+        document.querySelectorAll('.server-card').forEach(serverCard => {
+            const serverId = serverCard.getAttribute('data-server');
+            if (serverId && servers.has(serverId)) {
+                const backendsJson = serverCard.getAttribute('data-backends');
+                if (backendsJson) {
+                    try {
+                        const serverBackends = JSON.parse(backendsJson) as string[];
+                        serverBackends.forEach(backend => {
+                            backends.add(backend);
+                        });
+                    } catch (error) {
+                        console.error('Error parsing server backends data:', error);
+                    }
+                }
+            }
+        });
+
         return {
             servers: Array.from(servers),
             backends: Array.from(backends)
