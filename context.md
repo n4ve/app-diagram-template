@@ -31,13 +31,13 @@ Frontend Pages → API Servers → Backend Services
 ## Key Components
 
 ### Data Layer
-- `pages.json` - Frontend pages (Login, Dashboard, Products, Orders) with API dependencies
+- `pages.json` - Frontend pages (Login, Dashboard, Products, Orders) with API dependencies and screenshot configuration
 - `servers.json` - Backend servers (Auth, User, Analytics) with endpoints and database connections  
 - `backends.json` - Database/infrastructure services (MySQL, Redis, MongoDB, Elasticsearch, RabbitMQ)
 
 ### Astro Components
 - `ArchitectureDiagram.astro` - Main container with advanced zoom/pan controls, keyboard shortcuts, touch gestures
-- `PageCard.astro` - Frontend page cards with API metadata and server color theming
+- `PageCard.astro` - Frontend page cards with API metadata, server color theming, and screenshot display (phone/web views)
 - `ServerCard.astro` - Backend server cards with endpoint information and API frequency visualization
 - `BackendCard.astro` - Database/infrastructure service cards with type classifications
 - `ConnectionArea.astro` - Interaction controller and TypeScript module loader
@@ -75,6 +75,7 @@ Frontend Pages → API Servers → Backend Services
 6. **API Usage Visualization** - Real-time display of most called APIs with visual indicators
 7. **Backend Highlighting** - Inline style application for emphasis during interactions
 8. **Drag State Management** - Disables hover effects during zoom/pan interactions
+9. **Screenshot Display** - Page cards show preview screenshots with phone/web frame options
 
 ## Visual Styling
 
@@ -473,3 +474,19 @@ The logging system provides complete visibility into:
   - **Blue Theme**: External backends (third-party) - suggests external dependency
   - **Orange Theme**: External service relays - highlights third-party integrations
 - **Result**: Clear, immediate visual distinction between backends you implement vs external services, with prominent external service dependency indicators
+
+**Page Screenshot Feature** - Added configurable screenshot display for page cards:
+- **Type System Enhancement**:
+  - Added `screenshot?: string` field to PageData interface for image path
+  - Added `screenshotType?: 'phone' | 'web'` to control display format
+- **Display Modes**:
+  - **Phone Mode**: Shows screenshot in realistic phone frame with notch and home indicator
+  - **Web Mode**: Shows screenshot in browser window with traffic lights and URL bar
+- **Visual Design**:
+  - Phone frame: 96x192px (1:2 ratio) with black bezels
+  - Web frame: Full width x 160px with browser chrome
+  - Object-contain scaling prevents image cropping
+  - "No file" placeholder when screenshot not configured
+- **Configuration**: Set in pages.json with screenshot path and optional type
+- **File Organization**: Screenshots stored in `/public/screenshots/` directory
+- **Result**: Enhanced visual preview of pages with support for both mobile and web interfaces

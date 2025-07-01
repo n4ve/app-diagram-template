@@ -1,8 +1,12 @@
 // Core data types
+export type ScreenshotType = 'phone' | 'web';
+
 export interface PageData {
   name: string;
   description: string;
   apis: string[];
+  screenshot?: string;
+  screenshotType?: ScreenshotType;
 }
 
 export interface GroupData {

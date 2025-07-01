@@ -8,6 +8,8 @@
         "orders": {
           "name": "Orders Management",
           "description": "หน้าจัดการคำสั่งซื้อและการชำระเงิน",
+          "screenshot": "/screenshots/orders.png",
+          "screenshotType": "phone",
           "apis": [
             "order-server:GET /orders/list", 
             "order-server:GET /orders/details", 
@@ -25,6 +27,7 @@
         "products": {
           "name": "Products Management",
           "description": "หน้าจัดการสินค้าและคลังสินค้า",
+          "screenshot": "/screenshots/products.png",
           "apis": [
             "product-server:GET /products/list", 
             "product-server:POST /products/create", 
@@ -42,6 +45,8 @@
         "login": {
           "name": "Login Page",
           "description": "หน้าเข้าสู่ระบบสำหรับผู้ใช้งาน",
+          "screenshot": "/screenshots/login.png",
+          "screenshotType": "phone",
           "apis": [
             "auth-server:POST /auth/login", 
             "auth-server:GET /auth/validate", 
@@ -52,6 +57,8 @@
         "dashboard": {
           "name": "Dashboard",
           "description": "หน้าแดชบอร์ดหลักแสดงข้อมูลสรุป",
+          "screenshot": "/screenshots/dashboard.png",
+          "screenshotType": "web",
           "apis": [
             "user-server:GET /user/profile", 
             "analytics-server:GET /analytics/summary", 

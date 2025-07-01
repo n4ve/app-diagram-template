@@ -50,12 +50,67 @@ const uniqueServers = [...new Set((page.apis || []).map(api => api.split(':')[0]
     </div>
   )}
   
-  <!-- Screenshot Placeholder -->
-  <div class="w-full h-32 rounded-lg mb-4 border-2 border-gray-200 overflow-hidden bg-gray-50">
-    <div class="w-full h-full flex flex-col items-center justify-center text-gray-400">
-      <div class="text-2xl mb-1">📱</div>
-      <div class="text-xs">No Screenshot</div>
-    </div>
+  <!-- Screenshot Display -->
+  <div class="w-full flex justify-center mb-4">
+    {page.screenshotType === 'web' || (!page.screenshotType && page.screenshot) ? (
+      <!-- Web Screenshot Display -->
+      <div class="relative w-full h-40 rounded-lg border-2 border-gray-300 overflow-hidden bg-white shadow-md">
+        <!-- Browser Bar -->
+        <div class="absolute top-0 left-0 right-0 h-6 bg-gray-200 border-b border-gray-300 flex items-center px-2">
+          <div class="flex gap-1">
+            <div class="w-2 h-2 rounded-full bg-red-400"></div>
+            <div class="w-2 h-2 rounded-full bg-yellow-400"></div>
+            <div class="w-2 h-2 rounded-full bg-green-400"></div>
+          </div>
+          <div class="ml-4 flex-1 bg-white rounded px-2 py-0.5 text-xs text-gray-500 truncate">
+            {page.name.toLowerCase().replace(/\s+/g, '-')}.example.com
+          </div>
+        </div>
+        
+        <!-- Web Content -->
+        <div class="absolute top-6 left-0 right-0 bottom-0 overflow-hidden bg-gray-50">
+          {page.screenshot ? (
+            <img 
+              src={page.screenshot} 
+              alt={`${page.name} screenshot`}
+              class="w-full h-full object-contain"
+              loading="lazy"
+            />
+          ) : (
+            <div class="w-full h-full flex flex-col items-center justify-center">
+              <div class="text-3xl mb-2 opacity-20">🌐</div>
+              <div class="text-xs text-gray-400 font-medium">No file</div>
+            </div>
+          )}
+        </div>
+      </div>
+    ) : (
+      <!-- Phone Screenshot Display -->
+      <div class="relative w-24 h-48 rounded-xl border-4 border-gray-800 overflow-hidden bg-black shadow-lg">
+        <!-- Phone frame top notch -->
+        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-gray-800 rounded-b-full z-10"></div>
+        
+        <!-- Screen content -->
+        <div class="absolute inset-1 rounded-lg overflow-hidden bg-gray-100">
+          {page.screenshot ? (
+            <img 
+              src={page.screenshot} 
+              alt={`${page.name} screenshot`}
+              class="w-full h-full object-contain"
+              loading="lazy"
+            />
+          ) : (
+            <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100">
+              <div class="text-3xl mb-2 opacity-20">📱</div>
+              <div class="text-xs text-gray-400 font-medium">No file</div>
+            </div>
+          )}
+        </div>
+        
+        <!-- Phone frame bottom home indicator -->
+        <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-gray-600 rounded-full"></div>
+      </div>
+    )}
   </div>
   
   <h3 class="text-lg font-semibold text-gray-800 mb-2">{page.name}</h3>

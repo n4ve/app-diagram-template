@@ -544,6 +544,153 @@ document.querySelectorAll('.page-card, .server-card').forEach(card => {
 document.getElementById('connection-svg').innerHTML = '';
 ```
 
+## 📊 Data Structures
+
+### JSON Configuration Files
+
+#### pages.json Structure
+
+```json
+{
+  "groups": {
+    "group-id": {
+      "name": "Group Name",
+      "description": "Group description",
+      "color": "#3B82F6",
+      "pages": {
+        "page-id": {
+          "name": "Page Name",
+          "description": "Page description",
+          "screenshot": "/screenshots/page.png",    // Optional
+          "screenshotType": "phone" | "web",        // Optional, defaults to "web"
+          "apis": [
+            "server-id:METHOD /endpoint/path"
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
+#### servers.json Structure
+
+```json
+{
+  "server-id": {
+    "name": "Server Name",
+    "description": "Server description",
+    "apis": [
+      "METHOD /endpoint/path",
+      {
+        "endpoint": "METHOD /endpoint/path",
+        "status": "new" | "stable" | "deprecated",  // Optional
+        "protobuf": true                            // Optional
+      }
+    ],
+    "types": ["Kubernetes", "On-Premise", "Cloud"]  // Optional
+  }
+}
+```
+
+#### backends.json Structure
+
+```json
+{
+  "backend-id": {
+    "name": "Backend Name",
+    "description": "Backend description",
+    "type": "implemented" | "external",
+    "externalServices": ["Service 1", "Service 2"]  // Optional
+  }
+}
+```
+
+### TypeScript Interfaces
+
+#### PageData Interface
+
+```typescript
+export interface PageData {
+  name: string;
+  description: string;
+  apis: string[];
+  screenshot?: string;           // Path to screenshot image
+  screenshotType?: ScreenshotType;  // Display mode for screenshot
+}
+
+export type ScreenshotType = 'phone' | 'web';
+```
+
+#### ServerData Interface
+
+```typescript
+export interface ServerData {
+  name: string;
+  description: string;
+  apis: (string | ApiDefinition)[];
+  types?: ServerType[];
+}
+
+export interface ApiDefinition {
+  endpoint: string;
+  status?: ApiStatus;
+  protobuf?: boolean;
+}
+
+export type ApiStatus = 'new' | 'stable' | 'deprecated';
+export type ServerType = 'Kubernetes' | 'On-Premise' | 'Cloud';
+```
+
+#### BackendData Interface
+
+```typescript
+export interface BackendData {
+  name: string;
+  description: string;
+  type: BackendType;
+  externalServices?: string[];
+}
+
+export type BackendType = 'implemented' | 'external';
+```
+
+### Screenshot Configuration
+
+#### Adding Screenshots to Pages
+
+1. Place screenshot images in `/public/screenshots/` directory
+2. Update `pages.json` with screenshot configuration:
+
+```json
+{
+  "login": {
+    "name": "Login Page",
+    "screenshot": "/screenshots/login.png",
+    "screenshotType": "phone",  // Shows in phone frame
+    "apis": [...]
+  }
+}
+```
+
+#### Screenshot Display Modes
+
+- **`phone`**: Displays screenshot in a mobile phone frame (96x192px, 1:2 ratio)
+- **`web`**: Displays screenshot in a browser window frame (full width x 160px)
+- If `screenshotType` is not specified, defaults to `web` display
+
+#### Recommended Image Sizes
+
+**Phone Screenshots:**
+- Aspect Ratio: 9:19.5 (mobile portrait)
+- Recommended: 390x844 pixels (iPhone 14)
+- Alternatives: 375x812, 414x896, 428x926
+
+**Web Screenshots:**
+- Aspect Ratio: 16:9 or 16:10
+- Recommended: 1920x1080 pixels (Full HD)
+- Alternatives: 1366x768, 1440x900, 2560x1440
+
 ---
 
 *This API reference covers all public interfaces and common usage patterns. For implementation details, refer to the source code and architecture documentation.*
