@@ -137,6 +137,11 @@ export class CardRelationshipManager implements ICardRelationshipManager {
         
         // Find server cards that have direct API connections
         this.serverCards.forEach(serverCard => {
+            // Skip hidden/filtered servers
+            if (serverCard.style.display === 'none' || serverCard.classList.contains('filtered-hidden')) {
+                return;
+            }
+            
             const serverId = serverCard.dataset.server;
             if (serverId && relatedServerIds.has(serverId)) {
                 relatedServers.push(serverCard);
@@ -163,6 +168,11 @@ export class CardRelationshipManager implements ICardRelationshipManager {
         
         // Find pages that have direct API connections to this server
         this.pageCards.forEach(pageCard => {
+            // Skip hidden/filtered pages
+            if (pageCard.style.display === 'none' || pageCard.classList.contains('filtered-hidden')) {
+                return;
+            }
+            
             const pageApisData = pageCard.dataset.apis;
             if (!pageApisData) return;
 
@@ -191,6 +201,11 @@ export class CardRelationshipManager implements ICardRelationshipManager {
         const connectedServerIds = servers.map(s => s.dataset.server).filter(Boolean) as string[];
         
         this.pageCards.forEach(pageCard => {
+            // Skip hidden/filtered pages
+            if (pageCard.style.display === 'none' || pageCard.classList.contains('filtered-hidden')) {
+                return;
+            }
+            
             const pageApisData = pageCard.dataset.apis;
             if (!pageApisData) return;
 
@@ -226,7 +241,9 @@ export class CardRelationshipManager implements ICardRelationshipManager {
                     const serverBackends = JSON.parse(serverBackendsJson) as string[];
                     serverBackends.forEach(backendId => {
                         const backendCard = document.querySelector(`.backend-card[data-backend="${backendId}"]`) as HTMLElement;
-                        if (backendCard && !relatedBackends.includes(backendCard)) {
+                        // Skip hidden/filtered backends
+                        if (backendCard && !relatedBackends.includes(backendCard) && 
+                            backendCard.style.display !== 'none' && !backendCard.classList.contains('filtered-hidden')) {
                             relatedBackends.push(backendCard);
                         }
                     });
@@ -243,6 +260,11 @@ export class CardRelationshipManager implements ICardRelationshipManager {
         
         // Find servers that use this backend
         this.serverCards.forEach(serverCard => {
+            // Skip hidden/filtered servers
+            if (serverCard.style.display === 'none' || serverCard.classList.contains('filtered-hidden')) {
+                return;
+            }
+            
             const serverBackendsJson = serverCard.dataset.backends;
             if (serverBackendsJson) {
                 try {

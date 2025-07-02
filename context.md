@@ -405,6 +405,32 @@ The logging system provides complete visibility into:
 - **Rationale**: Group view should emphasize group-to-server relationships, not internal infrastructure
 - **Result**: Group hover now shows only `- X group-to-server connections` line, cleaner visual focus
 
+**Group Filter API Hiding** - Hide unrelated APIs when filtering by group:
+- **Issue**: When filtering by group in group view mode, all APIs in server cards were still visible
+- **Problem**: API count badge showed total APIs, not just APIs used by the selected group
+- **Solution**: 
+  - Added `filterServerApiItems()` method to hide/show API items based on selected group
+  - Added `updateVisibleApiCounts()` method to update API count badges dynamically
+  - Added `data-api-count` attribute to API count badge in ServerCard.astro
+- **Implementation**:
+  - When a group is selected, only APIs used by that group's pages are shown
+  - API count badge updates to show "X APIs" where X is the visible API count
+  - When "All Groups" is selected, all APIs are shown again
+- **Result**: Clean filtering where only relevant APIs are visible with accurate counts
+
+**Backend Connection Filtering Fix** - Fixed incorrect connection lines when hovering backends in filtered view:
+- **Issue**: When hovering on elasticsearch backend in filtered group view, connections showed to hidden servers
+- **Problem**: CardRelationshipManager didn't check if cards were filtered/hidden before creating connections
+- **Root Cause**: All relationship finding methods iterated through cards without checking visibility state
+- **Solution**: Added visibility checks to all relationship methods:
+  - `_findServersRelatedToBackend()` - Skip hidden/filtered servers
+  - `_findPagesRelatedToServer()` - Skip hidden/filtered pages  
+  - `_findPagesRelatedToServers()` - Skip hidden/filtered pages
+  - `_findServersRelatedToPage()` - Skip hidden/filtered servers
+  - `_findBackendsRelatedToServers()` - Skip hidden/filtered backends
+- **Implementation**: Check for `display: none` or `filtered-hidden` class before including in relationships
+- **Result**: Connection lines now only show to visible/unfiltered cards, fixing elasticsearch hover issue
+
 **Full API Display** - Removed 4-API limit to show all server APIs:
 - **Issue**: ServerCard component was limiting API display to only 4 APIs using `.slice(0, 4)`
 - **Problem**: Servers with more than 4 APIs (auth-server has 6, product-server has 5) were truncated

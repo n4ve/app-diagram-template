@@ -266,6 +266,8 @@ export class GroupFilterManager implements IGroupFilterManager {
             if (serverId && connectedServers.has(serverId)) {
                 this.showCard(cardElement);
                 console.log(`👁️ Showing server card: ${serverId}`);
+                // Filter API items within the server card
+                this.filterServerApiItems(cardElement, selectedGroup);
             } else {
                 this.hideCard(cardElement);
                 console.log(`🙈 Hiding server card: ${serverId}`);
@@ -285,6 +287,9 @@ export class GroupFilterManager implements IGroupFilterManager {
                 console.log(`🙈 Hiding backend card: ${backendId}`);
             }
         });
+
+        // Update visible API counts after filtering
+        this.updateVisibleApiCounts();
     }
 
     private showCard(card: HTMLElement): void {
@@ -310,6 +315,14 @@ export class GroupFilterManager implements IGroupFilterManager {
         allCards.forEach(card => {
             this.showCard(card as HTMLElement);
         });
+
+        // Show all API items
+        document.querySelectorAll('.api-item').forEach(apiItem => {
+            (apiItem as HTMLElement).style.display = '';
+        });
+
+        // Update API counts to show all
+        this.updateVisibleApiCounts();
     }
 
     // Dropdown interaction methods
@@ -398,5 +411,50 @@ export class GroupFilterManager implements IGroupFilterManager {
             servers: Array.from(servers),
             backends: Array.from(backends)
         };
+    }
+
+    private filterServerApiItems(serverCard: HTMLElement, selectedGroup: string): void {
+        if (!this.pageGroups) return;
+
+        const selectedGroupData = this.pageGroups.groups[selectedGroup];
+        if (!selectedGroupData) return;
+
+        // Get APIs used by the selected group
+        const groupApis = new Set<string>();
+        Object.values(selectedGroupData.pages).forEach((page: any) => {
+            page.apis?.forEach((api: string) => groupApis.add(api));
+        });
+
+        // Hide/show API items within the server card
+        const apiItems = serverCard.querySelectorAll('.api-item');
+        apiItems.forEach(apiItem => {
+            const apiElement = apiItem as HTMLElement;
+            const fullApi = apiElement.getAttribute('data-full-api');
+            
+            if (fullApi && groupApis.has(fullApi)) {
+                apiElement.style.display = '';
+                console.log(`👁️ Showing API: ${fullApi}`);
+            } else {
+                apiElement.style.display = 'none';
+                console.log(`🙈 Hiding API: ${fullApi}`);
+            }
+        });
+    }
+
+    private updateVisibleApiCounts(): void {
+        // Update API count for each visible server card
+        document.querySelectorAll('.server-card:not(.filtered-hidden)').forEach(serverCard => {
+            const apiCountBadge = serverCard.querySelector('[data-api-count]');
+            if (!apiCountBadge) return;
+
+            // Count visible API items
+            const totalApiItems = serverCard.querySelectorAll('.api-item').length;
+            const visibleApiItems = serverCard.querySelectorAll('.api-item:not([style*="display: none"])').length;
+            
+            // Update the badge text
+            apiCountBadge.textContent = `${visibleApiItems} APIs`;
+            
+            console.log(`📊 Server ${serverCard.getAttribute('data-server')}: ${visibleApiItems}/${totalApiItems} APIs visible`);
+        });
     }
 }
