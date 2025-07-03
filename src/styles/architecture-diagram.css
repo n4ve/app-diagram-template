@@ -1,6 +1,6 @@
 /* Architecture Diagram Component Styles */
 
-/* Container styles */
+/* Container styles - optimized for 100+ cards */
 #diagram-container {
     height: 70vh;
     min-height: 500px;
@@ -9,16 +9,21 @@
     user-select: none;
     position: relative;
     cursor: grab;
+    overflow: auto;
+    scroll-behavior: smooth;
+    /* Performance optimizations for many cards */
+    contain: layout style paint;
+    will-change: transform;
 }
 
 #diagram-container.grabbing {
     cursor: grabbing !important;
 }
 
-/* Content styles */
+/* Content styles - expanded for 100+ cards */
 #diagram-content {
-    width: 300% !important;
-    min-width: 300% !important;
+    width: 1000% !important; /* Significantly increased for many cards */
+    min-width: 1000% !important;
     min-height: 100%;
     padding: 1rem;
     box-sizing: border-box;
@@ -91,11 +96,15 @@
 
 @media (min-width: 768px) {
     .pages-grid {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-rows: repeat(6, auto);
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(350px, 600px);
     }
     
     .groups-grid {
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        grid-template-rows: repeat(6, auto);
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(400px, 600px);
     }
 }
 
@@ -111,22 +120,25 @@
     }
     
     .groups-grid {
-        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        grid-template-rows: repeat(4, auto);
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(500px, 600px);
     }
 }
 
-/* Fix flex children width on large screens */
+/* Flexible layout for large screens with expanded space */
 @media (min-width: 1024px) {
     #diagram-content {
-        justify-content: space-between;
+        justify-content: flex-start; /* Allow content to expand naturally */
+        gap: 2rem;
     }
     
     #diagram-content > div:first-child,
     #diagram-content > div:nth-child(3),
     #diagram-content > div:last-child {
-        flex: 1;
+        flex: 0 0 auto; /* Don't constrain width, allow natural expansion */
         min-width: 0;
-        max-width: calc(30% - 1rem);
+        max-width: none; /* Remove width constraints for 100+ cards */
     }
     
     #diagram-content > div:nth-child(2) {

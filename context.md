@@ -530,3 +530,95 @@ The logging system provides complete visibility into:
   - Maintains backward compatibility with single backend servers
 - **Documentation Updates**: Updated API_REFERENCE.md with new array-based structure examples
 - **Result**: More accurate representation of server-to-backend relationships with multi-backend support
+
+**App Filtering in Page Mode** - Extended group filtering to work in both page and group view modes:
+- **GroupFilterManager Updates**:
+  - Modified `setViewMode()` to always show filter dropdown in both page and group modes
+  - Updated `applyGroupFilter()` to work in both view modes with different filtering logic
+  - Enhanced `filterCards()` to filter page cards by their parent group in page mode
+  - Modified `updateFilterDescription()` to provide appropriate descriptions for both modes
+- **Page Mode Filtering**:
+  - In page mode: Shows only pages from selected app/group
+  - Page cards filtered based on their `data-group` attribute
+  - APIs collected from visible page cards only
+  - Filter description: "Showing only pages from [GroupName] and connected components"
+- **DiagramController & ViewToggle Updates**:
+  - Updated view description to indicate "Show individual pages with app filtering support"
+  - Filter remains visible and functional when switching between view modes
+- **Result**: Consistent filtering experience across both views with appropriate component hiding
+
+**Page Card Group Display** - Modified page cards to show group name as primary title:
+- **Visual Hierarchy Change**:
+  - Group name now displayed as main title (larger, bold text)
+  - Page name shown as subtitle (medium weight, smaller text)
+  - Replaced group badge with subtle color indicator bar
+- **Implementation**:
+  - Updated PageCard.astro title section (lines 116-118)
+  - Changed from `{page.name}` to `{group?.name || 'Unknown Group'}`
+  - Added page name as secondary text with gray styling
+- **Result**: Better context in Page Level view emphasizing app grouping
+
+**Filter Initial State Fix** - Resolved filter not showing on page load:
+- **Issue**: Filter only appeared when switching between view modes
+- **Root Cause**: Filter was hidden during initialization and only shown on `setViewMode()` call
+- **Solution**: Modified GroupFilterManager initialization to show filter immediately
+- **Implementation**: Moved filter display logic from `setViewMode()` to `initialize()` method
+- **Result**: Filter dropdown now visible immediately on page load
+
+**CardAnimationManager Hardcoded Logic Removal** - Removed all hardcoded server priorities and mappings:
+- **Removed Hardcoded Elements**:
+  - Server sorting priorities (auth-server, payment-server)
+  - Strategic target mappings (auth → user/analytics, payment → notification/product)
+- **Simplified Implementation**:
+  - Uses natural order from relatedElements without sorting
+  - Always uses nearest unrelated card logic for all servers equally
+  - Pure proximity-based positioning without preferences
+- **Result**: Animation behavior now completely data-driven from JSON
+
+**PageCard Server Colors from JSON** - Removed hardcoded server colors and names:
+- **servers.json Enhancement**: Added color property to all servers
+  - auth-server: #3B82F6 (blue)
+  - payment-server: #10B981 (green)
+  - user-server: #8B5CF6 (purple)
+  - analytics-server: #F97316 (orange)
+  - notification-server: #EC4899 (pink)
+  - product-server: #6366F1 (indigo)
+  - order-server: #EF4444 (red)
+- **PageCard.astro Updates**:
+  - Removed hardcoded `serverColors` and `serverNames` objects
+  - Added `servers` prop to receive server data
+  - Uses `servers[serverId]?.color` and `servers[serverId]?.name` dynamically
+  - Fallback to gray (#6B7280) if server not found
+- **ArchitectureDiagram Update**: Now passes servers data to PageCard component
+- **Result**: Complete data-driven server theming without any hardcoded values
+
+**Card Size Standardization** - Set maximum width of 600px for all card types:
+- **Universal Max Width**: Applied `max-width: 600px` to all card types (page, server, backend, group)
+- **Grid System Updates**: Modified all grid layouts to respect 600px maximum:
+  - Pages grid: `grid-auto-columns: minmax(350px, 600px)`
+  - Groups grid: `grid-auto-columns: minmax(350px, 600px)`
+  - Servers grid: `grid-template-columns: repeat(auto-fit, minmax(350px, 600px))`
+- **Responsive Consistency**: Updated all breakpoints to maintain 600px max across screen sizes
+- **Visual Uniformity**: Prevents cards from becoming too wide on large screens
+- **Layout Control**: Provides consistent card sizing regardless of content length
+- **Result**: Uniform card appearance with controlled maximum width across all components
+
+**Extended Space for 100+ Cards** - Redesigned layout to support large-scale card collections without overlap:
+- **Grid Capacity Expansion**:
+  - Increased from 3 rows to 10 rows (up to 20 on very small screens)
+  - Changed from fixed width to `width: max-content` with `min-width: 100%`
+  - Maintained `grid-auto-flow: column` for vertical stacking first
+- **Container Width Enhancement**:
+  - Expanded diagram content from 300% to 1000% width
+  - Removed flex width constraints (`max-width: none`) on large screens
+  - Changed to `justify-content: flex-start` for natural expansion
+- **Responsive Grid Capacity**:
+  - **Large screens (1400px+)**: 8 rows × 15+ columns = 120+ cards
+  - **Medium screens (768-1399px)**: 6 rows × 8+ columns = 48+ cards  
+  - **Small screens (≤767px)**: 15 rows × 3+ columns = 45+ cards
+  - **Very small screens (<480px)**: 20 rows × 2+ columns = 40+ cards
+- **Backend Grid Support**: Added dedicated `.backends-grid` styling with same expansion capabilities
+- **Performance Optimizations**: Added `contain: layout style paint` and `will-change: transform` for smooth scrolling
+- **Layout Flow**: Cards fill vertically first (10 per column), then create new columns horizontally
+- **Scrolling Behavior**: Smooth horizontal scrolling with `scroll-behavior: smooth`
+- **Result**: Supports 100+ cards in each section (Pages, Servers, Backends) without overlap, with unlimited horizontal scaling

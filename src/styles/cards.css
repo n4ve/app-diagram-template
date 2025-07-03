@@ -3,7 +3,8 @@
 /* Default visible state for all cards */
 .page-card,
 .server-card,
-.backend-card {
+.backend-card,
+.group-card {
   opacity: 1;
   transform: scale(1);
   pointer-events: auto;
@@ -17,7 +18,7 @@
   margin-bottom: 0;
   transition: all 0.6s ease;
   width: 100%;
-  max-width: 100%;
+  max-width: 600px;
 }
 
 /* Interactive states for page cards */
@@ -169,6 +170,7 @@ div.backend-card.highlighted {
 .servers-grid .server-card {
   width: 100%;
   min-width: 350px;
+  max-width: 600px;
   min-height: 250px;
   margin: 0;
   box-sizing: border-box;
@@ -178,7 +180,15 @@ div.backend-card.highlighted {
 .pages-grid .page-card {
   width: 100%;
   min-height: 250px;
-  max-width: 400px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Specific sizing for group cards */
+.groups-grid .group-card {
+  width: 100%;
+  min-height: 250px;
+  max-width: 600px;
   margin: 0 auto;
 }
 

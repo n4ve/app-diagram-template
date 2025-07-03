@@ -1,32 +1,27 @@
 ---
 import type { GroupData } from '../types/index.ts';
 
-const { pageId, page, group } = Astro.props as {
+const { pageId, page, group, servers } = Astro.props as {
   pageId: string;
   page: any;
   group: GroupData | null;
+  servers: any;
 };
 
-// Create a mapping of server names to colors for consistent visual identity
-const serverColors = {
-  'auth-server': { bg: 'bg-blue-500', text: 'text-white', border: 'border-blue-600', leftBorder: 'border-l-blue-500' },
-  'payment-server': { bg: 'bg-green-500', text: 'text-white', border: 'border-green-600', leftBorder: 'border-l-green-500' },
-  'user-server': { bg: 'bg-purple-500', text: 'text-white', border: 'border-purple-600', leftBorder: 'border-l-purple-500' },
-  'analytics-server': { bg: 'bg-orange-500', text: 'text-white', border: 'border-orange-600', leftBorder: 'border-l-orange-500' },
-  'notification-server': { bg: 'bg-pink-500', text: 'text-white', border: 'border-pink-600', leftBorder: 'border-l-pink-500' },
-  'product-server': { bg: 'bg-indigo-500', text: 'text-white', border: 'border-indigo-600', leftBorder: 'border-l-indigo-500' },
-  'order-server': { bg: 'bg-red-500', text: 'text-white', border: 'border-red-600', leftBorder: 'border-l-red-500' }
-};
-
-const serverNames = {
-  'auth-server': 'Auth',
-  'payment-server': 'Payment',
-  'user-server': 'User',
-  'analytics-server': 'Analytics', 
-  'notification-server': 'Notify',
-  'product-server': 'Product',
-  'order-server': 'Order'
-};
+// Helper function to convert hex color to Tailwind classes
+function getColorClasses(hexColor: string) {
+  // Create a style string for inline styles as fallback
+  const style = `background-color: ${hexColor}`;
+  const borderStyle = `border-color: ${hexColor}`;
+  const leftBorderStyle = `border-left-color: ${hexColor}`;
+  
+  return {
+    bg: style,
+    text: 'text-white',
+    border: borderStyle,
+    leftBorder: leftBorderStyle
+  };
+}
 
 // Get unique servers used by this page
 const uniqueServers = [...new Set((page.apis || []).map(api => api.split(':')[0]))];
@@ -120,10 +115,16 @@ const uniqueServers = [...new Set((page.apis || []).map(api => api.split(':')[0]
     <div class="text-xs font-medium text-gray-600 mb-2">Connected Servers:</div>
     <div class="flex flex-wrap gap-1">
       {uniqueServers.map(serverId => {
-        const colors = serverColors[serverId] || { bg: 'bg-gray-500', text: 'text-white', border: 'border-gray-600' };
+        const serverData = servers[serverId];
+        const serverColor = serverData?.color || '#6B7280';
+        const serverShortName = serverData?.name?.split(' ')[0] || serverId;
+        
         return (
-          <span class={`px-2 py-1 text-xs font-medium rounded-full border ${colors.bg} ${colors.text} ${colors.border}`}>
-            {serverNames[serverId] || serverId}
+          <span 
+            class="px-2 py-1 text-xs font-medium rounded-full border text-white"
+            style={`background-color: ${serverColor}; border-color: ${serverColor}`}
+          >
+            {serverShortName}
           </span>
         );
       })}
@@ -141,7 +142,8 @@ const uniqueServers = [...new Set((page.apis || []).map(api => api.split(':')[0]
       
       return (
         <div 
-          class={`api-item px-3 py-2 rounded-lg text-sm border-l-4 transition-all duration-300 ${serverColors[serverName]?.leftBorder || 'border-l-gray-400'} bg-gray-50 hover:bg-gray-100`}
+          class="api-item px-3 py-2 rounded-lg text-sm border-l-4 transition-all duration-300 bg-gray-50 hover:bg-gray-100"
+          style={`border-left-color: ${servers[serverName]?.color || '#6B7280'}`}
           data-server-id={serverName}
           data-api-text={fullApiText}
           data-full-api={api}
@@ -161,8 +163,11 @@ const uniqueServers = [...new Set((page.apis || []).map(api => api.split(':')[0]
               <span class="font-mono text-gray-700 flex-1">{path}</span>
             </div>
             <div class="flex items-center">
-              <span class={`px-2 py-1 text-xs font-medium rounded-full border ${serverColors[serverName] ? `${serverColors[serverName].bg} ${serverColors[serverName].text} ${serverColors[serverName].border}` : 'bg-gray-500 text-white border-gray-600'}`}>
-                {serverNames[serverName] || serverName}
+              <span 
+                class="px-2 py-1 text-xs font-medium rounded-full border text-white"
+                style={`background-color: ${servers[serverName]?.color || '#6B7280'}; border-color: ${servers[serverName]?.color || '#6B7280'}`}
+              >
+                {servers[serverName]?.name?.split(' ')[0] || serverName}
               </span>
             </div>
           </div>

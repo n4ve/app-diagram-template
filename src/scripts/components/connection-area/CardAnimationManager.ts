@@ -161,46 +161,22 @@ export class CardAnimationManager implements ICardAnimationManager {
         
         const positions: Record<string, {x: number, y: number}> = {};
         
-        // Sort related cards by priority (auth-server first, then payment-server)
-        const relatedCards = [...relatedElements.servers].sort((a, b) => {
-            const aId = a.dataset.server || '';
-            const bId = b.dataset.server || '';
-            
-            if (aId === 'auth-server') return -1;
-            if (bId === 'auth-server') return 1;
-            if (aId === 'payment-server') return -1;
-            if (bId === 'payment-server') return 1;
-            return 0;
-        });
+        // Use the natural order from relatedElements without any hardcoded sorting
+        const relatedCards = [...relatedElements.servers];
         
         console.log(`🔄 Calculating replacement positions:`);
         console.log(`   Related cards to reposition: ${relatedCards.length}`);
         console.log(`   Available unrelated cards: ${unrelatedCards.length}`);
         
-        // Find strategic replacement positions - prefer cards that create better visual grouping
+        // Find replacement positions using nearest card logic for all cards
         relatedCards.forEach((relatedCard, index) => {
             if (index >= unrelatedCards.length) return; // No more unrelated cards to replace
             
             const relatedCardId = relatedCard.dataset.server || relatedCard.className;
             
-            // Find best strategic replacement based on card type and desired layout
-            let targetUnrelated: HTMLElement | null = null;
-            
-            if (relatedCardId === 'auth-server') {
-                // Auth-server should target user-server if available (conceptually related)
-                targetUnrelated = unrelatedCards.find(card => card.dataset.server === 'user-server') || 
-                                 unrelatedCards.find(card => card.dataset.server === 'analytics-server') ||
-                                 unrelatedCards[0]; // Fallback to first available
-            } else if (relatedCardId === 'payment-server') {
-                // Payment-server should target a server that's visually well-positioned
-                targetUnrelated = unrelatedCards.find(card => card.dataset.server === 'notification-server') ||
-                                 unrelatedCards.find(card => card.dataset.server === 'product-server') ||
-                                 unrelatedCards[0]; // Fallback to first available
-            } else {
-                // For other cards, use nearest logic
-                const { card: nearestUnrelated } = this.positionManager.findNearestUnrelatedCard(relatedCard, unrelatedCards);
-                targetUnrelated = nearestUnrelated;
-            }
+            // Always use nearest unrelated card logic without any hardcoded preferences
+            const { card: nearestUnrelated } = this.positionManager.findNearestUnrelatedCard(relatedCard, unrelatedCards);
+            const targetUnrelated = nearestUnrelated;
             
             if (targetUnrelated) {
                 const targetRect = targetUnrelated.getBoundingClientRect();
@@ -214,8 +190,6 @@ export class CardAnimationManager implements ICardAnimationManager {
                 if (cardIndex > -1) {
                     unrelatedCards.splice(cardIndex, 1);
                 }
-                
-                // targetId for logging: targetUnrelated.dataset.server || targetUnrelated.className
             }
         });
         

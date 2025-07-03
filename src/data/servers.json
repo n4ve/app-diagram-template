@@ -2,6 +2,7 @@
     "auth-server": {
       "name": "Authentication Server",
       "description": "จัดการการยืนยันตัวตนและความปลอดภัย",
+      "color": "#3B82F6",
       "backends": ["mysql-db"],
       "types": ["Kubernetes", "Cloud"],
       "apis": [
@@ -16,6 +17,7 @@
     "order-server": {
       "name": "Order Management Server",
       "description": "จัดการคำสั่งซื้อและสถานะ",
+      "color": "#EF4444",
       "backends": ["mysql-db"],
       "types": ["On-Premise"],
       "apis": [
@@ -28,6 +30,7 @@
     "user-server": {
       "name": "User Management Server", 
       "description": "จัดการข้อมูลผู้ใช้และการตั้งค่า",
+      "color": "#8B5CF6",
       "backends": ["redis-cache"],
       "types": ["Kubernetes"],
       "apis": [
@@ -40,6 +43,7 @@
     "analytics-server": {
       "name": "Analytics Server",
       "description": "จัดการข้อมูลการวิเคราะห์และรายงาน",
+      "color": "#F97316",
       "backends": ["mongodb", "elasticsearch"],
       "types": ["Cloud"],
       "apis": [
@@ -51,6 +55,7 @@
     "notification-server": {
       "name": "Notification Server",
       "description": "จัดการการแจ้งเตือนและข้อความ",
+      "color": "#EC4899",
       "backends": ["rabbitmq"],
       "types": ["Kubernetes", "Cloud"],
       "apis": [
@@ -63,6 +68,7 @@
     "product-server": {
       "name": "Product Management Server",
       "description": "จัดการสินค้าและคลังสินค้า",
+      "color": "#6366F1",
       "backends": ["elasticsearch"],
       "types": ["On-Premise", "Cloud"],
       "apis": [
@@ -76,6 +82,7 @@
     "payment-server": {
       "name": "Payment Server",
       "description": "จัดการการชำระเงินและธุรกรรม",
+      "color": "#10B981",
       "backends": ["mysql-db"],
       "types": ["Kubernetes"],
       "apis": [

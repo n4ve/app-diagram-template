@@ -78,7 +78,7 @@ Object.entries(groups).forEach(([groupId, group]) => {
           {Object.entries(flattenedPages).map(([pageId, page]) => {
             const groupData = page.groupId ? groups[page.groupId] : null;
             return (
-              <PageCard pageId={pageId} page={page} group={groupData} />
+              <PageCard pageId={pageId} page={page} group={groupData} servers={servers} />
             );
           })}
         </div>
