@@ -297,7 +297,7 @@ export class DiagramController implements IDiagramController {
         if (viewTitle && viewDescription) {
             if (this.currentViewMode === 'page') {
                 viewTitle.textContent = 'Individual Page View';
-                viewDescription.textContent = 'Show individual pages and their specific API connections';
+                viewDescription.textContent = 'Show individual pages with app filtering support';
             } else {
                 viewTitle.textContent = 'Application Group View';
                 viewDescription.textContent = 'Show application groups with merged API connections';

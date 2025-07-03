@@ -23,11 +23,18 @@ export class GroupFilterManager implements IGroupFilterManager {
             // Set up event listeners
             this.setupEventListeners();
             
-            // Ensure filter is initially hidden (will be shown when view mode changes)
+            // Show filter in initial state
             const filterContainer = document.querySelector('.group-filter-container') as HTMLElement;
-            if (filterContainer) {
-                filterContainer.style.display = 'none';
-                console.log('🔧 GroupFilter initially hidden');
+            const inlineContainer = document.getElementById('inline-group-filter-container') as HTMLElement;
+            
+            if (filterContainer && inlineContainer) {
+                console.log('🔧 Moving group filter to inline position during initialization');
+                // Move filter to inline container
+                inlineContainer.appendChild(filterContainer);
+                inlineContainer.classList.remove('hidden');
+                filterContainer.style.display = 'block';
+                filterContainer.classList.add('visible');
+                console.log('✅ GroupFilter initially shown');
             }
             
             console.log('✅ GroupFilterManager initialized successfully');
@@ -96,23 +103,15 @@ export class GroupFilterManager implements IGroupFilterManager {
         console.log('🔍 InlineContainer element:', inlineContainer);
         
         if (filterContainer && inlineContainer) {
-            if (viewMode === 'group') {
-                console.log('👁️ Moving group filter to inline position');
-                // Move filter to inline container
-                inlineContainer.appendChild(filterContainer);
-                inlineContainer.classList.remove('hidden');
-                filterContainer.style.display = 'block';
-                filterContainer.classList.add('visible');
-                // Apply current filter when switching to group view
-                this.applyGroupFilter();
-            } else {
-                console.log('🙈 Hiding group filter dropdown');
-                inlineContainer.classList.add('hidden');
-                filterContainer.style.display = 'none';
-                filterContainer.classList.remove('visible');
-                // Reset all cards to visible when switching away from group view
-                this.showAllCards();
-            }
+            // Always show the filter in both modes
+            console.log('👁️ Moving group filter to inline position');
+            // Move filter to inline container
+            inlineContainer.appendChild(filterContainer);
+            inlineContainer.classList.remove('hidden');
+            filterContainer.style.display = 'block';
+            filterContainer.classList.add('visible');
+            // Apply current filter when switching view modes
+            this.applyGroupFilter();
         } else {
             console.error('❌ GroupFilter or inline container not found in DOM');
         }
@@ -174,28 +173,32 @@ export class GroupFilterManager implements IGroupFilterManager {
         const description = document.getElementById('filter-description');
         if (description && this.pageGroups) {
             if (this.selectedGroup === 'all') {
-                description.textContent = 'Showing all application groups and their connections';
+                description.textContent = this.currentViewMode === 'page'
+                    ? 'Showing all pages and their connections'
+                    : 'Showing all application groups and their connections';
             } else {
                 const groupData = this.pageGroups.groups[this.selectedGroup];
                 const groupName = groupData?.name || 'selected';
-                description.textContent = `Showing only ${groupName} group and connected components`;
+                description.textContent = this.currentViewMode === 'page'
+                    ? `Showing only pages from ${groupName} and connected components`
+                    : `Showing only ${groupName} group and connected components`;
             }
         }
     }
 
     private applyGroupFilter(): void {
-        if (this.currentViewMode !== 'group' || !this.pageGroups) {
+        if (!this.pageGroups) {
             return;
         }
 
-        console.log(`🔍 Applying group filter for: ${this.selectedGroup}`);
+        console.log(`🔍 Applying group filter for: ${this.selectedGroup} in ${this.currentViewMode} mode`);
 
         if (this.selectedGroup === 'all') {
             this.showAllCards();
             return;
         }
 
-        // Get APIs used by the selected group
+        // Get APIs used by the selected group or filtered pages
         const selectedGroupData = this.pageGroups.groups[this.selectedGroup];
         if (!selectedGroupData) {
             console.warn(`⚠️ Group data not found for: ${this.selectedGroup}`);
@@ -203,11 +206,31 @@ export class GroupFilterManager implements IGroupFilterManager {
         }
 
         const groupApis = new Set<string>();
-        Object.values(selectedGroupData.pages).forEach((page: any) => {
-            page.apis?.forEach((api: string) => groupApis.add(api));
-        });
+        
+        if (this.currentViewMode === 'page') {
+            // In page mode, collect APIs from visible page cards
+            document.querySelectorAll('.page-card').forEach(pageCard => {
+                const pageGroup = pageCard.getAttribute('data-group');
+                if (pageGroup === this.selectedGroup) {
+                    const apisJson = pageCard.getAttribute('data-apis');
+                    if (apisJson) {
+                        try {
+                            const apis = JSON.parse(apisJson) as string[];
+                            apis.forEach(api => groupApis.add(api));
+                        } catch (error) {
+                            console.error('Error parsing page APIs data:', error);
+                        }
+                    }
+                }
+            });
+        } else {
+            // In group mode, use all pages from the group
+            Object.values(selectedGroupData.pages).forEach((page: any) => {
+                page.apis?.forEach((api: string) => groupApis.add(api));
+            });
+        }
 
-        console.log(`📋 Group ${this.selectedGroup} uses APIs:`, Array.from(groupApis));
+        console.log(`📋 ${this.currentViewMode === 'page' ? 'Filtered pages' : 'Group ' + this.selectedGroup} uses APIs:`, Array.from(groupApis));
 
         // Extract servers and backends from APIs
         const connectedServers = new Set<string>();
@@ -244,19 +267,35 @@ export class GroupFilterManager implements IGroupFilterManager {
     }
 
     private filterCards(selectedGroup: string, connectedServers: Set<string>, connectedBackends: Set<string>): void {
-        // Show selected group card, hide others
-        document.querySelectorAll('.group-card').forEach(card => {
-            const cardElement = card as HTMLElement;
-            const cardGroupId = cardElement.getAttribute('data-group');
-            
-            if (cardGroupId === selectedGroup) {
-                this.showCard(cardElement);
-                console.log(`👁️ Showing group card: ${selectedGroup}`);
-            } else {
-                this.hideCard(cardElement);
-                console.log(`🙈 Hiding group card: ${cardGroupId}`);
-            }
-        });
+        // In page mode, filter page cards based on their parent group
+        if (this.currentViewMode === 'page') {
+            document.querySelectorAll('.page-card').forEach(card => {
+                const cardElement = card as HTMLElement;
+                const pageGroup = cardElement.getAttribute('data-group');
+                
+                if (pageGroup === selectedGroup) {
+                    this.showCard(cardElement);
+                    console.log(`👁️ Showing page card from group: ${pageGroup}`);
+                } else {
+                    this.hideCard(cardElement);
+                    console.log(`🙈 Hiding page card from group: ${pageGroup}`);
+                }
+            });
+        } else {
+            // In group mode, show selected group card, hide others
+            document.querySelectorAll('.group-card').forEach(card => {
+                const cardElement = card as HTMLElement;
+                const cardGroupId = cardElement.getAttribute('data-group');
+                
+                if (cardGroupId === selectedGroup) {
+                    this.showCard(cardElement);
+                    console.log(`👁️ Showing group card: ${selectedGroup}`);
+                } else {
+                    this.hideCard(cardElement);
+                    console.log(`🙈 Hiding group card: ${cardGroupId}`);
+                }
+            });
+        }
 
         // Show connected servers, hide others
         document.querySelectorAll('.server-card').forEach(card => {

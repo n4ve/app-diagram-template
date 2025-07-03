@@ -39,13 +39,11 @@ const uniqueServers = [...new Set((page.apis || []).map(api => api.split(':')[0]
   data-apis={JSON.stringify(page.apis || [])}
   data-group={page.groupId || ''}
 >
-  <!-- Group Badge -->
+  <!-- Group Color Indicator -->
   {group && (
     <div class="mb-3">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium" 
-           style={`background-color: ${group.color}20; color: ${group.color}; border: 1px solid ${group.color}40`}>
-        <span class="text-sm">📂</span>
-        <span>{group.name}</span>
+      <div class="w-full h-1 rounded-full" 
+           style={`background-color: ${group.color}`}>
       </div>
     </div>
   )}
@@ -113,7 +111,8 @@ const uniqueServers = [...new Set((page.apis || []).map(api => api.split(':')[0]
     )}
   </div>
   
-  <h3 class="text-lg font-semibold text-gray-800 mb-2">{page.name}</h3>
+  <h3 class="text-lg font-semibold text-gray-800 mb-1">{group?.name || 'Unknown Group'}</h3>
+  <p class="text-sm font-medium text-gray-700 mb-2">{page.name}</p>
   <p class="text-gray-600 text-sm mb-3">{page.description}</p>
   
   <!-- Server Legend -->
