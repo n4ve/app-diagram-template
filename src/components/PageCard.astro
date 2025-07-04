@@ -117,14 +117,12 @@ const uniqueServers = [...new Set((page.apis || []).map(api => api.split(':')[0]
       {uniqueServers.map(serverId => {
         const serverData = servers[serverId];
         const serverColor = serverData?.color || '#6B7280';
-        const serverShortName = serverData?.name?.split(' ')[0] || serverId;
-        
         return (
           <span 
-            class="px-2 py-1 text-xs font-medium rounded-full border text-white"
-            style={`background-color: ${serverColor}; border-color: ${serverColor}`}
+            class="px-2 py-1 text-xs font-medium rounded-full border"
+            style={`background-color: ${serverColor}20; color: ${serverColor}; border-color: ${serverColor}`}
           >
-            {serverShortName}
+            {serverId}
           </span>
         );
       })}
@@ -164,10 +162,10 @@ const uniqueServers = [...new Set((page.apis || []).map(api => api.split(':')[0]
             </div>
             <div class="flex items-center">
               <span 
-                class="px-2 py-1 text-xs font-medium rounded-full border text-white"
-                style={`background-color: ${servers[serverName]?.color || '#6B7280'}; border-color: ${servers[serverName]?.color || '#6B7280'}`}
+                class="px-2 py-1 text-xs font-medium rounded-full border"
+                style={`background-color: ${servers[serverName]?.color || '#6B7280'}20; color: ${servers[serverName]?.color || '#6B7280'}; border-color: ${servers[serverName]?.color || '#6B7280'}`}
               >
-                {servers[serverName]?.name?.split(' ')[0] || serverName}
+                {serverName}
               </span>
             </div>
           </div>

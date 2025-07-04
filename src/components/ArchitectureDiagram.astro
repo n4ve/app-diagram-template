@@ -86,7 +86,7 @@ Object.entries(groups).forEach(([groupId, group]) => {
         <!-- Group View (hidden by default) -->
         <div id="group-view" class="groups-grid hidden">
           {Object.entries(groups).map(([groupId, group]) => (
-            <GroupCard groupId={groupId} group={group} />
+            <GroupCard groupId={groupId} group={group} servers={servers} />
           ))}
         </div>
       </div>

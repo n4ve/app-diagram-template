@@ -1,9 +1,8 @@
 ---
 const { serverId, server } = Astro.props;
 
-// Import server colors for consistent theming
-import { getServerColor } from '../utils/serverColors.ts';
-const serverColor = getServerColor(serverId);
+// Use color from server data
+const serverColor = server.color || '#6B7280'; // Fallback to gray if no color
 
 // Import API frequency utilities
 import { 
@@ -17,10 +16,10 @@ const apiFrequency = getServerApiFrequency(serverId);
 const totalPageConnections = getTotalPageConnections(serverId);
 ---
 
-<div class={`server-card bg-white rounded-xl p-5 shadow-lg border-l-4 ${serverColor.leftBorder} transition-all duration-300 hover:shadow-xl hover:-translate-y-2`} data-server={serverId} data-backends={JSON.stringify(server.backends || [])}>
+<div class={`server-card bg-white rounded-xl p-5 shadow-lg border-l-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-2`} style={`border-left-color: ${serverColor}`} data-server={serverId} data-backends={JSON.stringify(server.backends || [])}>
   <div class="flex items-center justify-between mb-2">
     <h3 class="text-lg font-semibold text-gray-800">{server.name}</h3>
-    <span class={`px-2 py-1 text-xs font-medium rounded-full border ${serverColor.bg} ${serverColor.text} ${serverColor.border}`}>
+    <span class="px-2 py-1 text-xs font-medium rounded-full border" style={`background-color: ${serverColor}20; color: ${serverColor}; border-color: ${serverColor}`}>
       {serverId}
     </span>
   </div>
