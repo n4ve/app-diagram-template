@@ -1,5 +1,119 @@
 /* Architecture Diagram Component Styles */
 
+/* Section styles for visual separation */
+.section-pages,
+.section-servers,
+.section-backends {
+    position: relative;
+    padding: 2rem;
+    padding-bottom: 2.5rem; /* Extra padding at bottom */
+    border-radius: 1rem;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(249, 250, 251, 0.9));
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(229, 231, 235, 0.8);
+    min-height: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Hide overflow */
+}
+
+/* Different background colors for each section */
+.section-pages {
+    background: linear-gradient(135deg, rgba(239, 246, 255, 0.95) 0%, rgba(219, 234, 254, 0.8) 100%);
+    border-left: 4px solid #3b82f6;
+}
+
+.section-servers {
+    background: linear-gradient(135deg, rgba(243, 244, 246, 0.95) 0%, rgba(229, 231, 235, 0.8) 100%);
+    border-left: 4px solid #6b7280;
+}
+
+.section-backends {
+    background: linear-gradient(135deg, rgba(236, 253, 245, 0.95) 0%, rgba(209, 250, 229, 0.8) 100%);
+    border-left: 4px solid #10b981;
+}
+
+
+/* Section headers with enhanced styling */
+.section-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    padding: 0.75rem 1.5rem;
+    margin: -2rem -2rem 1rem -2rem; /* Adjusted for new padding */
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+    backdrop-filter: blur(8px);
+    border-bottom: 2px solid rgba(229, 231, 235, 0.3);
+    border-radius: 1rem 1rem 0 0;
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.section-pages .section-header {
+    background: linear-gradient(to right, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+    border-bottom-color: rgba(59, 130, 246, 0.2);
+}
+
+.section-servers .section-header {
+    background: linear-gradient(to right, rgba(107, 114, 128, 0.1), rgba(107, 114, 128, 0.05));
+    border-bottom-color: rgba(107, 114, 128, 0.2);
+}
+
+.section-backends .section-header {
+    background: linear-gradient(to right, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+    border-bottom-color: rgba(16, 185, 129, 0.2);
+}
+
+/* Visual separators between sections */
+.section-separator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    min-width: 3rem;
+    position: relative;
+}
+
+.section-separator::before {
+    content: '';
+    position: absolute;
+    top: 10%;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    background: linear-gradient(to bottom, 
+        transparent,
+        rgba(156, 163, 175, 0.2) 20%,
+        rgba(156, 163, 175, 0.4) 50%,
+        rgba(156, 163, 175, 0.2) 80%,
+        transparent
+    );
+}
+
+/* Arrow indicators in separators */
+.separator-arrow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.separator-arrow svg {
+    width: 1rem;
+    height: 1rem;
+    color: #6b7280;
+}
+
 /* Container styles - optimized for 100+ cards */
 #diagram-container {
     height: 70vh;
@@ -38,6 +152,14 @@
     pointer-events: auto;
 }
 
+/* Connection area visual enhancement */
+.connection-area-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 /* Smooth transitions for hover effects only */
 #diagram-content .page-card,
 #diagram-content .server-card,
@@ -54,17 +176,67 @@
     transition: none !important;
 }
 
+/* Grid wrapper for scrolling */
+.grid-scroll-wrapper {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin: 1rem 0; /* Vertical margin */
+    padding: 0 1rem; /* Horizontal padding for content */
+    padding-bottom: 1rem;
+    display: flex;
+    justify-content: center; /* Center the grid */
+}
+
 /* Grid styles */
 .pages-grid {
     display: grid;
     gap: 1.5rem;
     grid-template-columns: 1fr;
+    margin: 0 auto; /* Center the grid */
+    padding: 0 1rem; /* Add padding on sides */
 }
 
 .groups-grid {
     display: grid;
     gap: 2rem;
     grid-template-columns: 1fr;
+    margin: 0 auto; /* Center the grid */
+    padding: 0 1rem; /* Add padding on sides */
+}
+
+.servers-grid {
+    display: grid;
+    gap: 2rem;
+    margin: 0 auto; /* Center the grid */
+    padding: 0 1rem; /* Add padding on sides */
+}
+
+.backends-grid {
+    display: grid;
+    gap: 2rem;
+    margin: 0 auto; /* Center the grid */
+    padding: 0 1rem; /* Add padding on sides */
+}
+
+/* Scrollbar styling for grid wrappers */
+.grid-scroll-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.grid-scroll-wrapper::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    margin: 0 1rem;
+}
+
+.grid-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.grid-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
 }
 
 /* Ensure content fills container */
@@ -92,17 +264,37 @@
     .groups-grid {
         grid-template-columns: 1fr;
     }
+    
+    /* Simplify section styling on mobile */
+    .section-pages,
+    .section-servers,
+    .section-backends {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: 0.75rem;
+    }
+    
+    .section-header {
+        margin: -1.5rem -1.5rem 1rem -1.5rem;
+        padding: 0.5rem 1rem;
+        font-size: 1.125rem;
+    }
+    
+    .grid-scroll-wrapper {
+        margin: 0.5rem 0;
+        padding: 0 0.5rem;
+    }
 }
 
 @media (min-width: 768px) {
     .pages-grid {
-        grid-template-rows: repeat(6, auto);
+        grid-template-rows: repeat(4, auto); /* Maximum 4 cards per column */
         grid-auto-flow: column;
         grid-auto-columns: minmax(350px, 600px);
     }
     
     .groups-grid {
-        grid-template-rows: repeat(6, auto);
+        grid-template-rows: repeat(4, auto); /* Maximum 4 cards per column */
         grid-auto-flow: column;
         grid-auto-columns: minmax(400px, 600px);
     }
@@ -120,7 +312,7 @@
     }
     
     .groups-grid {
-        grid-template-rows: repeat(4, auto);
+        grid-template-rows: repeat(4, auto); /* Maximum 4 cards per column */
         grid-auto-flow: column;
         grid-auto-columns: minmax(500px, 600px);
     }

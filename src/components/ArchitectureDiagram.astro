@@ -68,51 +68,75 @@ Object.entries(groups).forEach(([groupId, group]) => {
         <!-- Lines will be drawn here -->
     </svg>
     
-    <div id="diagram-content" class="flex flex-col lg:flex-row gap-4 lg:gap-6 p-4 lg:p-8 transition-transform duration-150 ease-out" style="transform: translate(0px, 0px) scale(1); width: 100%; min-width: 300%;">
+    <div id="diagram-content" class="flex flex-col lg:flex-row gap-6 lg:gap-8 p-4 lg:p-8 transition-transform duration-150 ease-out" style="transform: translate(0px, 0px) scale(1); width: 100%; min-width: 300%;">
       <!-- Frontend Pages/Groups Column -->
-      <div class="w-full lg:flex-1 min-w-0">
-        <h3 id="pages-column-title" class="text-xl font-semibold text-gray-800 text-center mb-6 sticky top-0 bg-white/90 backdrop-blur-sm py-2 rounded-lg">📱 Frontend Pages</h3>
+      <div class="section-pages w-full lg:flex-1 min-w-0">
+        <h3 id="pages-column-title" class="section-header text-xl font-semibold text-gray-800 text-center">📱 Frontend Pages</h3>
         
-        <!-- Page View -->
-        <div id="page-view" class="pages-grid">
-          {Object.entries(flattenedPages).map(([pageId, page]) => {
-            const groupData = page.groupId ? groups[page.groupId] : null;
-            return (
-              <PageCard pageId={pageId} page={page} group={groupData} servers={servers} />
-            );
-          })}
-        </div>
-        
-        <!-- Group View (hidden by default) -->
-        <div id="group-view" class="groups-grid hidden">
-          {Object.entries(groups).map(([groupId, group]) => (
-            <GroupCard groupId={groupId} group={group} servers={servers} />
-          ))}
+        <div class="grid-scroll-wrapper">
+          <!-- Page View -->
+          <div id="page-view" class="pages-grid">
+            {Object.entries(flattenedPages).map(([pageId, page]) => {
+              const groupData = page.groupId ? groups[page.groupId] : null;
+              return (
+                <PageCard pageId={pageId} page={page} group={groupData} servers={servers} />
+              );
+            })}
+          </div>
+          
+          <!-- Group View (hidden by default) -->
+          <div id="group-view" class="groups-grid hidden">
+            {Object.entries(groups).map(([groupId, group]) => (
+              <GroupCard groupId={groupId} group={group} servers={servers} />
+            ))}
+          </div>
         </div>
       </div>
 
+      <!-- Visual Separator -->
+      <div class="section-separator hidden lg:flex">
+        <div class="separator-arrow">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+          </svg>
+        </div>
+      </div>
+      
       <!-- Connection Area -->
-      <div class="hidden lg:flex flex-shrink-0 w-48 items-center justify-center">
+      <div class="connection-area-wrapper hidden lg:flex">
         <ConnectionArea />
+      </div>
+      
+      <!-- Visual Separator -->
+      <div class="section-separator hidden lg:flex">
+        <div class="separator-arrow">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+          </svg>
+        </div>
       </div>
 
       <!-- API Servers Column -->
-      <div class="w-full lg:flex-1 min-w-0">
-        <h3 class="text-xl font-semibold text-gray-800 text-center mb-6 sticky top-0 bg-white/90 backdrop-blur-sm py-2 rounded-lg">🖥️ API Servers</h3>
-        <div class="servers-grid">
-          {Object.entries(servers).map(([serverId, server]) => (
-            <ServerCard serverId={serverId} server={server} />
-          ))}
+      <div class="section-servers w-full lg:flex-1 min-w-0">
+        <h3 class="section-header text-xl font-semibold text-gray-800 text-center">🖥️ API Servers</h3>
+        <div class="grid-scroll-wrapper">
+          <div class="servers-grid">
+            {Object.entries(servers).map(([serverId, server]) => (
+              <ServerCard serverId={serverId} server={server} />
+            ))}
+          </div>
         </div>
       </div>
 
       <!-- Backend Services Column -->
-      <div class="w-full lg:flex-1 min-w-0">
-        <h3 class="text-xl font-semibold text-gray-800 text-center mb-6 sticky top-0 bg-white/90 backdrop-blur-sm py-2 rounded-lg">💾 Backend Services</h3>
-        <div class="backends-grid space-y-6">
-          {Object.entries(backends).map(([backendId, backend]) => (
-            <BackendCard backendId={backendId} backend={backend} />
-          ))}
+      <div class="section-backends w-full lg:flex-1 min-w-0">
+        <h3 class="section-header text-xl font-semibold text-gray-800 text-center">💾 Backend Services</h3>
+        <div class="grid-scroll-wrapper">
+          <div class="backends-grid">
+            {Object.entries(backends).map(([backendId, backend]) => (
+              <BackendCard backendId={backendId} backend={backend} />
+            ))}
+          </div>
         </div>
       </div>
     </div>

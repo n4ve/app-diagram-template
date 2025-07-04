@@ -605,7 +605,7 @@ The logging system provides complete visibility into:
 
 **Extended Space for 100+ Cards** - Redesigned layout to support large-scale card collections without overlap:
 - **Grid Capacity Expansion**:
-  - Increased from 3 rows to 10 rows (up to 20 on very small screens)
+  - Limited to exactly 4 rows per column (maximum 4 cards vertically)
   - Changed from fixed width to `width: max-content` with `min-width: 100%`
   - Maintained `grid-auto-flow: column` for vertical stacking first
 - **Container Width Enhancement**:
@@ -613,12 +613,14 @@ The logging system provides complete visibility into:
   - Removed flex width constraints (`max-width: none`) on large screens
   - Changed to `justify-content: flex-start` for natural expansion
 - **Responsive Grid Capacity**:
-  - **Large screens (1400px+)**: 8 rows × 15+ columns = 120+ cards
-  - **Medium screens (768-1399px)**: 6 rows × 8+ columns = 48+ cards  
-  - **Small screens (≤767px)**: 15 rows × 3+ columns = 45+ cards
-  - **Very small screens (<480px)**: 20 rows × 2+ columns = 40+ cards
+  - **All screen sizes**: 4 rows × unlimited columns = 100+ cards
+  - **Large screens (1400px+)**: 4 cards per column with 400-600px width
+  - **Medium screens (768-1399px)**: 4 cards per column with 350-600px width
+  - **Small screens (≤767px)**: 4 cards per column with 280-600px width
+  - **Very small screens (<480px)**: 4 cards per column with 250-600px width
 - **Backend Grid Support**: Added dedicated `.backends-grid` styling with same expansion capabilities
 - **Performance Optimizations**: Added `contain: layout style paint` and `will-change: transform` for smooth scrolling
-- **Layout Flow**: Cards fill vertically first (10 per column), then create new columns horizontally
+- **Layout Flow**: Cards fill vertically first (4 per column), then create new columns horizontally
 - **Scrolling Behavior**: Smooth horizontal scrolling with `scroll-behavior: smooth`
 - **Result**: Supports 100+ cards in each section (Pages, Servers, Backends) without overlap, with unlimited horizontal scaling
+- **Layout Rule**: Maximum 4 cards from top to bottom in each column for all components (pages, servers, backends, groups)
